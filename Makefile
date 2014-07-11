@@ -1,5 +1,5 @@
 LIBS=
-CFLAGS+=-Wall -g
+CFLAGS+=-Wall -Wextra -g
 TARGET=hawthfuzz
 OBJECTS=hawthfuzz.o
 
