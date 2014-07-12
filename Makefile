@@ -4,7 +4,7 @@ TARGET=fzy
 OBJECTS=fzy.o
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
+	$(CC) $(CCFLAGS) -o $@ $^ $(LIBS)
 
 clean:
 	$(RM) $(TARGET) *.o
