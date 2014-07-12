@@ -66,7 +66,7 @@ void run_search(char *needle){
 }
 
 int ttyin;
-int ttyout;
+FILE *ttyout;
 struct termios original_termios;
 
 void reset_tty(){
@@ -75,7 +75,7 @@ void reset_tty(){
 
 void init_tty(){
 	ttyin = open("/dev/tty", O_RDONLY);
-	ttyout = open("/dev/tty", O_WRONLY);
+	ttyout = fopen("/dev/tty", "w");
 
 	tcgetattr(ttyin, &original_termios);
 
@@ -104,13 +104,13 @@ int search_size;
 char search[4096] = {0};
 
 void clear(){
-	fprintf(stdout, "%c%c0G", 0x1b, '[');
+	fprintf(ttyout, "%c%c0G", 0x1b, '[');
 	int line = 0;
-	while(line++ < 11 + 1){
-		fprintf(stdout, "%c%cK\n", 0x1b, '[');
+	while(line++ < 10 + 1){
+		fprintf(ttyout, "%c%cK\n", 0x1b, '[');
 	}
-	fprintf(stdout, "%c%c%iA", 0x1b, '[', line-1);
-	fprintf(stdout, "%c%c0G", 0x1b, '[');
+	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line-1);
+	fprintf(ttyout, "%c%c0G", 0x1b, '[');
 }
 
 void draw(){
@@ -118,18 +118,17 @@ void draw(){
 	int i;
 	const char *prompt = "> ";
 	clear();
-	printf("%s%s\n", prompt, search);
+	fprintf(ttyout, "%s%s\n", prompt, search);
 	for(i = 0; line < 10 && i < choices_n; i++){
 		double rank = match(search, choices[i]);
 		if(rank > 0){
-			//fprintf(stdout, "%c%cK", 0x1b, '[');
-			printf("%s\n", choices[i]);
+			fprintf(ttyout, "%s\n", choices[i]);
 			line++;
 		}
 	}
-	fprintf(stdout, "%c%c%iA", 0x1b, '[', line + 1);
-	fprintf(stdout, "%c%c%iG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
-	fflush(stdout);
+	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line + 1);
+	fprintf(ttyout, "%c%c%iG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
+	fflush(ttyout);
 }
 
 void run(){
