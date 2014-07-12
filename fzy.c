@@ -7,15 +7,8 @@
 #include <fcntl.h>
 #include <ctype.h>
 
-double match(const char *needle, const char *haystack){
-	while(*needle){
-		if(!*haystack)
-			return 0.0;
-		while(tolower(*needle) == tolower(*haystack++))
-			needle++;
-	}
-	return 1.0;
-}
+/* from match.c */
+double match(const char *needle, const char *haystack);
 
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;
