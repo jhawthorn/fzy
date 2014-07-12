@@ -132,6 +132,9 @@ void draw(){
 }
 
 void emit(){
+	/* ttyout should be flushed in the case that it is == stdout */
+	fclose(ttyout);
+
 	int i;
 	for(i = 0; i < choices_n; i++){
 		double rank = match(search, choices[i]);
