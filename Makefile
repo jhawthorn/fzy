@@ -1,7 +1,7 @@
 LIBS=
 CFLAGS+=-Wall -Wextra -g
-TARGET=hawthfuzz
-OBJECTS=hawthfuzz.o
+TARGET=fzy
+OBJECTS=fzy.o
 
 $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
