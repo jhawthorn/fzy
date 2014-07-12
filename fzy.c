@@ -131,6 +131,22 @@ void draw(){
 	fflush(ttyout);
 }
 
+void emit(){
+	int i;
+	for(i = 0; i < choices_n; i++){
+		double rank = match(search, choices[i]);
+		if(rank > 0){
+			/* Output the first match */
+			printf("%s\n", choices[i]);
+			exit(EXIT_SUCCESS);
+		}
+	}
+
+	/* No match, output the query instead */
+	printf("%s\n", search);
+	exit(EXIT_SUCCESS);
+}
+
 void run(){
 	draw();
 	char ch;
@@ -153,7 +169,7 @@ void run(){
 			draw();
 		}else if(ch == 10){ /* Enter */
 			clear();
-			exit(0);
+			emit();
 		}else{
 			printf("'%c' (%i)\n", ch, ch);
 		}
