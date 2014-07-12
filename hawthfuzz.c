@@ -103,17 +103,40 @@ char ttygetchar(){
 int search_size;
 char search[4096] = {0};
 
+void clear(){
+	fprintf(stdout, "%c%c0G", 0x1b, '[');
+	int line = 0;
+	while(line++ < 11 + 1){
+		fprintf(stdout, "%c%cK\n", 0x1b, '[');
+	}
+	fprintf(stdout, "%c%c%iA", 0x1b, '[', line-1);
+	fprintf(stdout, "%c%c0G", 0x1b, '[');
+}
+
 void draw(){
-	run_search(search);
-	printf("> %s", search);
+	int line = 0;
+	int i;
+	const char *prompt = "> ";
+	clear();
+	printf("%s%s\n", prompt, search);
+	for(i = 0; line < 10 && i < choices_n; i++){
+		double rank = match(search, choices[i]);
+		if(rank > 0){
+			//fprintf(stdout, "%c%cK", 0x1b, '[');
+			printf("%s\n", choices[i]);
+			line++;
+		}
+	}
+	fprintf(stdout, "%c%c%iA", 0x1b, '[', line + 1);
+	fprintf(stdout, "%c%c%iG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
 	fflush(stdout);
 }
 
 void run(){
+	draw();
 	char ch;
 	do {
 		ch = ttygetchar();
-		printf("\n");
 		if(isprint(ch)){
 			/* FIXME: overflow */
 			search[search_size++] = ch;
@@ -129,6 +152,9 @@ void run(){
 			while(search_size && !isspace(search[--search_size]))
 				search[search_size] = '\0';
 			draw();
+		}else if(ch == 10){ /* Enter */
+			clear();
+			exit(0);
 		}else{
 			printf("'%c' (%i)\n", ch, ch);
 		}
@@ -136,12 +162,12 @@ void run(){
 }
 
 void usage(const char *argv0){
-	fprintf(stderr, "USAGE: %s SEARCH\n", argv0);
+	fprintf(stderr, "USAGE: %s\n", argv0);
 	exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[]){
-	if(argc != 2){
+	if(argc != 1){
 		usage(argv[0]);
 	}
 	atexit(reset_tty);
@@ -149,8 +175,8 @@ int main(int argc, char *argv[]){
 
 	resize_choices(INITIAL_CAPACITY);
 	read_choices();
-	run_search(argv[1]);
 
+	clear();
 	run();
 
 	return 0;
