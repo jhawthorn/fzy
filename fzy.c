@@ -176,7 +176,7 @@ void run(){
 		}else{
 			printf("'%c' (%i)\n", ch, ch);
 		}
-	}while(ch != 'q');
+	}while(1);
 }
 
 void usage(const char *argv0){
