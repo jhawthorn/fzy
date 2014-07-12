@@ -132,7 +132,7 @@ void draw(){
 }
 
 void emit(){
-	/* ttyout should be flushed in the case that it is == stdout */
+	/* ttyout should be flushed before outputting on stdout */
 	fclose(ttyout);
 
 	int i;
