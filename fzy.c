@@ -14,9 +14,14 @@ double match(const char *needle, const char *haystack);
 int choices_capacity = 0;
 int choices_n = 0;
 const char **choices = NULL;
+double *choices_score = NULL;
+size_t *choices_sorted = NULL;
 
 void resize_choices(int new_capacity){
 	choices = realloc(choices, new_capacity * sizeof(const char *));
+	choices_score = realloc(choices_score, new_capacity * sizeof(double));
+	choices_sorted = realloc(choices_sorted, new_capacity * sizeof(size_t));
+
 	int i = choices_capacity;
 	for(; i < new_capacity; i++){
 		choices[i] = NULL;
@@ -48,14 +53,36 @@ void read_choices(){
 	free(line);
 }
 
+size_t choices_available = 0;
+
+static int cmpchoice(const void *p1, const void *p2) {
+	size_t idx1 = *(size_t *)p1;
+	size_t idx2 = *(size_t *)p2;
+
+	double score1 = choices_score[idx1];
+	double score2 = choices_score[idx2];
+
+	if(score1 == score2)
+		return 0;
+	else if(score1 < score2)
+		return 1;
+	else
+		return -1;
+}
+
+
 void run_search(char *needle){
+	choices_available = 0;
 	int i;
 	for(i = 0; i < choices_n; i++){
-		double rank = match(needle, choices[i]);
-		if(rank > 0){
-			printf("%s\n", choices[i]);
+		choices_score[i] = match(needle, choices[i]);
+		if(choices_score[i] >= 0.0){
+			choices_sorted[choices_available++] = i;
 		}
 	}
+
+	qsort(choices_sorted, choices_available, sizeof(size_t), cmpchoice);
+
 }
 
 int ttyin;
@@ -112,12 +139,10 @@ void draw(){
 	const char *prompt = "> ";
 	clear();
 	fprintf(ttyout, "%s%s\n", prompt, search);
-	for(i = 0; line < 10 && i < choices_n; i++){
-		double rank = match(search, choices[i]);
-		if(rank > 0){
-			fprintf(ttyout, "%s\n", choices[i]);
-			line++;
-		}
+	run_search(search);
+	for(i = 0; line < 10 && i < choices_available; i++){
+		fprintf(ttyout, "%s\n", choices[choices_sorted[i]]);
+		line++;
 	}
 	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line + 1);
 	fprintf(ttyout, "%c%c%iG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
@@ -128,18 +153,15 @@ void emit(){
 	/* ttyout should be flushed before outputting on stdout */
 	fclose(ttyout);
 
-	int i;
-	for(i = 0; i < choices_n; i++){
-		double rank = match(search, choices[i]);
-		if(rank > 0){
-			/* Output the first match */
-			printf("%s\n", choices[i]);
-			exit(EXIT_SUCCESS);
-		}
+	run_search(search);
+	if(choices_available){
+		/* output the first result */
+		printf("%s\n", choices[choices_sorted[0]]);
+	}else{
+		/* No match, output the query instead */
+		printf("%s\n", search);
 	}
 
-	/* No match, output the query instead */
-	printf("%s\n", search);
 	exit(EXIT_SUCCESS);
 }
 
