@@ -46,4 +46,8 @@ describe "score" do
     assert_matched "bab", "a"
     assert_matched "bababababab", "aaaaa"
   end
+
+  it "prefers start of words" do
+    assert_operator score("app/models/foo", "amo"), :<, score("app/models/order", "amo")
+  end
 end
