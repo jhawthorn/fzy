@@ -16,6 +16,7 @@ int choices_n = 0;
 const char **choices = NULL;
 double *choices_score = NULL;
 size_t *choices_sorted = NULL;
+int current_selection = 0;
 
 void resize_choices(int new_capacity){
 	choices = realloc(choices, new_capacity * sizeof(const char *));
@@ -70,8 +71,8 @@ static int cmpchoice(const void *p1, const void *p2) {
 		return -1;
 }
 
-
 void run_search(char *needle){
+	current_selection = 0;
 	choices_available = 0;
 	int i;
 	for(i = 0; i < choices_n; i++){
@@ -139,8 +140,11 @@ void draw(){
 	const char *prompt = "> ";
 	clear();
 	fprintf(ttyout, "%s%s\n", prompt, search);
-	run_search(search);
 	for(i = 0; line < 10 && i < choices_available; i++){
+		if(i == current_selection)
+			fprintf(ttyout, "%c%c7m", 0x1b, '[');
+		else
+			fprintf(ttyout, "%c%c0m", 0x1b, '[');
 		fprintf(ttyout, "%s\n", choices[choices_sorted[i]]);
 		line++;
 	}
@@ -153,10 +157,9 @@ void emit(){
 	/* ttyout should be flushed before outputting on stdout */
 	fclose(ttyout);
 
-	run_search(search);
 	if(choices_available){
-		/* output the first result */
-		printf("%s\n", choices[choices_sorted[0]]);
+		/* output the selected result */
+		printf("%s\n", choices[choices_sorted[current_selection]]);
 	}else{
 		/* No match, output the query instead */
 		printf("%s\n", search);
@@ -166,24 +169,31 @@ void emit(){
 }
 
 void run(){
-	draw();
+	run_search(search);
 	char ch;
 	do {
+		draw();
 		ch = ttygetchar();
 		if(isprint(ch)){
 			/* FIXME: overflow */
 			search[search_size++] = ch;
 			search[search_size] = '\0';
-			draw();
+			run_search(search);
 		}else if(ch == 127){ /* DEL */
 			if(search_size)
 				search[--search_size] = '\0';
-			draw();
+			run_search(search);
 		}else if(ch == 23){ /* C-W */
 			if(search_size)
 				search[--search_size] = '\0';
 			while(search_size && !isspace(search[--search_size]))
 				search[search_size] = '\0';
+			run_search(search);
+		}else if(ch == 14){ /* C-N */
+			current_selection = (current_selection + 1) % 10;
+			draw();
+		}else if(ch == 16){ /* C-P */
+			current_selection = (current_selection + 9) % 10;
 			draw();
 		}else if(ch == 10){ /* Enter */
 			clear();
