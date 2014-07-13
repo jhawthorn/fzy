@@ -7,12 +7,20 @@ describe "score" do
     `./testscore '#{query}' '#{candidate}'`.to_f
   end
 
+  def assert_unmatched(candidate, query)
+    assert_equal 0, score(candidate, query)
+  end
+
+  def assert_matched(candidate, query)
+    assert_operator 0, :<, score(candidate, query)
+  end
+
   it "scores 1 when the query is empty" do
     assert_equal 1, score("a", "")
   end
 
   it "scores 0 when the choice is empty" do
-    assert_equal 0, score("", "a")
+    assert_unmatched "", "a"
   end
 
   it "scores 1 when exact match" do
@@ -20,22 +28,22 @@ describe "score" do
   end
 
   it "scores 0 when the query is longer than the choice" do
-    assert_equal 0, score("short", "longer")
+    assert_unmatched "short", "longer"
   end
 
   it "scores 0 when the query doesn't match at all" do
-    assert_equal 0, score("a", "b")
+    assert_unmatched "a", "b"
   end
 
   it "scores 0 when only a prefix of the query matches" do
-    assert_equal 0, score("ab", "ac")
+    assert_unmatched "ab", "ac"
   end
 
   it "scores greater than 0 when it matches" do
-    assert_operator 0, :<, score("a", "a")
-    assert_operator 0, :<, score("ab", "a")
-    assert_operator 0, :<, score("ba", "a")
-    assert_operator 0, :<, score("bab", "a")
-    assert_operator 0, :<, score("babababab", "aaaa")
+    assert_matched "a", "a"
+    assert_matched "ab", "a"
+    assert_matched "ba", "a"
+    assert_matched "bab", "a"
+    assert_matched "bababababab", "aaaaa"
   end
 end
