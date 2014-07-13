@@ -64,7 +64,8 @@ static int cmpchoice(const void *p1, const void *p2) {
 	double score2 = choices_score[idx2];
 
 	if(score1 == score2)
-		return 0;
+		/* break ties by length of result */
+		return strlen(choices[idx1]) - strlen(choices[idx2]);
 	else if(score1 < score2)
 		return 1;
 	else
