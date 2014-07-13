@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,7 +17,7 @@ int choices_n = 0;
 const char **choices = NULL;
 double *choices_score = NULL;
 size_t *choices_sorted = NULL;
-int current_selection = 0;
+size_t current_selection = 0;
 
 void resize_choices(int new_capacity){
 	choices = realloc(choices, new_capacity * sizeof(const char *));
@@ -137,11 +138,10 @@ void clear(){
 
 void draw(){
 	int line = 0;
-	int i;
 	const char *prompt = "> ";
 	clear();
 	fprintf(ttyout, "%s%s\n", prompt, search);
-	for(i = 0; line < 10 && i < choices_available; i++){
+	for(size_t i = 0; line < 10 && i < choices_available; i++){
 		if(i == current_selection)
 			fprintf(ttyout, "%c%c7m", 0x1b, '[');
 		else
@@ -150,7 +150,7 @@ void draw(){
 		line++;
 	}
 	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line + 1);
-	fprintf(ttyout, "%c%c%iG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
+	fprintf(ttyout, "%c%c%ziG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
 	fflush(ttyout);
 }
 

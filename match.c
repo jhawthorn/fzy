@@ -18,7 +18,7 @@ void mat_print(int *mat, int n, int m){
 	int i, j;
 	for(i = 0; i < n; i++){
 		for(j = 0; j < m; j++){
-			fprintf(stderr, " %3zd", mat[i*m + j]);
+			fprintf(stderr, " %3i", mat[i*m + j]);
 		}
 		fprintf(stderr, "\n");
 	}
