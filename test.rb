@@ -8,11 +8,11 @@ describe "score" do
   end
 
   def assert_unmatched(candidate, query)
-    assert_equal 0, score(candidate, query)
+    assert_equal -1, score(candidate, query)
   end
 
   def assert_matched(candidate, query)
-    assert_operator 0, :<, score(candidate, query)
+    assert_operator 0, :<=, score(candidate, query)
   end
 
   it "scores 1 when the query is empty" do

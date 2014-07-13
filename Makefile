@@ -1,4 +1,4 @@
-CFLAGS+=-Wall -Wextra -g
+CFLAGS+=-Wall -Wextra -g -std=c99
 
 all: fzy testscore
 
