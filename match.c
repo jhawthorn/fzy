@@ -31,8 +31,20 @@ void mat_print(int *mat, int n, int m){
 typedef int score_t;
 
 double calculate_score(const char *needle, const char *haystack){
+	if(!*haystack || !*needle)
+		return SCORE_MIN;
+
 	int n = strlen(needle);
 	int m = strlen(haystack);
+
+	if(m > 1024){
+		/*
+		 * Unreasonably large candidate: return no score
+		 * If it is a valid match it will still be returned, it will
+		 * just be ranked below any reasonably sized candidates
+		 */
+		return 0;
+	}
 
 	int bow[m];
 	int D[n][m], M[n][m];
