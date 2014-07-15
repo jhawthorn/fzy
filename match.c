@@ -3,6 +3,8 @@
 #include <strings.h>
 #include <stdio.h>
 
+#define SCORE_MIN -1
+
 static int is_subset(const char *needle, const char *haystack){
 	while(*needle){
 		if(!*haystack)
@@ -76,7 +78,7 @@ double match(const char *needle, const char *haystack){
 	if(!*needle){
 		return 1.0;
 	}else if(!is_subset(needle, haystack)){
-		return -1.0;
+		return SCORE_MIN;
 	}else if(!strcasecmp(needle, haystack)){
 		return 1.0;
 	}else{
