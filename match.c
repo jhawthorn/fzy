@@ -58,11 +58,13 @@ double calculate_score(const char *needle, const char *haystack){
 
 	/* Which positions are beginning of words */
 	int at_bow = 1;
+	char last_ch = '\0';
 	for(int i = 0; i < m; i++){
 		char ch = haystack[i];
 		/* TODO: What about allcaps (ex. README) */
-		bow[i] = (at_bow && isalnum(ch)) || isupper(ch);
+		bow[i] = (at_bow && isalnum(ch)) || (isupper(ch) && !isupper(last_ch));
 		at_bow = !isalnum(ch);
+		last_ch = ch;
 	}
 
 	for(int i = 0; i < n; i++){
