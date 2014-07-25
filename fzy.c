@@ -180,10 +180,13 @@ void run(){
 			search[search_size++] = ch;
 			search[search_size] = '\0';
 			run_search(search);
-		}else if(ch == 127){ /* DEL */
+		}else if(ch == 127 || ch == 8){ /* DEL || backspace */
 			if(search_size)
 				search[--search_size] = '\0';
 			run_search(search);
+		}else if(ch == 21){ /* C-U */
+			search_size = 0;
+			search[0] = '\0';
 		}else if(ch == 23){ /* C-W */
 			if(search_size)
 				search[--search_size] = '\0';
