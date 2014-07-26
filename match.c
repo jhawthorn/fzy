@@ -30,7 +30,7 @@ void mat_print(int *mat, int n, int m){
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 typedef int score_t;
 
-double calculate_score(const char *needle, const char *haystack){
+double calculate_score(const char *needle, const char *haystack, size_t *positions){
 	if(!*haystack || !*needle)
 		return SCORE_MIN;
 
@@ -85,17 +85,48 @@ double calculate_score(const char *needle, const char *haystack){
 		}
 	}
 
+	/* backtrace to find the positions of optimal matching */
+	if(positions){
+		for(int i = n-1, j = m-1; i >= 0; i--){
+			int last = M[i][j];
+			for(; j >= 0 && M[i][j] == last; j--){
+				/*
+				 * There may be multiple paths which result in
+				 * the optimal weight.
+				 *
+				 * Since we don't exit the loop on the first
+				 * match, positions[i] may be assigned to
+				 * multiple times. Since we are decrementing i
+				 * and j, this favours the optimal path
+				 * occurring earlier in the string.
+				 */
+				if(tolower(needle[i]) == tolower(haystack[j])){
+					positions[i] = j;
+				}
+			}
+		}
+	}
+
 	return (float)(M[n-1][m-1]) / (float)(n * 2 + 1);
 }
 
-double match(const char *needle, const char *haystack){
+double match_positions(const char *needle, const char *haystack, size_t *positions){
 	if(!*needle){
 		return 1.0;
 	}else if(!is_subset(needle, haystack)){
 		return SCORE_MIN;
 	}else if(!strcasecmp(needle, haystack)){
+		if(positions){
+			int n = strlen(needle);
+			for(int i = 0; i < n; i++)
+				positions[i] = i;
+		}
 		return 1.0;
 	}else{
-		return calculate_score(needle, haystack);
+		return calculate_score(needle, haystack, positions);
 	}
+}
+
+double match(const char *needle, const char *haystack){
+	return match_positions(needle, haystack, NULL);
 }

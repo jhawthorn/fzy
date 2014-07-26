@@ -10,6 +10,7 @@
 
 /* from match.c */
 double match(const char *needle, const char *haystack);
+double match_positions(const char *needle, const char *haystack, size_t *positions);
 
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;
@@ -136,6 +137,27 @@ void clear(){
 	fprintf(ttyout, "%c%c0G", 0x1b, '[');
 }
 
+void draw_match(const char *choice, int selected){
+	int n = strlen(search);
+	size_t positions[n + 1];
+	for(int i = 0; i < n + 1; i++)
+		positions[i] = -1;
+
+	match_positions(search, choice, &positions[0]);
+
+	for(size_t i = 0, p = 0; choice[i] != '\0'; i++){
+		if(positions[p] == i){
+			fprintf(ttyout, "%c%c33m", 0x1b, '[');
+			p++;
+		}else{
+			fprintf(ttyout, "%c%c39;49m", 0x1b, '[');
+		}
+		fprintf(ttyout, "%c", choice[i]);
+	}
+	fprintf(ttyout, "\n");
+	fprintf(ttyout, "%c%c0m", 0x1b, '[');
+}
+
 void draw(){
 	int line = 0;
 	const char *prompt = "> ";
@@ -144,9 +166,7 @@ void draw(){
 	for(size_t i = 0; line < 10 && i < choices_available; i++){
 		if(i == current_selection)
 			fprintf(ttyout, "%c%c7m", 0x1b, '[');
-		else
-			fprintf(ttyout, "%c%c0m", 0x1b, '[');
-		fprintf(ttyout, "%s\n", choices[choices_sorted[i]]);
+		draw_match(choices[choices_sorted[i]], i == current_selection);
 		line++;
 	}
 	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line + 1);
