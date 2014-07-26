@@ -3,6 +3,8 @@
 #include <strings.h>
 #include <stdio.h>
 
+#include "fzy.h"
+
 #define SCORE_MIN -1
 
 static int is_subset(const char *needle, const char *haystack){

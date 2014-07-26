@@ -8,9 +8,7 @@
 #include <fcntl.h>
 #include <ctype.h>
 
-/* from match.c */
-double match(const char *needle, const char *haystack);
-double match_positions(const char *needle, const char *haystack, size_t *positions);
+#include "fzy.h"
 
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;

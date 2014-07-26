@@ -11,5 +11,8 @@ test: testscore
 fzy: fzy.o match.o
 	$(CC) $(CCFLAGS) -o $@ $^
 
+%.o: %.c fzy.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
 clean:
 	$(RM) fzy testscore *.o
