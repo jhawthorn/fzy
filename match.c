@@ -7,7 +7,7 @@
 
 #define SCORE_MIN -1
 
-static int is_subset(const char *needle, const char *haystack){
+int has_match(const char *needle, const char *haystack){
 	while(*needle){
 		if(!*haystack)
 			return 0;
@@ -115,7 +115,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 double match_positions(const char *needle, const char *haystack, size_t *positions){
 	if(!*needle){
 		return 1.0;
-	}else if(!is_subset(needle, haystack)){
+	}else if(!has_match(needle, haystack)){
 		return SCORE_MIN;
 	}else if(!strcasecmp(needle, haystack)){
 		if(positions){

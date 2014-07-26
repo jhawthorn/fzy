@@ -77,8 +77,8 @@ void run_search(char *needle){
 	choices_available = 0;
 	int i;
 	for(i = 0; i < choices_n; i++){
-		choices_score[i] = match(needle, choices[i]);
-		if(choices_score[i] >= 0.0){
+		if(has_match(needle, choices[i])){
+			choices_score[i] = match(needle, choices[i]);
 			choices_sorted[choices_available++] = i;
 		}
 	}
