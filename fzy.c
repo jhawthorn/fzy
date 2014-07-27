@@ -199,6 +199,7 @@ void run(){
 		}else if(ch == 21){ /* C-U */
 			search_size = 0;
 			search[0] = '\0';
+			run_search(search);
 		}else if(ch == 23){ /* C-W */
 			if(search_size)
 				search[--search_size] = '\0';
