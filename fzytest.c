@@ -62,6 +62,16 @@ int test_positions_2(){
 	return 0;
 }
 
+int test_positions_exact(){
+	size_t positions[3];
+	match_positions("foo", "foo", positions);
+	assert(positions[0] == 0);
+	assert(positions[1] == 1);
+	assert(positions[2] == 2);
+
+	return 0;
+}
+
 void summary(){
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -74,6 +84,7 @@ int main(int argc, char *argv[]){
 	runtest(test_scoring);
 	runtest(test_positions_1);
 	runtest(test_positions_2);
+	runtest(test_positions_exact);
 
 	summary();
 
