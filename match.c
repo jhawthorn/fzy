@@ -2,10 +2,9 @@
 #include <string.h>
 #include <strings.h>
 #include <stdio.h>
+#include <float.h>
 
 #include "fzy.h"
-
-#define SCORE_MIN -1
 
 int has_match(const char *needle, const char *haystack){
 	while(*needle){
@@ -31,6 +30,8 @@ void mat_print(int *mat, int n, int m){
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 typedef int score_t;
+#define SCORE_MAX DBL_MAX
+#define SCORE_MIN -DBL_MAX
 
 double calculate_score(const char *needle, const char *haystack, size_t *positions){
 	if(!*haystack || !*needle)
@@ -114,7 +115,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 double match_positions(const char *needle, const char *haystack, size_t *positions){
 	if(!*needle){
-		return 1.0;
+		return SCORE_MAX;
 	}else if(!has_match(needle, haystack)){
 		return SCORE_MIN;
 	}else if(!strcasecmp(needle, haystack)){
@@ -123,7 +124,7 @@ double match_positions(const char *needle, const char *haystack, size_t *positio
 			for(int i = 0; i < n; i++)
 				positions[i] = i;
 		}
-		return 1.0;
+		return SCORE_MAX;
 	}else{
 		return calculate_score(needle, haystack, positions);
 	}
