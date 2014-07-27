@@ -5,6 +5,8 @@ A fuzzy text selector for terminals in C inspired by
 and
 [dmenu](http://tools.suckless.org/dmenu/)
 
+![](http://i.hawth.ca/u/fzy2.gif)
+
 ## Installation
 
     $ make
