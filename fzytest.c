@@ -32,6 +32,8 @@ void summary(){
 }
 
 int main(int argc, char *argv[]){
+	(void) argc;
+	(void) argv;
 	test_match();
 	test_scoring();
 
