@@ -1,4 +1,9 @@
 CFLAGS+=-Wall -Wextra -g -std=c99
+PREFIX?=/usr/local
+
+INSTALL=install
+INSTALL_PROGRAM=$(INSTALL)
+INSTALL_DATA=${INSTALL} -m 644
 
 all: fzy fzytest
 
@@ -14,7 +19,10 @@ fzy: fzy.o match.o
 %.o: %.c fzy.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
+install: fzy
+	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(PREFIX)/fzy
+
 clean:
 	$(RM) fzy fzytest *.o
 
-.PHONY: test all clean
+.PHONY: test all clean install
