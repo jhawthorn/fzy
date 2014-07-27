@@ -63,13 +63,7 @@ static int cmpchoice(const void *p1, const void *p2) {
 	double score1 = choices_score[idx1];
 	double score2 = choices_score[idx2];
 
-	if(score1 == score2)
-		/* break ties by length of result */
-		return strlen(choices[idx1]) - strlen(choices[idx2]);
-	else if(score1 < score2)
-		return 1;
-	else
-		return -1;
+	return score1 - score2;
 }
 
 void run_search(char *needle){
