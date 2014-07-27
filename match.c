@@ -54,7 +54,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 		return 0;
 	}
 
-	int bow[m];
+	score_t match_bonus[m];
 	score_t D[n][m], M[n][m];
 	bzero(D, sizeof(D));
 	bzero(M, sizeof(M));
@@ -70,9 +70,11 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	for(int i = 0; i < m; i++){
 		char ch = haystack[i];
 		/* TODO: What about allcaps (ex. README) */
-		bow[i] = (at_bow && isalnum(ch)) || (isupper(ch) && !isupper(last_ch));
+		int bow = (at_bow && isalnum(ch)) || (isupper(ch) && !isupper(last_ch));
 		at_bow = !isalnum(ch);
 		last_ch = ch;
+
+		match_bonus[i] = bow ? 1.5 : 0;
 	}
 
 	for(int i = 0; i < n; i++){
@@ -81,12 +83,12 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 			int match = tolower(needle[i]) == tolower(haystack[j]);
 			if(match){
 				score_t score = 0;
-				if(i && j)
-					score = M[i-1][j-1];
-				if(bow[j])
-					score += 1.5;
-				else if(i && j && D[i-1][j-1])
+				if(i && j){
+					score = M[i-1][j-1] + match_bonus[j];
+
+					/* consecutive match, doesn't stack with match_bonus */
 					score = max(score, 1 + D[i-1][j-1]);
+				}
 				M[i][j] = D[i][j] = score;
 			}
 			if(j)
