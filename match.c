@@ -16,22 +16,27 @@ int has_match(const char *needle, const char *haystack){
 	return 1;
 }
 
+#define max(a, b) (((a) > (b)) ? (a) : (b))
+typedef double score_t;
+#define SCORE_MAX DBL_MAX
+#define SCORE_MIN -DBL_MAX
+
 /* print one of the internal matrices */
-void mat_print(int *mat, int n, int m){
+void mat_print(score_t *mat, int n, int m){
 	int i, j;
 	for(i = 0; i < n; i++){
 		for(j = 0; j < m; j++){
-			fprintf(stderr, " %3i", mat[i*m + j]);
+			score_t val = mat[i*m + j];
+			if(val == SCORE_MIN){
+				fprintf(stderr, " -inf");
+			}else{
+				fprintf(stderr, " %.2f", val);
+			}
 		}
 		fprintf(stderr, "\n");
 	}
 	fprintf(stderr, "\n\n");
 }
-
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-typedef double score_t;
-#define SCORE_MAX DBL_MAX
-#define SCORE_MIN -DBL_MAX
 
 double calculate_score(const char *needle, const char *haystack, size_t *positions){
 	if(!*haystack || !*needle)
@@ -88,6 +93,11 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 				M[i][j] = max(M[i][j], M[i][j-1] - 0.05);
 		}
 	}
+
+#if 0
+	mat_print(&D[0][0], n, m);
+	mat_print(&M[0][0], n, m);
+#endif
 
 	/* backtrace to find the positions of optimal matching */
 	if(positions){
