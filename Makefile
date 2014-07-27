@@ -1,12 +1,12 @@
 CFLAGS+=-Wall -Wextra -g -std=c99
 
-all: fzy testscore
+all: fzy fzytest
 
-testscore: testscore.o match.o
+fzytest: fzytest.o match.o
 	$(CC) $(CCFLAGS) -o $@ $^
 
-test: testscore
-	ruby test.rb
+test: fzytest
+	-./fzytest
 
 fzy: fzy.o match.o
 	$(CC) $(CCFLAGS) -o $@ $^
@@ -15,4 +15,6 @@ fzy: fzy.o match.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 clean:
-	$(RM) fzy testscore *.o
+	$(RM) fzy fzytest *.o
+
+.PHONY: test all clean
