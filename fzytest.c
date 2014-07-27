@@ -62,6 +62,15 @@ int test_positions_2(){
 	return 0;
 }
 
+int test_positions_3(){
+	size_t positions[2];
+	match_positions("as", "tags", positions);
+	assert(positions[0] == 1);
+	assert(positions[1] == 3);
+
+	return 0;
+}
+
 int test_positions_exact(){
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
@@ -84,6 +93,7 @@ int main(int argc, char *argv[]){
 	runtest(test_scoring);
 	runtest(test_positions_1);
 	runtest(test_positions_2);
+	runtest(test_positions_3);
 	runtest(test_positions_exact);
 
 	summary();

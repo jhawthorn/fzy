@@ -29,7 +29,7 @@ void mat_print(int *mat, int n, int m){
 }
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
-typedef int score_t;
+typedef double score_t;
 #define SCORE_MAX DBL_MAX
 #define SCORE_MIN -DBL_MAX
 
@@ -50,7 +50,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	}
 
 	int bow[m];
-	int D[n][m], M[n][m];
+	score_t D[n][m], M[n][m];
 	bzero(D, sizeof(D));
 	bzero(M, sizeof(M));
 
@@ -72,39 +72,38 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 	for(int i = 0; i < n; i++){
 		for(int j = 0; j < m; j++){
+			D[i][j] = SCORE_MIN;
 			int match = tolower(needle[i]) == tolower(haystack[j]);
 			if(match){
 				score_t score = 0;
 				if(i && j)
 					score = M[i-1][j-1];
 				if(bow[j])
-					score += 2;
+					score += 1.5;
 				else if(i && j && D[i-1][j-1])
 					score = max(score, 1 + D[i-1][j-1]);
 				M[i][j] = D[i][j] = score;
 			}
 			if(j)
-				M[i][j] = max(M[i][j], M[i][j-1]);
+				M[i][j] = max(M[i][j], M[i][j-1] - 0.05);
 		}
 	}
 
 	/* backtrace to find the positions of optimal matching */
 	if(positions){
 		for(int i = n-1, j = m-1; i >= 0; i--){
-			int last = M[i][j];
-			for(; j >= 0 && M[i][j] == last; j--){
+			for(; j >= 0; j--){
 				/*
 				 * There may be multiple paths which result in
 				 * the optimal weight.
 				 *
-				 * Since we don't exit the loop on the first
-				 * match, positions[i] may be assigned to
-				 * multiple times. Since we are decrementing i
-				 * and j, this favours the optimal path
-				 * occurring earlier in the string.
+				 * For simplicity, we will pick the first one
+				 * we encounter, the latest in the candidate
+				 * string.
 				 */
-				if(tolower(needle[i]) == tolower(haystack[j])){
+				if(D[i][j] == M[i][j]){
 					positions[i] = j;
+					break;
 				}
 			}
 		}
