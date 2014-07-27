@@ -1,14 +1,14 @@
 #include <stdio.h>
 #include "fzy.h"
 
-int testsrun = 0, testspassed = 0;
+int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
-#define assert(x) if(!(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);return -1;}
+#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);return -1;}
 
 void runtest(int (*test)()){
 	testsrun++;
-	if(!test())
-		testspassed++;
+	if(test())
+		testsfailed++;
 }
 
 int test_match(){
@@ -63,7 +63,7 @@ int test_positions_2(){
 }
 
 void summary(){
-	printf("%i tests run: %i passed  %i failed\n", testsrun, testspassed, testsrun - testspassed);
+	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
 
 int main(int argc, char *argv[]){
@@ -78,5 +78,5 @@ int main(int argc, char *argv[]){
 	summary();
 
 	/* exit 0 if all tests pass */
-	return testsrun != testspassed;
+	return !!testsfailed;
 }
