@@ -4,11 +4,12 @@ require "minitest/autorun"
 describe "score" do
   def score(candidate, query)
     # FIXME: should escape this properly
-    `./testscore '#{query}' '#{candidate}'`.to_f
+    ret = `./testscore '#{query}' '#{candidate}'`
+    ret.to_f unless ret.empty?
   end
 
   def assert_unmatched(candidate, query)
-    assert_equal -1, score(candidate, query)
+    assert_equal nil, score(candidate, query)
   end
 
   def assert_matched(candidate, query)

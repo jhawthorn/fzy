@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* from match.c */
+#include "fzy.h"
 double match(const char *needle, const char *haystack);
 
 void usage(const char *argv0){
@@ -13,8 +13,10 @@ int main(int argc, char *argv[]){
 		usage(argv[0]);
 	}
 
-	double result = match(argv[1], argv[2]);
-	printf("%f\n", result);
+	if(has_match(argv[1], argv[2])){
+		double result = match(argv[1], argv[2]);
+		printf("%f\n", result);
+	}
 
 	return 0;
 }
