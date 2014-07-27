@@ -24,7 +24,23 @@ TEST(match){
 }ENDTEST
 
 TEST(scoring){
-    assert(match("amo", "app/models/foo") < match("amo", "app/models/order"));
+	assert(match("amo", "app/models/foo") < match("amo", "app/models/order"));
+}ENDTEST
+
+TEST(positions_1){
+	size_t positions[3];
+	match_positions("amo", "app/models/foo", positions);
+	assert(positions[0] == 0);
+	assert(positions[1] == 4);
+	assert(positions[2] == 5);
+}ENDTEST
+
+TEST(positions_2){
+	size_t positions[3];
+	match_positions("amo", "app/models/order", positions);
+	assert(positions[0] == 0);
+	assert(positions[1] == 4);
+	assert(positions[2] == 11);
 }ENDTEST
 
 void summary(){
@@ -36,6 +52,8 @@ int main(int argc, char *argv[]){
 	(void) argv;
 	test_match();
 	test_scoring();
+	test_positions_1();
+	test_positions_2();
 
 	summary();
 
