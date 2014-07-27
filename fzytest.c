@@ -24,7 +24,11 @@ TEST(match){
 }ENDTEST
 
 TEST(scoring){
+	/* App/Models/Order is better than App/MOdels/foo  */
 	assert(match("amo", "app/models/foo") < match("amo", "app/models/order"));
+
+	/* App/MOdels/foo is better than App/M/fOo  */
+	assert(match("amo", "app/m/foo") < match("amo", "app/models/foo"));
 }ENDTEST
 
 TEST(positions_1){
@@ -36,6 +40,10 @@ TEST(positions_1){
 }ENDTEST
 
 TEST(positions_2){
+	/*
+	 * We should prefer matching the 'o' in order, since it's the beginning
+	 * of a word.
+	 */
 	size_t positions[3];
 	match_positions("amo", "app/models/order", positions);
 	assert(positions[0] == 0);
