@@ -1,3 +1,6 @@
+VERSION=0.1beta
+
+CPPFLAGS=-DVERSION=\"${VERSION}\"
 CFLAGS+=-Wall -Wextra -g -std=c99
 PREFIX?=/usr/local
 

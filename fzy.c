@@ -232,7 +232,10 @@ void usage(const char *argv0){
 }
 
 int main(int argc, char *argv[]){
-	if(argc != 1){
+	if(argc == 2 && !strcmp(argv[1], "-v")){
+		printf("%s " VERSION  " (c) 2014 John Hawthorn\n", argv[0]);
+		exit(EXIT_SUCCESS);
+	}else if(argc != 1){
 		usage(argv[0]);
 	}
 	atexit(reset_tty);
