@@ -220,8 +220,6 @@ void run(){
 		}else if(ch == 10){ /* Enter */
 			clear();
 			emit();
-		}else{
-			printf("'%c' (%i)\n", ch, ch);
 		}
 	}while(1);
 }
