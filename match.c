@@ -29,9 +29,9 @@ void mat_print(score_t *mat, int n, int m){
 		for(j = 0; j < m; j++){
 			score_t val = mat[i*m + j];
 			if(val == SCORE_MIN){
-				fprintf(stderr, " -inf");
+				fprintf(stderr, "  -inf");
 			}else{
-				fprintf(stderr, " %.2f", val);
+				fprintf(stderr, " % .2f", val);
 			}
 		}
 		fprintf(stderr, "\n");
@@ -65,8 +65,8 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	 * M[][] Stores the best possible score at this position.
 	 */
 
-#define SCORE_GAP_LEADING      -0.01
-#define SCORE_GAP_TRAILING     -0.01
+#define SCORE_GAP_LEADING      -0.005
+#define SCORE_GAP_TRAILING     -0.005
 #define SCORE_GAP_INNER        -0.01
 #define SCORE_MATCH_CONSECUTIVE 1.0
 #define SCORE_MATCH_SLASH       1.5
@@ -129,8 +129,10 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	}
 
 #if 0
+	printf("\"%s\" =~ \"%s\"\n", needle, haystack);
 	mat_print(&D[0][0], n, m);
 	mat_print(&M[0][0], n, m);
+	printf("\n");
 #endif
 
 	/* backtrace to find the positions of optimal matching */
