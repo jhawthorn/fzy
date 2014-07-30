@@ -35,6 +35,15 @@ int test_scoring(){
 	/* App/MOdels/foo is better than App/M/fOo  */
 	assert(match("amo", "app/m/foo") < match("amo", "app/models/foo"));
 
+	/* GEMFIle.Lock < GEMFILe  */
+	assert(match("gemfil", "Gemfile.lock") < match("gemfil", "Gemfile"));
+
+	/* GEMFIle.Lock < GEMFILe  */
+	assert(match("gemfil", "Gemfile.lock") < match("gemfil", "Gemfile"));
+
+	/* Prefer shorter matches */
+	assert(match("test", "tests") > match("test", "testing"));
+
 	return 0;
 }
 

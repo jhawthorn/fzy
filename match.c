@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <stdio.h>
 #include <float.h>
+#include <math.h>
 
 #include "fzy.h"
 
@@ -18,8 +19,8 @@ int has_match(const char *needle, const char *haystack){
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 typedef double score_t;
-#define SCORE_MAX DBL_MAX
-#define SCORE_MIN -DBL_MAX
+#define SCORE_MAX INFINITY
+#define SCORE_MIN -INFINITY
 
 /* print one of the internal matrices */
 void mat_print(score_t *mat, int n, int m){
@@ -65,34 +66,52 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	 */
 
 	/* Which positions are beginning of words */
-	int at_bow = 1;
 	char last_ch = '\0';
 	for(int i = 0; i < m; i++){
 		char ch = haystack[i];
-		/* TODO: What about allcaps (ex. README) */
-		int bow = (at_bow && isalnum(ch)) || (isupper(ch) && !isupper(last_ch));
-		at_bow = !isalnum(ch);
-		last_ch = ch;
 
-		match_bonus[i] = bow ? 1.5 : 0;
+		score_t score = 0;
+		if(isalnum(ch)){
+			if(last_ch == '/'){
+				score = 1.5;
+			}else if(last_ch == '-' ||
+					last_ch == '_' ||
+					last_ch == ' ' ||
+					(last_ch >= '0' && last_ch <= '9')){
+				score = 1.2;
+			}else if(last_ch >= 'a' && last_ch <= 'z' &&
+					ch >= 'A' && ch <= 'Z'){
+				/* CamelCase */
+				score = 1.1;
+			}else if(last_ch == '.'){
+				score = 0.8;
+			}
+		}
+
+		match_bonus[i] = score;
+		last_ch = ch;
 	}
 
 	for(int i = 0; i < n; i++){
 		for(int j = 0; j < m; j++){
-			D[i][j] = SCORE_MIN;
+			score_t score = j ? SCORE_MIN : 0;
 			int match = tolower(needle[i]) == tolower(haystack[j]);
+			D[i][j] = SCORE_MIN;
 			if(match){
-				score_t score = 0;
 				if(i && j){
-					score = M[i-1][j-1] + match_bonus[j];
+					score = max(score, M[i-1][j-1] + match_bonus[j]);
 
 					/* consecutive match, doesn't stack with match_bonus */
-					score = max(score, 1 + D[i-1][j-1]);
+					score = max(score, D[i-1][j-1] + 1.0);
+				}else if(!i){
+					score = (j * -0.01) + match_bonus[j];
 				}
-				M[i][j] = D[i][j] = score;
+				D[i][j] = score;
 			}
-			if(j)
-				M[i][j] = max(M[i][j], M[i][j-1] - 0.05);
+			if(j){
+				score = max(score, M[i][j-1] - 0.01);
+			}
+			M[i][j] = score;
 		}
 	}
 
@@ -113,8 +132,8 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 				 * we encounter, the latest in the candidate
 				 * string.
 				 */
-				if(D[i][j] == M[i][j]){
-					positions[i] = j;
+				if(tolower(needle[i]) == tolower(haystack[j]) && D[i][j] == M[i][j]){
+					positions[i] = j--;
 					break;
 				}
 			}
