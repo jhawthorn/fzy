@@ -65,6 +65,15 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	 * M[][] Stores the best possible score at this position.
 	 */
 
+#define SCORE_GAP_LEADING      -0.01
+#define SCORE_GAP_TRAILING     -0.01
+#define SCORE_GAP_INNER        -0.01
+#define SCORE_MATCH_CONSECUTIVE 1.0
+#define SCORE_MATCH_SLASH       1.5
+#define SCORE_MATCH_WORD        1.2
+#define SCORE_MATCH_CAPITAL     1.1
+#define SCORE_MATCH_DOT         0.8
+
 	/* Which positions are beginning of words */
 	char last_ch = '\0';
 	for(int i = 0; i < m; i++){
@@ -73,18 +82,18 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 		score_t score = 0;
 		if(isalnum(ch)){
 			if(last_ch == '/'){
-				score = 1.5;
+				score = SCORE_MATCH_SLASH;
 			}else if(last_ch == '-' ||
 					last_ch == '_' ||
 					last_ch == ' ' ||
 					(last_ch >= '0' && last_ch <= '9')){
-				score = 1.2;
+				score = SCORE_MATCH_WORD;
 			}else if(last_ch >= 'a' && last_ch <= 'z' &&
 					ch >= 'A' && ch <= 'Z'){
 				/* CamelCase */
-				score = 1.1;
+				score = SCORE_MATCH_CAPITAL;
 			}else if(last_ch == '.'){
-				score = 0.8;
+				score = SCORE_MATCH_DOT;
 			}
 		}
 
@@ -102,14 +111,18 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 					score = max(score, M[i-1][j-1] + match_bonus[j]);
 
 					/* consecutive match, doesn't stack with match_bonus */
-					score = max(score, D[i-1][j-1] + 1.0);
+					score = max(score, D[i-1][j-1] + SCORE_MATCH_CONSECUTIVE);
 				}else if(!i){
-					score = (j * -0.01) + match_bonus[j];
+					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				}
 				D[i][j] = score;
 			}
 			if(j){
-				score = max(score, M[i][j-1] - 0.01);
+				if(i == n-1){
+					score = max(score, M[i][j-1] + SCORE_GAP_TRAILING);
+				}else{
+					score = max(score, M[i][j-1] + SCORE_GAP_INNER);
+				}
 			}
 			M[i][j] = score;
 		}
