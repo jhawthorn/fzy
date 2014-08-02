@@ -155,7 +155,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 		}
 	}
 
-	return (float)(M[n-1][m-1]) / (float)(n * 2 + 1);
+	return M[n-1][m-1];
 }
 
 double match_positions(const char *needle, const char *haystack, size_t *positions){
