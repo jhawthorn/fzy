@@ -153,6 +153,14 @@ void emit(tty_t *tty){
 	exit(EXIT_SUCCESS);
 }
 
+void action_prev(){
+	current_selection = (current_selection + NUMLINES - 1) % NUMLINES;
+}
+
+void action_next(){
+	current_selection = (current_selection + 1) % NUMLINES;
+}
+
 void run(tty_t *tty){
 	run_search(search);
 	char ch;
@@ -180,9 +188,9 @@ void run(tty_t *tty){
 				search[search_size] = '\0';
 			run_search(search);
 		}else if(ch == 14){ /* C-N */
-			current_selection = (current_selection + 1) % NUMLINES;
+			action_next();
 		}else if(ch == 16){ /* C-P */
-			current_selection = (current_selection + NUMLINES - 1) % NUMLINES;
+			action_prev();
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
 			emit(tty);
