@@ -44,6 +44,9 @@ int test_scoring(){
 	/* Prefer shorter matches */
 	assert(match("test", "tests") > match("test", "testing"));
 
+	/* Scores first letter highly */
+	assert(match("test", "testing") > match("test", "/testing"));
+
 	/* Prefer shorter matches */
 	assert(match("abc", "    a b c ") > match("abc", " a  b  c "));
 	assert(match("abc", " a b c    ") > match("abc", " a  b  c "));

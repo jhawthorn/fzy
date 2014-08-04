@@ -81,7 +81,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 		score_t score = 0;
 		if(isalnum(ch)){
-			if(last_ch == '/'){
+			if(!last_ch || last_ch == '/'){
 				score = SCORE_MATCH_SLASH;
 			}else if(last_ch == '-' ||
 					last_ch == '_' ||
