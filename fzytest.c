@@ -42,6 +42,9 @@ int test_scoring(){
 	assert(match("gemfil", "Gemfile.lock") < match("gemfil", "Gemfile"));
 
 	/* Prefer shorter matches */
+	assert(match("abce", "abcdef") > match("abce", "abc de"));
+
+	/* Prefer shorter candidates */
 	assert(match("test", "tests") > match("test", "testing"));
 
 	/* Scores first letter highly */

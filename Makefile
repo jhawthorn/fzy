@@ -1,7 +1,7 @@
 VERSION=0.1beta
 
 CPPFLAGS=-DVERSION=\"${VERSION}\"
-CFLAGS+=-Wall -Wextra -g -std=c99
+CFLAGS+=-Wall -Wextra -g -std=c99 -O2
 PREFIX?=/usr/local
 
 INSTALL=install
