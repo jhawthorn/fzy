@@ -84,8 +84,9 @@ void run_search(char *needle){
 
 #define NUMLINES 10
 
+#define SEARCH_SIZE_MAX 4096
 int search_size;
-char search[4096] = {0};
+char search[SEARCH_SIZE_MAX + 1] = {0};
 
 void clear(tty_t *tty){
 	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
@@ -156,10 +157,11 @@ void run(tty_t *tty){
 		draw(tty);
 		ch = tty_getchar(tty);
 		if(isprint(ch)){
-			/* FIXME: overflow */
-			search[search_size++] = ch;
-			search[search_size] = '\0';
-			run_search(search);
+			if(search_size < SEARCH_SIZE_MAX){
+				search[search_size++] = ch;
+				search[search_size] = '\0';
+				run_search(search);
+			}
 		}else if(ch == 127 || ch == 8){ /* DEL || backspace */
 			if(search_size)
 				search[--search_size] = '\0';
