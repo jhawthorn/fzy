@@ -98,6 +98,8 @@ void clear(tty_t *tty){
 	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
 }
 
+#define TTY_COLOR_HIGHLIGHT TTY_COLOR_YELLOW
+
 void draw_match(tty_t *tty, const char *choice, int selected){
 	int n = strlen(search);
 	size_t positions[n + 1];
@@ -111,10 +113,10 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 
 	for(size_t i = 0, p = 0; choice[i] != '\0'; i++){
 		if(positions[p] == i){
-			tty_setfg(tty, 3);
+			tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
 			p++;
 		}else{
-			tty_setfg(tty, 9);
+			tty_setfg(tty, TTY_COLOR_NORMAL);
 		}
 		fprintf(tty->fout, "%c", choice[i]);
 	}
