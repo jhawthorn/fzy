@@ -2,13 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <termios.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <ctype.h>
 
 #include "fzy.h"
+#include "tty.h"
 
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;
@@ -83,58 +80,22 @@ void run_search(char *needle){
 	}
 
 	qsort(choices_sorted, choices_available, sizeof(size_t), cmpchoice);
-
-}
-
-int ttyin;
-FILE *ttyout;
-struct termios original_termios;
-
-void reset_tty(){
-	tcsetattr(ttyin, TCSANOW, &original_termios);
-}
-
-void init_tty(){
-	ttyin = open("/dev/tty", O_RDONLY);
-	ttyout = fopen("/dev/tty", "w");
-
-	tcgetattr(ttyin, &original_termios);
-
-	struct termios new_termios = original_termios;
-
-	new_termios.c_lflag &= ~(ICANON | ECHO);
-
-	tcsetattr(ttyin, TCSANOW, &new_termios);
-}
-
-char ttygetchar(){
-	char ch;
-	int size = read(ttyin, &ch, 1);
-	if(size < 0){
-		perror("error reading from tty");
-		exit(EXIT_FAILURE);
-	}else if(size == 0){
-		/* EOF */
-		exit(EXIT_FAILURE);
-	}else{
-		return ch;
-	}
 }
 
 int search_size;
 char search[4096] = {0};
 
-void clear(){
-	fprintf(ttyout, "%c%c0G", 0x1b, '[');
+void clear(tty_t *tty){
+	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
 	int line = 0;
 	while(line++ < 10 + 1){
-		fprintf(ttyout, "%c%cK\n", 0x1b, '[');
+		fprintf(tty->fout, "%c%cK\n", 0x1b, '[');
 	}
-	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line-1);
-	fprintf(ttyout, "%c%c0G", 0x1b, '[');
+	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line-1);
+	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
 }
 
-void draw_match(const char *choice, int selected){
+void draw_match(tty_t *tty, const char *choice, int selected){
 	int n = strlen(search);
 	size_t positions[n + 1];
 	for(int i = 0; i < n + 1; i++)
@@ -144,36 +105,36 @@ void draw_match(const char *choice, int selected){
 
 	for(size_t i = 0, p = 0; choice[i] != '\0'; i++){
 		if(positions[p] == i){
-			fprintf(ttyout, "%c%c33m", 0x1b, '[');
+			fprintf(tty->fout, "%c%c33m", 0x1b, '[');
 			p++;
 		}else{
-			fprintf(ttyout, "%c%c39;49m", 0x1b, '[');
+			fprintf(tty->fout, "%c%c39;49m", 0x1b, '[');
 		}
-		fprintf(ttyout, "%c", choice[i]);
+		fprintf(tty->fout, "%c", choice[i]);
 	}
-	fprintf(ttyout, "\n");
-	fprintf(ttyout, "%c%c0m", 0x1b, '[');
+	fprintf(tty->fout, "\n");
+	fprintf(tty->fout, "%c%c0m", 0x1b, '[');
 }
 
-void draw(){
+void draw(tty_t *tty){
 	int line = 0;
 	const char *prompt = "> ";
-	clear();
-	fprintf(ttyout, "%s%s\n", prompt, search);
+	clear(tty);
+	fprintf(tty->fout, "%s%s\n", prompt, search);
 	for(size_t i = 0; line < 10 && i < choices_available; i++){
 		if(i == current_selection)
-			fprintf(ttyout, "%c%c7m", 0x1b, '[');
-		draw_match(choices[choices_sorted[i]], i == current_selection);
+			fprintf(tty->fout, "%c%c7m", 0x1b, '[');
+		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
 		line++;
 	}
-	fprintf(ttyout, "%c%c%iA", 0x1b, '[', line + 1);
-	fprintf(ttyout, "%c%c%ziG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
-	fflush(ttyout);
+	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line + 1);
+	fprintf(tty->fout, "%c%c%ziG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
+	fflush(tty->fout);
 }
 
-void emit(){
+void emit(tty_t *tty){
 	/* ttyout should be flushed before outputting on stdout */
-	fclose(ttyout);
+	fclose(tty->fout);
 
 	if(choices_available){
 		/* output the selected result */
@@ -186,12 +147,12 @@ void emit(){
 	exit(EXIT_SUCCESS);
 }
 
-void run(){
+void run(tty_t *tty){
 	run_search(search);
 	char ch;
 	do {
-		draw();
-		ch = ttygetchar();
+		draw(tty);
+		ch = tty_getchar(tty);
 		if(isprint(ch)){
 			/* FIXME: overflow */
 			search[search_size++] = ch;
@@ -213,13 +174,11 @@ void run(){
 			run_search(search);
 		}else if(ch == 14){ /* C-N */
 			current_selection = (current_selection + 1) % 10;
-			draw();
 		}else if(ch == 16){ /* C-P */
 			current_selection = (current_selection + 9) % 10;
-			draw();
 		}else if(ch == 10){ /* Enter */
-			clear();
-			emit();
+			clear(tty);
+			emit(tty);
 		}
 	}while(1);
 }
@@ -236,14 +195,14 @@ int main(int argc, char *argv[]){
 	}else if(argc != 1){
 		usage(argv[0]);
 	}
-	atexit(reset_tty);
-	init_tty(reset_tty);
+	tty_t tty;
+	tty_init(&tty);
 
 	resize_choices(INITIAL_CAPACITY);
 	read_choices();
 
-	clear();
-	run();
+	clear(&tty);
+	run(&tty);
 
 	return 0;
 }
