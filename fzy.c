@@ -106,17 +106,20 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 
 	match_positions(search, choice, &positions[0]);
 
+	if(selected)
+		tty_setinvert(tty);
+
 	for(size_t i = 0, p = 0; choice[i] != '\0'; i++){
 		if(positions[p] == i){
-			fprintf(tty->fout, "%c%c33m", 0x1b, '[');
+			tty_setfg(tty, 3);
 			p++;
 		}else{
-			fprintf(tty->fout, "%c%c39;49m", 0x1b, '[');
+			tty_setfg(tty, 9);
 		}
 		fprintf(tty->fout, "%c", choice[i]);
 	}
 	fprintf(tty->fout, "\n");
-	fprintf(tty->fout, "%c%c0m", 0x1b, '[');
+	tty_setnormal(tty);
 }
 
 void draw(tty_t *tty){
@@ -125,8 +128,6 @@ void draw(tty_t *tty){
 	clear(tty);
 	fprintf(tty->fout, "%s%s\n", prompt, search);
 	for(size_t i = 0; line < NUMLINES && i < choices_available; i++){
-		if(i == current_selection)
-			fprintf(tty->fout, "%c%c7m", 0x1b, '[');
 		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
 		line++;
 	}

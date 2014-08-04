@@ -20,6 +20,8 @@ void tty_init(tty_t *tty){
 	new_termios.c_lflag &= ~(ICANON | ECHO);
 
 	tcsetattr(tty->fdin, TCSANOW, &new_termios);
+
+	tty_setnormal(tty);
 }
 
 char tty_getchar(tty_t *tty){
@@ -34,5 +36,25 @@ char tty_getchar(tty_t *tty){
 	}else{
 		return ch;
 	}
+}
+
+static void tty_sgr(tty_t *tty, int code){
+	fprintf(tty->fout, "%c%c%im", 0x1b, '[', code);
+}
+
+void tty_setfg(tty_t *tty, int fg){
+	if(tty->fgcolor != fg){
+		tty_sgr(tty, 30 + fg);
+		tty->fgcolor = fg;
+	}
+}
+
+void tty_setinvert(tty_t *tty){
+	tty_sgr(tty, 7);
+}
+
+void tty_setnormal(tty_t *tty){
+	tty_sgr(tty, 0);
+	tty->fgcolor = 9;
 }
 
