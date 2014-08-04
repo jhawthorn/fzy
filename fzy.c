@@ -82,13 +82,15 @@ void run_search(char *needle){
 	qsort(choices_sorted, choices_available, sizeof(size_t), cmpchoice);
 }
 
+#define NUMLINES 10
+
 int search_size;
 char search[4096] = {0};
 
 void clear(tty_t *tty){
 	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
 	int line = 0;
-	while(line++ < 10 + 1){
+	while(line++ < NUMLINES + 1){
 		fprintf(tty->fout, "%c%cK\n", 0x1b, '[');
 	}
 	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line-1);
@@ -121,7 +123,7 @@ void draw(tty_t *tty){
 	const char *prompt = "> ";
 	clear(tty);
 	fprintf(tty->fout, "%s%s\n", prompt, search);
-	for(size_t i = 0; line < 10 && i < choices_available; i++){
+	for(size_t i = 0; line < NUMLINES && i < choices_available; i++){
 		if(i == current_selection)
 			fprintf(tty->fout, "%c%c7m", 0x1b, '[');
 		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
@@ -173,9 +175,9 @@ void run(tty_t *tty){
 				search[search_size] = '\0';
 			run_search(search);
 		}else if(ch == 14){ /* C-N */
-			current_selection = (current_selection + 1) % 10;
+			current_selection = (current_selection + 1) % NUMLINES;
 		}else if(ch == 16){ /* C-P */
-			current_selection = (current_selection + 9) % 10;
+			current_selection = (current_selection + NUMLINES - 1) % NUMLINES;
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
 			emit(tty);
