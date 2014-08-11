@@ -23,7 +23,7 @@ fzy: fzy.o match.o tty.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 install: fzy
-	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(PREFIX)/fzy
+	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(PREFIX)/bin/fzy
 
 clean:
 	$(RM) fzy fzytest *.o
