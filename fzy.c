@@ -125,24 +125,22 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 }
 
 void draw(tty_t *tty){
-	int start = 0;
+	size_t start = 0;
 	if(current_selection >= NUMLINES){
 		start = current_selection - NUMLINES + 1;
 	}
-	int line = 0;
 	const char *prompt = "> ";
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", prompt, search);
 	tty_newline(tty);
-	for(size_t i = start; line < NUMLINES; i++){
+	for(size_t i = start; i < start + NUMLINES; i++){
 		if(i < choices_available){
 			draw_match(tty, choices[choices_sorted[i]], i == current_selection);
 		}else{
 			tty_newline(tty);
 		}
-		line++;
 	}
-	tty_moveup(tty, line + 1);
+	tty_moveup(tty, NUMLINES + 1);
 	tty_setcol(tty, strlen(prompt) + strlen(search));
 	tty_flush(tty);
 }
