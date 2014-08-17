@@ -120,7 +120,7 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 		}
 		tty_printf(tty, "%c", choice[i]);
 	}
-	tty_printf(tty, "\n");
+	tty_newline(tty);
 	tty_setnormal(tty);
 }
 
@@ -131,10 +131,15 @@ void draw(tty_t *tty){
 	}
 	int line = 0;
 	const char *prompt = "> ";
-	clear(tty);
-	tty_printf(tty, "%s%s\n", prompt, search);
-	for(size_t i = start; line < NUMLINES && i < choices_available; i++){
-		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
+	tty_setcol(tty, 0);
+	tty_printf(tty, "%s%s", prompt, search);
+	tty_newline(tty);
+	for(size_t i = start; line < NUMLINES; i++){
+		if(i < choices_available){
+			draw_match(tty, choices[choices_sorted[i]], i == current_selection);
+		}else{
+			tty_newline(tty);
+		}
 		line++;
 	}
 	tty_moveup(tty, line + 1);
