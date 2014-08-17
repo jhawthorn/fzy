@@ -64,7 +64,7 @@ void tty_newline(tty_t *tty){
 }
 
 void tty_setcol(tty_t *tty, int col){
-	tty_printf(tty, "%c%c%iG", 0x1b, '[', col);
+	tty_printf(tty, "%c%c%iG", 0x1b, '[', col + 1);
 }
 
 void tty_moveup(tty_t *tty, int i){

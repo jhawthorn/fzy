@@ -138,7 +138,7 @@ void draw(tty_t *tty){
 		line++;
 	}
 	tty_moveup(tty, line + 1);
-	tty_setcol(tty, strlen(prompt) + strlen(search) + 1);
+	tty_setcol(tty, strlen(prompt) + strlen(search));
 	tty_flush(tty);
 }
 
