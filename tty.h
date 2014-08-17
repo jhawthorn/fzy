@@ -34,6 +34,7 @@ void tty_setnormal(tty_t *tty);
  */
 void tty_newline(tty_t *tty);
 
+void tty_moveup(tty_t *tty, int i);
 void tty_setcol(tty_t *tty, int col);
 
 void tty_printf(tty_t *tty, const char *fmt, ...);

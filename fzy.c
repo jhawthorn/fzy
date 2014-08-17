@@ -94,7 +94,7 @@ void clear(tty_t *tty){
 	while(line++ < NUMLINES + 1){
 		tty_newline(tty);
 	}
-	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line-1);
+	tty_moveup(tty, line-1);
 	tty_setcol(tty, 0);
 }
 
@@ -137,7 +137,7 @@ void draw(tty_t *tty){
 		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
 		line++;
 	}
-	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line + 1);
+	tty_moveup(tty, line + 1);
 	tty_setcol(tty, strlen(prompt) + strlen(search) + 1);
 	fflush(tty->fout);
 }

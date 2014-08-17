@@ -67,6 +67,10 @@ void tty_setcol(tty_t *tty, int col){
 	tty_printf(tty, "%c%c%iG", 0x1b, '[', col);
 }
 
+void tty_moveup(tty_t *tty, int i){
+	tty_printf(tty, "%c%c%iA", 0x1b, '[', i);
+}
+
 void tty_printf(tty_t *tty, const char *fmt, ...){
 	va_list args;
 	va_start(args, fmt);
