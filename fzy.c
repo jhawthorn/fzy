@@ -198,6 +198,16 @@ void run(tty_t *tty){
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
 			emit(tty);
+		}else if(ch == 27){ /* ESC */
+			ch = tty_getchar(tty);
+			if(ch == '['){
+				ch = tty_getchar(tty);
+				if(ch == 'A'){ /* UP ARROW */
+					action_prev();
+				}else if(ch == 'B'){ /* DOWN ARROW */
+					action_next();
+				}
+			}
 		}
 	}while(1);
 }
