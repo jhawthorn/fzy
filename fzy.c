@@ -139,7 +139,7 @@ void draw(tty_t *tty){
 	}
 	tty_moveup(tty, line + 1);
 	tty_setcol(tty, strlen(prompt) + strlen(search) + 1);
-	fflush(tty->fout);
+	tty_flush(tty);
 }
 
 void emit(tty_t *tty){

@@ -78,3 +78,7 @@ void tty_printf(tty_t *tty, const char *fmt, ...){
 	va_end(args);
 }
 
+void tty_flush(tty_t *tty){
+	fflush(tty->fout);
+}
+
