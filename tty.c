@@ -59,6 +59,14 @@ void tty_setnormal(tty_t *tty){
 	tty->fgcolor = 9;
 }
 
+void tty_newline(tty_t *tty){
+	tty_printf(tty, "%c%cK\n", 0x1b, '[');
+}
+
+void tty_setcol(tty_t *tty, int col){
+	tty_printf(tty, "%c%c%iG", 0x1b, '[', col);
+}
+
 void tty_printf(tty_t *tty, const char *fmt, ...){
 	va_list args;
 	va_start(args, fmt);

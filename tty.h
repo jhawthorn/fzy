@@ -28,6 +28,14 @@ void tty_setnormal(tty_t *tty);
 #define TTY_COLOR_WHITE   7
 #define TTY_COLOR_NORMAL  9
 
+/* tty_newline
+ * Move cursor to the beginning of the next line, clearing to the end of the
+ * current line
+ */
+void tty_newline(tty_t *tty);
+
+void tty_setcol(tty_t *tty, int col);
+
 void tty_printf(tty_t *tty, const char *fmt, ...);
 
 #endif

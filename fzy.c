@@ -89,13 +89,13 @@ int search_size;
 char search[SEARCH_SIZE_MAX + 1] = {0};
 
 void clear(tty_t *tty){
-	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
+	tty_setcol(tty, 0);
 	int line = 0;
 	while(line++ < NUMLINES + 1){
-		fprintf(tty->fout, "%c%cK\n", 0x1b, '[');
+		tty_newline(tty);
 	}
 	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line-1);
-	fprintf(tty->fout, "%c%c0G", 0x1b, '[');
+	tty_setcol(tty, 0);
 }
 
 #define TTY_COLOR_HIGHLIGHT TTY_COLOR_YELLOW
@@ -138,7 +138,7 @@ void draw(tty_t *tty){
 		line++;
 	}
 	fprintf(tty->fout, "%c%c%iA", 0x1b, '[', line + 1);
-	fprintf(tty->fout, "%c%c%ziG", 0x1b, '[', strlen(prompt) + strlen(search) + 1);
+	tty_setcol(tty, strlen(prompt) + strlen(search) + 1);
 	fflush(tty->fout);
 }
 
