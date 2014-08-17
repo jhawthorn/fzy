@@ -52,7 +52,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 		 * If it is a valid match it will still be returned, it will
 		 * just be ranked below any reasonably sized candidates
 		 */
-		return 0;
+		return SCORE_MIN;
 	}
 
 	score_t match_bonus[m];
