@@ -28,4 +28,6 @@ void tty_setnormal(tty_t *tty);
 #define TTY_COLOR_WHITE   7
 #define TTY_COLOR_NORMAL  9
 
+void tty_printf(tty_t *tty, const char *fmt, ...);
+
 #endif

@@ -118,9 +118,9 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 		}else{
 			tty_setfg(tty, TTY_COLOR_NORMAL);
 		}
-		fprintf(tty->fout, "%c", choice[i]);
+		tty_printf(tty, "%c", choice[i]);
 	}
-	fprintf(tty->fout, "\n");
+	tty_printf(tty, "\n");
 	tty_setnormal(tty);
 }
 
@@ -132,7 +132,7 @@ void draw(tty_t *tty){
 	int line = 0;
 	const char *prompt = "> ";
 	clear(tty);
-	fprintf(tty->fout, "%s%s\n", prompt, search);
+	tty_printf(tty, "%s%s\n", prompt, search);
 	for(size_t i = start; line < NUMLINES && i < choices_available; i++){
 		draw_match(tty, choices[choices_sorted[i]], i == current_selection);
 		line++;

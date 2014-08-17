@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "tty.h"
 
@@ -39,7 +40,7 @@ char tty_getchar(tty_t *tty){
 }
 
 static void tty_sgr(tty_t *tty, int code){
-	fprintf(tty->fout, "%c%c%im", 0x1b, '[', code);
+	tty_printf(tty, "%c%c%im", 0x1b, '[', code);
 }
 
 void tty_setfg(tty_t *tty, int fg){
@@ -56,5 +57,12 @@ void tty_setinvert(tty_t *tty){
 void tty_setnormal(tty_t *tty){
 	tty_sgr(tty, 0);
 	tty->fgcolor = 9;
+}
+
+void tty_printf(tty_t *tty, const char *fmt, ...){
+	va_list args;
+	va_start(args, fmt);
+	vfprintf(tty->fout, fmt, args);
+	va_end(args);
 }
 
