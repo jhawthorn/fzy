@@ -95,7 +95,7 @@ void clear(tty_t *tty){
 		tty_newline(tty);
 	}
 	tty_moveup(tty, line-1);
-	tty_setcol(tty, 0);
+	tty_flush(tty);
 }
 
 #define TTY_COLOR_HIGHLIGHT TTY_COLOR_YELLOW
