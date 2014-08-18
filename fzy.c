@@ -203,7 +203,7 @@ void run(tty_t *tty){
 			emit(tty);
 		}else if(ch == 27){ /* ESC */
 			ch = tty_getchar(tty);
-			if(ch == '['){
+			if(ch == '[' || ch == 'O'){
 				ch = tty_getchar(tty);
 				if(ch == 'A'){ /* UP ARROW */
 					action_prev();
