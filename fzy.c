@@ -223,6 +223,7 @@ void run(tty_t *tty){
 
 static const char *usage_str = ""
 "USAGE: fzy [OPTION]...\n"
+" -e, --show-matches=QUERY output the sorted matches of QUERY\n"
 " -s, --show-scores        show the scores of each match\n"
 " -h, --help     display this help and exit\n"
 " -v, --version  output version information and exit\n";
@@ -233,14 +234,15 @@ void usage(const char *argv0){
 }
 
 static struct option longopts[] = {
+	{ "show-matches", required_argument, NULL, 'e' },
 	{ "show-scores", no_argument, NULL, 's' },
 	{ "version", no_argument, NULL, 'v' },
 	{ "help",    no_argument, NULL, 'h' },
 	{ NULL,      0,           NULL, 0 }
 };
 
-
 int main(int argc, char *argv[]){
+	char *initial_query = NULL;
 	char c;
 	while((c = getopt_long(argc, argv, "vhs", longopts, NULL)) != -1){
 		switch(c){
@@ -249,6 +251,9 @@ int main(int argc, char *argv[]){
 				exit(EXIT_SUCCESS);
 			case 's':
 				flag_show_scores = 1;
+				break;
+			case 'e':
+				initial_query = optarg;
 				break;
 			case 'h':
 			default:
@@ -260,14 +265,25 @@ int main(int argc, char *argv[]){
 		usage(argv[0]);
 	}
 
-	tty_t tty;
-	tty_init(&tty);
-
 	resize_choices(INITIAL_CAPACITY);
 	read_choices();
 
-	clear(&tty);
-	run(&tty);
+	if(initial_query){
+		run_search(initial_query);
+		for(size_t i = 0; i < choices_available; i++){
+			size_t choice_idx = choices_sorted[i];
+			if(flag_show_scores)
+				printf("%f\t", choices_score[choice_idx]);
+			printf("%s\n", choices[choice_idx]);
+		}
+	}else{
+		/* interactive */
+		tty_t tty;
+		tty_init(&tty);
+
+		clear(&tty);
+		run(&tty);
+	}
 
 	return 0;
 }
