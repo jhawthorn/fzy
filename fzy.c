@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <getopt.h>
 
 #include "fzy.h"
 #include "tty.h"
@@ -215,18 +216,40 @@ void run(tty_t *tty){
 	}while(1);
 }
 
+static const char *usage_str = ""
+"USAGE: fzy [OPTION]...\n"
+" -h, --help     display this help and exit\n"
+" -v, --version  output version information and exit\n";
+
 void usage(const char *argv0){
-	fprintf(stderr, "USAGE: %s\n", argv0);
+	fprintf(stderr, usage_str, argv0);
 	exit(EXIT_FAILURE);
 }
 
+static struct option longopts[] = {
+	{ "version", no_argument, NULL, 'v' },
+	{ "help",    no_argument, NULL, 'h' },
+	{ NULL,      0,           NULL, 0 }
+};
+
+
 int main(int argc, char *argv[]){
-	if(argc == 2 && !strcmp(argv[1], "-v")){
-		printf("%s " VERSION  " (c) 2014 John Hawthorn\n", argv[0]);
-		exit(EXIT_SUCCESS);
-	}else if(argc != 1){
+	char c;
+	while((c = getopt_long(argc, argv, "vh", longopts, NULL)) != -1){
+		switch(c){
+			case 'v':
+				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
+				exit(EXIT_SUCCESS);
+			case 'h':
+			default:
+				usage(argv[0]);
+				exit(EXIT_FAILURE);
+		}
+	}
+	if(optind != argc){
 		usage(argv[0]);
 	}
+
 	tty_t tty;
 	tty_init(&tty);
 
