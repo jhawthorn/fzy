@@ -244,7 +244,7 @@ static struct option longopts[] = {
 int main(int argc, char *argv[]){
 	char *initial_query = NULL;
 	char c;
-	while((c = getopt_long(argc, argv, "vhs", longopts, NULL)) != -1){
+	while((c = getopt_long(argc, argv, "vhse:", longopts, NULL)) != -1){
 		switch(c){
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
