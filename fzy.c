@@ -8,6 +8,8 @@
 #include "fzy.h"
 #include "tty.h"
 
+int flag_show_scores = 0;
+
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;
 int choices_n = 0;
@@ -136,7 +138,10 @@ void draw(tty_t *tty){
 	tty_newline(tty);
 	for(size_t i = start; i < start + NUMLINES; i++){
 		if(i < choices_available){
-			draw_match(tty, choices[choices_sorted[i]], i == current_selection);
+			size_t choice_idx = choices_sorted[i];
+			if(flag_show_scores)
+				tty_printf(tty, "(%5.2f) ", choices_score[choice_idx]);
+			draw_match(tty, choices[choice_idx], i == current_selection);
 		}else{
 			tty_newline(tty);
 		}
@@ -218,6 +223,7 @@ void run(tty_t *tty){
 
 static const char *usage_str = ""
 "USAGE: fzy [OPTION]...\n"
+" -s, --show-scores        show the scores of each match\n"
 " -h, --help     display this help and exit\n"
 " -v, --version  output version information and exit\n";
 
@@ -227,6 +233,7 @@ void usage(const char *argv0){
 }
 
 static struct option longopts[] = {
+	{ "show-scores", no_argument, NULL, 's' },
 	{ "version", no_argument, NULL, 'v' },
 	{ "help",    no_argument, NULL, 'h' },
 	{ NULL,      0,           NULL, 0 }
@@ -235,11 +242,14 @@ static struct option longopts[] = {
 
 int main(int argc, char *argv[]){
 	char c;
-	while((c = getopt_long(argc, argv, "vh", longopts, NULL)) != -1){
+	while((c = getopt_long(argc, argv, "vhs", longopts, NULL)) != -1){
 		switch(c){
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
 				exit(EXIT_SUCCESS);
+			case 's':
+				flag_show_scores = 1;
+				break;
 			case 'h':
 			default:
 				usage(argv[0]);
