@@ -281,7 +281,6 @@ int main(int argc, char *argv[]){
 		tty_t tty;
 		tty_init(&tty);
 
-		clear(&tty);
 		run(&tty);
 	}
 
