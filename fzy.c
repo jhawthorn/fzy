@@ -86,6 +86,7 @@ void run_search(char *needle){
 }
 
 #define NUMLINES 10
+#define SCROLLOFF 1
 
 #define SEARCH_SIZE_MAX 4096
 int search_size;
@@ -123,14 +124,16 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 		}
 		tty_printf(tty, "%c", choice[i]);
 	}
-	tty_newline(tty);
 	tty_setnormal(tty);
 }
 
 void draw(tty_t *tty){
 	size_t start = 0;
-	if(current_selection >= NUMLINES){
-		start = current_selection - NUMLINES + 1;
+	if(current_selection + SCROLLOFF >= NUMLINES){
+		start = current_selection + SCROLLOFF - NUMLINES + 1;
+		if(start + NUMLINES >= choices_available){
+			start = choices_available - NUMLINES + 1;
+		}
 	}
 	const char *prompt = "> ";
 	tty_setcol(tty, 0);
