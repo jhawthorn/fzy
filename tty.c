@@ -13,6 +13,7 @@ void tty_reset(tty_t *tty){
 void tty_init(tty_t *tty){
 	tty->fdin = open("/dev/tty", O_RDONLY);
 	tty->fout = fopen("/dev/tty", "w");
+	setvbuf(tty->fout, NULL, _IOFBF, 4096);
 
 	tcgetattr(tty->fdin, &tty->original_termios);
 
