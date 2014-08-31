@@ -155,7 +155,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 				 * we encounter, the latest in the candidate
 				 * string.
 				 */
-				if(tolower(needle[i]) == tolower(haystack[j]) && D[i][j] == M[i][j]){
+				if(D[i][j] != SCORE_MIN && D[i][j] == M[i][j]){
 					positions[i] = j--;
 					break;
 				}
