@@ -111,7 +111,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 	for(int i = 0; i < n; i++){
 		for(int j = 0; j < m; j++){
-			score_t score = (j || i) ? SCORE_MIN : 0;
+			score_t score = SCORE_MIN;
 			int match = tolower(needle[i]) == tolower(haystack[j]);
 			D[i][j] = SCORE_MIN;
 			if(match){
