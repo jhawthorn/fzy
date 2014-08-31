@@ -34,6 +34,11 @@ void tty_setnormal(tty_t *tty);
  */
 void tty_newline(tty_t *tty);
 
+/* tty_clearline
+ * Clear to the end of the current line without advancing the cursor.
+ */
+void tty_clearline(tty_t *tty);
+
 void tty_moveup(tty_t *tty, int i);
 void tty_setcol(tty_t *tty, int col);
 

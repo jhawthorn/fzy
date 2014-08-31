@@ -95,7 +95,7 @@ char search[SEARCH_SIZE_MAX + 1] = {0};
 void clear(tty_t *tty){
 	tty_setcol(tty, 0);
 	int line = 0;
-	while(line++ < NUMLINES + 1){
+	while(line++ < NUMLINES){
 		tty_newline(tty);
 	}
 	tty_moveup(tty, line-1);
@@ -132,24 +132,23 @@ void draw(tty_t *tty){
 	if(current_selection + SCROLLOFF >= NUMLINES){
 		start = current_selection + SCROLLOFF - NUMLINES + 1;
 		if(start + NUMLINES >= choices_available){
-			start = choices_available - NUMLINES + 1;
+			start = choices_available - NUMLINES;
 		}
 	}
 	const char *prompt = "> ";
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", prompt, search);
-	tty_newline(tty);
 	for(size_t i = start; i < start + NUMLINES; i++){
+		tty_newline(tty);
 		if(i < choices_available){
 			size_t choice_idx = choices_sorted[i];
 			if(flag_show_scores)
 				tty_printf(tty, "(%5.2f) ", choices_score[choice_idx]);
 			draw_match(tty, choices[choice_idx], i == current_selection);
-		}else{
-			tty_newline(tty);
 		}
 	}
-	tty_moveup(tty, NUMLINES + 1);
+	tty_clearline(tty);
+	tty_moveup(tty, NUMLINES);
 	tty_setcol(tty, strlen(prompt) + strlen(search));
 	tty_flush(tty);
 }

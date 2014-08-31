@@ -64,6 +64,10 @@ void tty_newline(tty_t *tty){
 	tty_printf(tty, "%c%cK\n", 0x1b, '[');
 }
 
+void tty_clearline(tty_t *tty){
+	tty_printf(tty, "%c%cK", 0x1b, '[');
+}
+
 void tty_setcol(tty_t *tty, int col){
 	tty_printf(tty, "%c%c%iG", 0x1b, '[', col + 1);
 }
