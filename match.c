@@ -77,10 +77,10 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 #define SCORE_GAP_TRAILING     -0.005
 #define SCORE_GAP_INNER        -0.01
 #define SCORE_MATCH_CONSECUTIVE 1.0
-#define SCORE_MATCH_SLASH       1.5
-#define SCORE_MATCH_WORD        1.2
-#define SCORE_MATCH_CAPITAL     1.1
-#define SCORE_MATCH_DOT         0.8
+#define SCORE_MATCH_SLASH       0.9
+#define SCORE_MATCH_WORD        0.8
+#define SCORE_MATCH_CAPITAL     0.7
+#define SCORE_MATCH_DOT         0.6
 
 	/* Which positions are beginning of words */
 	char last_ch = '\0';

@@ -29,8 +29,8 @@ int test_match(){
 }
 
 int test_scoring(){
-	/* App/Models/Order is better than App/MOdels/foo  */
-	assert(match("amo", "app/models/foo") < match("amo", "app/models/order"));
+	/* App/Models/Order is better than App/MOdels/zRder  */
+	assert(match("amor", "app/models/order") > match("amor", "app/models/zrder"));
 
 	/* App/MOdels/foo is better than App/M/fOo  */
 	assert(match("amo", "app/m/foo") < match("amo", "app/models/foo"));
@@ -72,8 +72,8 @@ int test_positions_2(){
 	 * We should prefer matching the 'o' in order, since it's the beginning
 	 * of a word.
 	 */
-	size_t positions[3];
-	match_positions("amo", "app/models/order", positions);
+	size_t positions[4];
+	match_positions("amor", "app/models/order", positions);
 	assert(positions[0] == 0);
 	assert(positions[1] == 4);
 	assert(positions[2] == 11);

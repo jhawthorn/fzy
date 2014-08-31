@@ -48,9 +48,9 @@ nnoremap <leader>s :call FzyCommand("ag . --no-color -l -g ''", ":sp")<cr>
 
 fzy attempts to present the best matches first. The following considerations are weighted when sorting:
 
-It prefers matching the beginning of words: `amo` is likely to match <tt><b>a</b>pp/<b>m</b>odels/<b>o</b>rder.rb</tt>.
-
 It prefers consecutive characters: `file` will match <tt><b>file</b></tt> over <tt><b>fil</b>t<b>e</b>r</tt>.
+
+It prefers matching the beginning of words: `amp` is likely to match <tt><b>a</b>pp/<b>m</b>odels/<b>p</b>osts.rb</tt>.
 
 It prefers shorter matches: `abce` matches <tt><b>abc</b>d<b>e</b>f</tt> over <tt><b>abc</b> d<b>e</b></tt>.
 
