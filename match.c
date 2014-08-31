@@ -23,9 +23,17 @@ typedef double score_t;
 #define SCORE_MIN -INFINITY
 
 /* print one of the internal matrices */
-void mat_print(score_t *mat, int n, int m){
+void mat_print(score_t *mat, const char *needle, const char *haystack){
+	int n = strlen(needle);
+	int m = strlen(haystack);
 	int i, j;
+	fprintf(stderr, "    ");
+	for(j = 0; j < m; j++){
+		fprintf(stderr, "     %c", haystack[j]);
+	}
+	fprintf(stderr, "\n");
 	for(i = 0; i < n; i++){
+		fprintf(stderr, " %c |", needle[i]);
 		for(j = 0; j < m; j++){
 			score_t val = mat[i*m + j];
 			if(val == SCORE_MIN){
@@ -129,10 +137,10 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	}
 
 #if 0
-	printf("\"%s\" =~ \"%s\"\n", needle, haystack);
-	mat_print(&D[0][0], n, m);
-	mat_print(&M[0][0], n, m);
-	printf("\n");
+	fprintf(stderr, "\"%s\" =~ \"%s\"\n", needle, haystack);
+	mat_print(&D[0][0], needle, haystack);
+	mat_print(&M[0][0], needle, haystack);
+	fprintf(stderr, "\n");
 #endif
 
 	/* backtrace to find the positions of optimal matching */
