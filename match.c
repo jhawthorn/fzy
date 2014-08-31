@@ -145,6 +145,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 	/* backtrace to find the positions of optimal matching */
 	if(positions){
+		int match_required = 0;
 		for(int i = n-1, j = m-1; i >= 0; i--){
 			for(; j >= 0; j--){
 				/*
@@ -155,7 +156,12 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 				 * we encounter, the latest in the candidate
 				 * string.
 				 */
-				if(D[i][j] != SCORE_MIN && D[i][j] == M[i][j]){
+				if(D[i][j] != SCORE_MIN && (match_required || D[i][j] == M[i][j])){
+					/* If this score was determined using
+					 * SCORE_MATCH_CONSECUTIVE, the
+					 * previous character MUST be a match
+					 */
+					match_required = i && j && M[i][j] == D[i-1][j-1] + SCORE_MATCH_CONSECUTIVE;
 					positions[i] = j--;
 					break;
 				}
