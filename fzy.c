@@ -10,6 +10,10 @@
 
 int flag_show_scores = 0;
 
+size_t num_lines = 10;
+size_t scrolloff = 1;
+
+
 #define INITIAL_CAPACITY 1
 int choices_capacity = 0;
 int choices_n = 0;
@@ -85,17 +89,14 @@ void run_search(char *needle){
 	qsort(choices_sorted, choices_available, sizeof(size_t), cmpchoice);
 }
 
-#define NUMLINES 10
-#define SCROLLOFF 1
-
 #define SEARCH_SIZE_MAX 4096
 int search_size;
 char search[SEARCH_SIZE_MAX + 1] = {0};
 
 void clear(tty_t *tty){
 	tty_setcol(tty, 0);
-	int line = 0;
-	while(line++ < NUMLINES){
+	size_t line = 0;
+	while(line++ < num_lines){
 		tty_newline(tty);
 	}
 	tty_moveup(tty, line-1);
@@ -129,16 +130,16 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 
 void draw(tty_t *tty){
 	size_t start = 0;
-	if(current_selection + SCROLLOFF >= NUMLINES){
-		start = current_selection + SCROLLOFF - NUMLINES + 1;
-		if(start + NUMLINES >= choices_available){
-			start = choices_available - NUMLINES;
+	if(current_selection + scrolloff >= num_lines){
+		start = current_selection + scrolloff - num_lines + 1;
+		if(start + num_lines >= choices_available){
+			start = choices_available - num_lines;
 		}
 	}
 	const char *prompt = "> ";
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", prompt, search);
-	for(size_t i = start; i < start + NUMLINES; i++){
+	for(size_t i = start; i < start + num_lines; i++){
 		tty_newline(tty);
 		if(i < choices_available){
 			size_t choice_idx = choices_sorted[i];
@@ -148,7 +149,7 @@ void draw(tty_t *tty){
 		}
 	}
 	tty_clearline(tty);
-	tty_moveup(tty, NUMLINES);
+	tty_moveup(tty, num_lines);
 	tty_setcol(tty, strlen(prompt) + strlen(search));
 	tty_flush(tty);
 }
@@ -225,6 +226,7 @@ void run(tty_t *tty){
 
 static const char *usage_str = ""
 "USAGE: fzy [OPTION]...\n"
+" -l, --lines              Specify how many lines of results to show\n"
 " -e, --show-matches=QUERY output the sorted matches of QUERY\n"
 " -s, --show-scores        show the scores of each match\n"
 " -h, --help     display this help and exit\n"
@@ -232,11 +234,11 @@ static const char *usage_str = ""
 
 void usage(const char *argv0){
 	fprintf(stderr, usage_str, argv0);
-	exit(EXIT_FAILURE);
 }
 
 static struct option longopts[] = {
 	{ "show-matches", required_argument, NULL, 'e' },
+	{ "lines", required_argument, NULL, 'l' },
 	{ "show-scores", no_argument, NULL, 's' },
 	{ "version", no_argument, NULL, 'v' },
 	{ "help",    no_argument, NULL, 'h' },
@@ -246,7 +248,7 @@ static struct option longopts[] = {
 int main(int argc, char *argv[]){
 	char *initial_query = NULL;
 	char c;
-	while((c = getopt_long(argc, argv, "vhse:", longopts, NULL)) != -1){
+	while((c = getopt_long(argc, argv, "vhse:l:", longopts, NULL)) != -1){
 		switch(c){
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
@@ -257,14 +259,27 @@ int main(int argc, char *argv[]){
 			case 'e':
 				initial_query = optarg;
 				break;
+			case 'l':
+				{
+					int l;
+					if(sscanf(optarg, "%d", &l) != 1 || l < 3){
+						fprintf(stderr, "Invalid format for --lines: %s\n", optarg);
+						fprintf(stderr, "Must be integer in range 3..\n");
+						usage(argv[0]);
+						exit(EXIT_FAILURE);
+					}
+					num_lines = l;
+				}
+				break;
 			case 'h':
 			default:
 				usage(argv[0]);
-				exit(EXIT_FAILURE);
+				exit(EXIT_SUCCESS);
 		}
 	}
 	if(optind != argc){
 		usage(argv[0]);
+		exit(EXIT_FAILURE);
 	}
 
 	resize_choices(INITIAL_CAPACITY);
