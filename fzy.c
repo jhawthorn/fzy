@@ -241,11 +241,13 @@ static struct option longopts[] = {
 	{ "lines", required_argument, NULL, 'l' },
 	{ "show-scores", no_argument, NULL, 's' },
 	{ "version", no_argument, NULL, 'v' },
+	{ "benchmark", no_argument, NULL, 'b' },
 	{ "help",    no_argument, NULL, 'h' },
 	{ NULL,      0,           NULL, 0 }
 };
 
 int main(int argc, char *argv[]){
+	int benchmark = 0;
 	char *initial_query = NULL;
 	char c;
 	while((c = getopt_long(argc, argv, "vhse:l:", longopts, NULL)) != -1){
@@ -258,6 +260,9 @@ int main(int argc, char *argv[]){
 				break;
 			case 'e':
 				initial_query = optarg;
+				break;
+			case 'b':
+				benchmark = 1;
 				break;
 			case 'l':
 				{
@@ -285,7 +290,14 @@ int main(int argc, char *argv[]){
 	resize_choices(INITIAL_CAPACITY);
 	read_choices();
 
-	if(initial_query){
+	if(benchmark){
+		if(!initial_query){
+			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
+			exit(EXIT_FAILURE);
+		}
+		for(int i = 0; i < 100; i++)
+			run_search(initial_query);
+	}else if(initial_query){
 		run_search(initial_query);
 		for(size_t i = 0; i < choices_available; i++){
 			size_t choice_idx = choices_sorted[i];
