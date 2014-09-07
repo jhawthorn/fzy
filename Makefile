@@ -1,7 +1,7 @@
 VERSION=0.1beta
 
 CPPFLAGS=-DVERSION=\"${VERSION}\"
-CFLAGS+=-Wall -Wextra -g -std=c99 -O2
+CFLAGS+=-Wall -Wextra -g -std=c99 -O3
 PREFIX?=/usr/local
 
 INSTALL=install
@@ -11,13 +11,13 @@ INSTALL_DATA=${INSTALL} -m 644
 all: fzy fzytest
 
 fzytest: fzytest.o match.o
-	$(CC) $(CCFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
 test: fzytest
 	-./fzytest
 
 fzy: fzy.o match.o tty.o
-	$(CC) $(CCFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
 %.o: %.c fzy.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
