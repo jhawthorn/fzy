@@ -65,8 +65,6 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 
 	score_t match_bonus[m];
 	score_t D[n][m], M[n][m];
-	bzero(D, sizeof(D));
-	bzero(M, sizeof(M));
 
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
