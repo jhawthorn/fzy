@@ -110,6 +110,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	}
 
 	for(int i = 0; i < n; i++){
+		double prev_score = SCORE_MIN;
 		for(int j = 0; j < m; j++){
 			score_t score = SCORE_MIN;
 			if(tolower(needle[i]) == tolower(haystack[j])){
@@ -125,12 +126,13 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 			D[i][j] = score;
 			if(j){
 				if(i == n-1){
-					score = max(score, M[i][j-1] + SCORE_GAP_TRAILING);
+					score = max(score, prev_score + SCORE_GAP_TRAILING);
 				}else{
-					score = max(score, M[i][j-1] + SCORE_GAP_INNER);
+					score = max(score, prev_score + SCORE_GAP_INNER);
 				}
 			}
 			M[i][j] = score;
+			prev_score = score;
 		}
 	}
 
