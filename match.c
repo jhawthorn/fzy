@@ -118,16 +118,16 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 				if(!i){
 					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				}else if(j){
-					score = max(score, M[i-1][j-1] + match_bonus[j]);
+					score = max(
+						M[i-1][j-1] + match_bonus[j],
 
-					/* consecutive match, doesn't stack with match_bonus */
-					score = max(score, D[i-1][j-1] + SCORE_MATCH_CONSECUTIVE);
+						/* consecutive match, doesn't stack with match_bonus */
+						D[i-1][j-1] + SCORE_MATCH_CONSECUTIVE
+						);
 				}
 			}
 			D[i][j] = score;
-			score = max(score, prev_score + gap_score);
-			M[i][j] = score;
-			prev_score = score;
+			M[i][j] = prev_score = max(score, prev_score + gap_score);
 		}
 	}
 
