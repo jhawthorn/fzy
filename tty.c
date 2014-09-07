@@ -19,6 +19,11 @@ void tty_init(tty_t *tty){
 
 	struct termios new_termios = tty->original_termios;
 
+	/*
+	 * Disable both of
+	 * ICANON  Canonical input (erase and kill processing).
+	 * ECHO    Enable echo.
+	 */
 	new_termios.c_lflag &= ~(ICANON | ECHO);
 
 	tcsetattr(tty->fdin, TCSANOW, &new_termios);
