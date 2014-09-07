@@ -112,19 +112,17 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	for(int i = 0; i < n; i++){
 		for(int j = 0; j < m; j++){
 			score_t score = SCORE_MIN;
-			int match = tolower(needle[i]) == tolower(haystack[j]);
-			D[i][j] = SCORE_MIN;
-			if(match){
-				if(i && j){
+			if(tolower(needle[i]) == tolower(haystack[j])){
+				if(!i){
+					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
+				}else if(j){
 					score = max(score, M[i-1][j-1] + match_bonus[j]);
 
 					/* consecutive match, doesn't stack with match_bonus */
 					score = max(score, D[i-1][j-1] + SCORE_MATCH_CONSECUTIVE);
-				}else if(!i){
-					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				}
-				D[i][j] = score;
 			}
+			D[i][j] = score;
 			if(j){
 				if(i == n-1){
 					score = max(score, M[i][j-1] + SCORE_GAP_TRAILING);
