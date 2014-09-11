@@ -226,7 +226,7 @@ void run(tty_t *tty){
 
 static const char *usage_str = ""
 "USAGE: fzy [OPTION]...\n"
-" -l, --lines              Specify how many lines of results to show\n"
+" -l, --lines=LINES        Specify how many lines of results to show\n"
 " -e, --show-matches=QUERY output the sorted matches of QUERY\n"
 " -s, --show-scores        show the scores of each match\n"
 " -h, --help     display this help and exit\n"
