@@ -7,41 +7,14 @@
 
 #include "fzy.h"
 #include "tty.h"
+#include "choices.h"
 
 int flag_show_scores = 0;
 
 size_t num_lines = 10;
 size_t scrolloff = 1;
 
-
-#define INITIAL_CAPACITY 1
-int choices_capacity = 0;
-int choices_n = 0;
-const char **choices = NULL;
-double *choices_score = NULL;
-size_t *choices_sorted = NULL;
-size_t current_selection = 0;
-
-void resize_choices(int new_capacity){
-	choices = realloc(choices, new_capacity * sizeof(const char *));
-	choices_score = realloc(choices_score, new_capacity * sizeof(double));
-	choices_sorted = realloc(choices_sorted, new_capacity * sizeof(size_t));
-
-	int i = choices_capacity;
-	for(; i < new_capacity; i++){
-		choices[i] = NULL;
-	}
-	choices_capacity = new_capacity;
-}
-
-void add_choice(const char *choice){
-	if(choices_n == choices_capacity){
-		resize_choices(choices_capacity * 2);
-	}
-	choices[choices_n++] = choice;
-}
-
-void read_choices(){
+void read_choices(choices_t *c){
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
@@ -51,42 +24,11 @@ void read_choices(){
 		if((nl = strchr(line, '\n')))
 			*nl = '\0';
 
-		add_choice(line);
+		choices_add(c, line);
 
 		line = NULL;
 	}
 	free(line);
-}
-
-size_t choices_available = 0;
-
-static int cmpchoice(const void *p1, const void *p2) {
-	size_t idx1 = *(size_t *)p1;
-	size_t idx2 = *(size_t *)p2;
-
-	double score1 = choices_score[idx1];
-	double score2 = choices_score[idx2];
-
-	if(score1 == score2)
-		return 0;
-	else if(score1 < score2)
-		return 1;
-	else
-		return -1;
-}
-
-void run_search(char *needle){
-	current_selection = 0;
-	choices_available = 0;
-	int i;
-	for(i = 0; i < choices_n; i++){
-		if(has_match(needle, choices[i])){
-			choices_score[i] = match(needle, choices[i]);
-			choices_sorted[choices_available++] = i;
-		}
-	}
-
-	qsort(choices_sorted, choices_available, sizeof(size_t), cmpchoice);
 }
 
 #define SEARCH_SIZE_MAX 4096
@@ -131,12 +73,13 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 	tty_setnormal(tty);
 }
 
-void draw(tty_t *tty){
+void draw(tty_t *tty, choices_t *choices){
 	size_t start = 0;
+	size_t current_selection = choices->selection;
 	if(current_selection + scrolloff >= num_lines){
 		start = current_selection + scrolloff - num_lines + 1;
-		if(start + num_lines >= choices_available){
-			start = choices_available - num_lines;
+		if(start + num_lines >= choices_available(choices)){
+			start = choices_available(choices) - num_lines;
 		}
 	}
 	const char *prompt = "> ";
@@ -144,9 +87,9 @@ void draw(tty_t *tty){
 	tty_printf(tty, "%s%s", prompt, search);
 	for(size_t i = start; i < start + num_lines; i++){
 		tty_newline(tty);
-		if(i < choices_available){
-			size_t choice_idx = choices_sorted[i];
-			draw_match(tty, choices[choice_idx], i == current_selection);
+		const char *choice = choices_get(choices, i);
+		if(choice){
+			draw_match(tty, choice, i == choices->selection);
 		}
 	}
 	tty_clearline(tty);
@@ -155,13 +98,11 @@ void draw(tty_t *tty){
 	tty_flush(tty);
 }
 
-void emit(tty_t *tty){
-	/* ttyout should be flushed before outputting on stdout */
-	fclose(tty->fout);
-
-	if(choices_available){
+void emit(choices_t *choices){
+	const char *selection = choices_get(choices, choices->selection);
+	if(selection){
 		/* output the selected result */
-		printf("%s\n", choices[choices_sorted[current_selection]]);
+		printf("%s\n", selection);
 	}else{
 		/* No match, output the query instead */
 		printf("%s\n", search);
@@ -170,58 +111,54 @@ void emit(tty_t *tty){
 	exit(EXIT_SUCCESS);
 }
 
-void action_prev(){
-	current_selection = (current_selection + choices_available - 1) % choices_available;
-}
-
-void action_next(){
-	current_selection = (current_selection + 1) % choices_available;
-}
-
-void run(tty_t *tty){
-	run_search(search);
+void run(tty_t *tty, choices_t *choices){
+	choices_search(choices, search);
 	char ch;
 	do {
-		draw(tty);
+		draw(tty, choices);
 		ch = tty_getchar(tty);
 		if(isprint(ch)){
 			if(search_size < SEARCH_SIZE_MAX){
 				search[search_size++] = ch;
 				search[search_size] = '\0';
-				run_search(search);
+				choices_search(choices, search);
 			}
 		}else if(ch == 127 || ch == 8){ /* DEL || backspace */
 			if(search_size)
 				search[--search_size] = '\0';
-			run_search(search);
+			choices_search(choices, search);
 		}else if(ch == 21){ /* C-U */
 			search_size = 0;
 			search[0] = '\0';
-			run_search(search);
+			choices_search(choices, search);
 		}else if(ch == 23){ /* C-W */
 			if(search_size)
 				search[--search_size] = '\0';
 			while(search_size && !isspace(search[--search_size]))
 				search[search_size] = '\0';
-			run_search(search);
+			choices_search(choices, search);
 		}else if(ch == 14){ /* C-N */
-			action_next();
+			choices_next(choices);
 		}else if(ch == 16){ /* C-P */
-			action_prev();
+			choices_prev(choices);
 		}else if(ch == 9){ /* TAB */
-			strncpy(search, choices[choices_sorted[current_selection]], SEARCH_SIZE_MAX);
+			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
 			search_size = strlen(search);
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
-			emit(tty);
+
+			/* ttyout should be flushed before outputting on stdout */
+			fclose(tty->fout);
+
+			emit(choices);
 		}else if(ch == 27){ /* ESC */
 			ch = tty_getchar(tty);
 			if(ch == '[' || ch == 'O'){
 				ch = tty_getchar(tty);
 				if(ch == 'A'){ /* UP ARROW */
-					action_prev();
+					choices_prev(choices);
 				}else if(ch == 'B'){ /* DOWN ARROW */
-					action_next();
+					choices_next(choices);
 				}
 			}
 		}
@@ -297,8 +234,9 @@ int main(int argc, char *argv[]){
 		exit(EXIT_FAILURE);
 	}
 
-	resize_choices(INITIAL_CAPACITY);
-	read_choices();
+	choices_t choices;
+	choices_init(&choices);
+	read_choices(&choices);
 
 	if(benchmark){
 		if(!initial_query){
@@ -306,21 +244,20 @@ int main(int argc, char *argv[]){
 			exit(EXIT_FAILURE);
 		}
 		for(int i = 0; i < 100; i++)
-			run_search(initial_query);
+			choices_search(&choices, initial_query);
 	}else if(initial_query){
-		run_search(initial_query);
-		for(size_t i = 0; i < choices_available; i++){
-			size_t choice_idx = choices_sorted[i];
+		choices_search(&choices, initial_query);
+		for(size_t i = 0; i < choices_available(&choices); i++){
 			if(flag_show_scores)
-				printf("%f\t", choices_score[choice_idx]);
-			printf("%s\n", choices[choice_idx]);
+				printf("%f\t", choices_getscore(&choices, i));
+			printf("%s\n", choices_get(&choices, i));
 		}
 	}else{
 		/* interactive */
 		tty_t tty;
 		tty_init(&tty, tty_filename);
 
-		run(&tty);
+		run(&tty, &choices);
 	}
 
 	return 0;

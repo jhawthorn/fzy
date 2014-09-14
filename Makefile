@@ -16,7 +16,7 @@ fzytest: fzytest.o match.o
 test: fzytest
 	-./fzytest
 
-fzy: fzy.o match.o tty.o
+fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
 %.o: %.c fzy.h
