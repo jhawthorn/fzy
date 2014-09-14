@@ -207,6 +207,9 @@ void run(tty_t *tty){
 			action_next();
 		}else if(ch == 16){ /* C-P */
 			action_prev();
+		}else if(ch == 9){ /* TAB */
+			strncpy(search, choices[choices_sorted[current_selection]], SEARCH_SIZE_MAX);
+			search_size = strlen(search);
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
 			emit(tty);
