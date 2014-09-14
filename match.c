@@ -9,10 +9,14 @@
 
 int has_match(const char *needle, const char *haystack){
 	while(*needle){
-		if(!*haystack)
-			return 0;
-		while(*haystack && tolower(*needle) == tolower(*haystack++))
-			needle++;
+		char nch = tolower(*needle++);
+		for(;;){
+			char ch = *haystack++;
+			if(!ch)
+				return 0;
+			else if(nch == tolower(ch))
+				break;
+		}
 	}
 	return 1;
 }
