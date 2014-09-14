@@ -111,7 +111,10 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 	for(int i = 0; i < n + 1; i++)
 		positions[i] = -1;
 
-	match_positions(search, choice, &positions[0]);
+	double score = match_positions(search, choice, &positions[0]);
+
+	if(flag_show_scores)
+		tty_printf(tty, "(%5.2f) ", score);
 
 	if(selected)
 		tty_setinvert(tty);
@@ -143,8 +146,6 @@ void draw(tty_t *tty){
 		tty_newline(tty);
 		if(i < choices_available){
 			size_t choice_idx = choices_sorted[i];
-			if(flag_show_scores)
-				tty_printf(tty, "(%5.2f) ", choices_score[choice_idx]);
 			draw_match(tty, choices[choice_idx], i == current_selection);
 		}
 	}
