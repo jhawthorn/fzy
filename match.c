@@ -172,8 +172,6 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 double match_positions(const char *needle, const char *haystack, size_t *positions){
 	if(!*needle){
 		return SCORE_MAX;
-	}else if(!has_match(needle, haystack)){
-		return SCORE_MIN;
 	}else if(!strcasecmp(needle, haystack)){
 		if(positions){
 			int n = strlen(needle);
