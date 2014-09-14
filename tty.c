@@ -10,9 +10,9 @@ void tty_reset(tty_t *tty){
 	tcsetattr(tty->fdin, TCSANOW, &tty->original_termios);
 }
 
-void tty_init(tty_t *tty){
-	tty->fdin = open("/dev/tty", O_RDONLY);
-	tty->fout = fopen("/dev/tty", "w");
+void tty_init(tty_t *tty, const char *tty_filename){
+	tty->fdin = open(tty_filename, O_RDONLY);
+	tty->fout = fopen(tty_filename, "w");
 	setvbuf(tty->fout, NULL, _IOFBF, 4096);
 
 	tcgetattr(tty->fdin, &tty->original_termios);

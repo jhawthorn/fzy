@@ -11,7 +11,7 @@ typedef struct{
 } tty_t;
 
 void tty_reset(tty_t *tty);
-void tty_init(tty_t *tty);
+void tty_init(tty_t *tty, const char *tty_filename);
 char tty_getchar(tty_t *tty);
 
 void tty_setfg(tty_t *tty, int fg);

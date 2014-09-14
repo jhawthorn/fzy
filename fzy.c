@@ -225,9 +225,10 @@ void run(tty_t *tty){
 }
 
 static const char *usage_str = ""
-"USAGE: fzy [OPTION]...\n"
-" -l, --lines=LINES        Specify how many lines of results to show\n"
+"Usage: fzy [OPTION]...\n"
+" -l, --lines=LINES        Specify how many lines of results to show (default 10)\n"
 " -e, --show-matches=QUERY output the sorted matches of QUERY\n"
+" -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
 " -s, --show-scores        show the scores of each match\n"
 " -h, --help     display this help and exit\n"
 " -v, --version  output version information and exit\n";
@@ -239,6 +240,7 @@ void usage(const char *argv0){
 static struct option longopts[] = {
 	{ "show-matches", required_argument, NULL, 'e' },
 	{ "lines", required_argument, NULL, 'l' },
+	{ "tty", required_argument, NULL, 't' },
 	{ "show-scores", no_argument, NULL, 's' },
 	{ "version", no_argument, NULL, 'v' },
 	{ "benchmark", no_argument, NULL, 'b' },
@@ -249,8 +251,9 @@ static struct option longopts[] = {
 int main(int argc, char *argv[]){
 	int benchmark = 0;
 	char *initial_query = NULL;
+	char *tty_filename = "/dev/tty";
 	char c;
-	while((c = getopt_long(argc, argv, "vhse:l:", longopts, NULL)) != -1){
+	while((c = getopt_long(argc, argv, "vhse:l:t:", longopts, NULL)) != -1){
 		switch(c){
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
@@ -263,6 +266,9 @@ int main(int argc, char *argv[]){
 				break;
 			case 'b':
 				benchmark = 1;
+				break;
+			case 't':
+				tty_filename = optarg;
 				break;
 			case 'l':
 				{
@@ -308,7 +314,7 @@ int main(int argc, char *argv[]){
 	}else{
 		/* interactive */
 		tty_t tty;
-		tty_init(&tty);
+		tty_init(&tty, tty_filename);
 
 		run(&tty);
 	}
