@@ -1,0 +1,85 @@
+.TH FZY 1 "2014-09-11" "fzy 0.1beta"
+.SH NAME
+fzy \- A fuzzy text selector menu for the terminal.
+.SH SYNOPSIS
+.B fzy
+.IR [OPTION]...
+.SH DESCRIPTION
+.B fzy is a fuzzy text selector/file finder for the terminal using a search
+similar to that of TextMate or CmdT.
+
+fzy reads a list of newline-separated items from stdin to be displayed as a
+menu in the terminal.
+Upon pressing ENTER, the currently selected item is printed to stdout.
+
+Entering text narrows the items using fuzzy matching. Results are sorted using
+heuristics for the best match.
+
+.SH OPTIONS
+.TP
+.BR \-l ", " \-\-lines =\fILINES\fR
+How many lines of items to display. If unspecified, defaults to 10 lines.
+.
+.TP
+.BR \-s ", " \-\-show-scores
+Show the scores for each item.
+.
+.TP
+.BR \-t ", " \-\-tty =\fITTY\fR
+Use TTY instead of the default tty device (/dev/tty).
+.
+.TP
+.BR \-e ", " \-\-show-matches =\fIQUERY\fR
+Non-interactive mode. Print the matches in sorted order for QUERY to stdout.
+.
+.TP
+.BR \-h ", " \-\-help
+Usage help.
+.
+.TP
+.BR \-v ", " \-\-version
+Usage help.
+.
+.SH KEYS
+.
+.TP
+.BR "ENTER"
+Print the selected item to stdout and exit
+.TP
+.BR "Up Arrow, Ctrl+p"
+Select the previous item
+.TP
+.BR "Down Arrow, Ctrl+n"
+Select the next item
+.TP
+Tab
+Replace the current search string with the selected item
+.TP
+.BR "Backspace, Ctrl+h"
+Delete the character before the cursor
+.TP
+.BR Ctrl+w
+Delete the word before the cursor
+.TP
+.BR Ctrl+u
+Delete the entire line
+.
+.SH USAGE EXAMPLES
+.
+.TP
+.BR "ls | fzy"
+Present a menu of items in the current directory
+.TP
+.BR "ls | fzy -l 25"
+Same as above, but show 25 lines of items
+.TP
+.BR "vi $(find -type f | fzy)"
+List files under the current directory and open the one selected in vi.
+.TP
+.BR "cd $(find -type d | fzy)"
+Present all directories under current path, and change to the one selected.
+.TP
+.BR "git checkout $(git branch | cut -c 3- | fzy)"
+Same as above, but switching git branches.
+.SH AUTHOR
+John Hawthorn <john.hawthorn@gmail.com>
