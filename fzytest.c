@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "fzy.h"
+#include "match.h"
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 

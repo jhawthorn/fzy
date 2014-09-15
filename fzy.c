@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include <getopt.h>
 
-#include "fzy.h"
+#include "match.h"
 #include "tty.h"
 #include "choices.h"
 

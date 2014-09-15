@@ -1,3 +1,6 @@
+#ifndef CHOICES_H
+#define CHOICES_H CHOICES_H
+
 typedef struct {
 	size_t capacity;
 	size_t size;
@@ -20,3 +23,4 @@ double choices_getscore(choices_t *c, size_t n);
 void choices_prev(choices_t *c);
 void choices_next(choices_t *c);
 
+#endif

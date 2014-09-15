@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "choices.h"
-#include "fzy.h"
+#include "match.h"
 
 #define INITIAL_CAPACITY 1
 

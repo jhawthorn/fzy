@@ -5,7 +5,7 @@
 #include <float.h>
 #include <math.h>
 
-#include "fzy.h"
+#include "match.h"
 
 int has_match(const char *needle, const char *haystack){
 	while(*needle){

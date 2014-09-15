@@ -19,7 +19,7 @@ test: fzytest
 fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
-%.o: %.c fzy.h
+%.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 install: fzy
