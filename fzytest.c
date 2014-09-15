@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "match.h"
 #include "choices.h"
@@ -22,6 +23,7 @@ int test_match(){
 	/* non-match */
 	assert(!has_match("a", ""));
 	assert(!has_match("a", "b"));
+	assert(!has_match("ass", "tags"));
 
 	/* match when query is empty */
 	assert(has_match("", ""));
@@ -111,7 +113,7 @@ int test_positions_exact(){
 	return 0;
 }
 
-int test_empty_choices(){
+int test_choices_empty(){
 	choices_t choices;
 	choices_init(&choices);
 	assert(choices.size == 0);
@@ -123,6 +125,32 @@ int test_empty_choices(){
 
 	choices_next(&choices);
 	assert(choices.selection == 0);
+
+	choices_free(&choices);
+	return 0;
+}
+
+int test_choices_1(){
+	choices_t choices;
+	choices_init(&choices);
+	choices_add(&choices, "tags");
+
+	choices_search(&choices, "");
+	assert(choices.available == 1);
+	assert(choices.selection == 0);
+
+	choices_search(&choices, "t");
+	assert(choices.available == 1);
+	assert(choices.selection == 0);
+
+	choices_prev(&choices);
+	assert(choices.selection == 0);
+
+	choices_next(&choices);
+	assert(choices.selection == 0);
+
+	assert(!strcmp(choices_get(&choices, 0), "tags"));
+	assert(choices_get(&choices, 1) == NULL);
 
 	choices_free(&choices);
 	return 0;
@@ -144,7 +172,8 @@ int main(int argc, char *argv[]){
 	runtest(test_positions_4);
 	runtest(test_positions_exact);
 
-	runtest(test_empty_choices);
+	runtest(test_choices_empty);
+	runtest(test_choices_1);
 
 	summary();
 
