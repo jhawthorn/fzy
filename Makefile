@@ -3,6 +3,8 @@ VERSION=0.1beta
 CPPFLAGS=-DVERSION=\"${VERSION}\"
 CFLAGS+=-Wall -Wextra -g -std=c99 -O3
 PREFIX?=/usr/local
+MANDIR?=$(PREFIX)/share/man
+BINDIR?=$(PREFIX)/bin
 
 INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
@@ -23,7 +25,8 @@ fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 install: fzy
-	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(PREFIX)/bin/fzy
+	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(BINDIR)/fzy
+	$(INSTALL_PROGRAM) -D fzy.1 $(DESTDIR)$(MANDIR)/man1/fzy.1
 
 clean:
 	$(RM) fzy fzytest *.o
