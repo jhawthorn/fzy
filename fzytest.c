@@ -1,5 +1,7 @@
 #include <stdio.h>
+
 #include "match.h"
+#include "choices.h"
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
@@ -109,6 +111,23 @@ int test_positions_exact(){
 	return 0;
 }
 
+int test_empty_choices(){
+	choices_t choices;
+	choices_init(&choices);
+	assert(choices.size == 0);
+	assert(choices.available == 0);
+	assert(choices.selection == 0);
+
+	choices_prev(&choices);
+	assert(choices.selection == 0);
+
+	choices_next(&choices);
+	assert(choices.selection == 0);
+
+	choices_free(&choices);
+	return 0;
+}
+
 void summary(){
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -124,6 +143,8 @@ int main(int argc, char *argv[]){
 	runtest(test_positions_3);
 	runtest(test_positions_4);
 	runtest(test_positions_exact);
+
+	runtest(test_empty_choices);
 
 	summary();
 

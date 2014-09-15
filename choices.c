@@ -80,10 +80,12 @@ double choices_getscore(choices_t *c, size_t n){
 }
 
 void choices_prev(choices_t *c){
-	c->selection = (c->selection + c->available - 1) % c->available;
+	if(c->available)
+		c->selection = (c->selection + c->available - 1) % c->available;
 }
 
 void choices_next(choices_t *c){
-	c->selection = (c->selection + 1) % c->available;
+	if(c->available)
+		c->selection = (c->selection + 1) % c->available;
 }
 
