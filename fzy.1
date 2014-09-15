@@ -79,6 +79,9 @@ List files under the current directory and open the one selected in vi.
 .BR "cd $(find -type d | fzy)"
 Present all directories under current path, and change to the one selected.
 .TP
+.BR "ps aux | fzy | awk '{ print $2 }' | xargs kill"
+List running processes, kill the selected process
+.TP
 .BR "git checkout $(git branch | cut -c 3- | fzy)"
 Same as above, but switching git branches.
 .SH AUTHOR
