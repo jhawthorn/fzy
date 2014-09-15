@@ -1,8 +1,11 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #include "tty.h"
 
@@ -28,7 +31,18 @@ void tty_init(tty_t *tty, const char *tty_filename){
 
 	tcsetattr(tty->fdin, TCSANOW, &new_termios);
 
+	tty_getwinsz(tty);
+
 	tty_setnormal(tty);
+}
+
+void tty_getwinsz(tty_t *tty){
+	struct winsize ws;
+	if(ioctl(fileno(tty->fout), TIOCGWINSZ, &ws) == -1){
+		tty->maxwidth = 80;
+	}else{
+		tty->maxwidth = ws.ws_col;
+	}
 }
 
 char tty_getchar(tty_t *tty){
@@ -92,3 +106,6 @@ void tty_flush(tty_t *tty){
 	fflush(tty->fout);
 }
 
+size_t tty_getwidth(tty_t *tty){
+	return tty->maxwidth;
+}

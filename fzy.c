@@ -55,6 +55,8 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 
 	double score = match_positions(search, choice, &positions[0]);
 
+	size_t maxwidth = tty_getwidth(tty);
+
 	if(flag_show_scores)
 		tty_printf(tty, "(%5.2f) ", score);
 
@@ -62,13 +64,18 @@ void draw_match(tty_t *tty, const char *choice, int selected){
 		tty_setinvert(tty);
 
 	for(size_t i = 0, p = 0; choice[i] != '\0'; i++){
-		if(positions[p] == i){
-			tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
-			p++;
+		if(i+1 < maxwidth){
+			if(positions[p] == i){
+				tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
+				p++;
+			}else{
+				tty_setfg(tty, TTY_COLOR_NORMAL);
+			}
+			tty_printf(tty, "%c", choice[i]);
 		}else{
-			tty_setfg(tty, TTY_COLOR_NORMAL);
+			tty_printf(tty, "$");
+			break;
 		}
-		tty_printf(tty, "%c", choice[i]);
 	}
 	tty_setnormal(tty);
 }
@@ -85,14 +92,15 @@ void draw(tty_t *tty, choices_t *choices){
 	const char *prompt = "> ";
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", prompt, search);
+	tty_clearline(tty);
 	for(size_t i = start; i < start + num_lines; i++){
-		tty_newline(tty);
+		tty_printf(tty, "\n");
+		tty_clearline(tty);
 		const char *choice = choices_get(choices, i);
 		if(choice){
 			draw_match(tty, choice, i == choices->selection);
 		}
 	}
-	tty_clearline(tty);
 	tty_moveup(tty, num_lines);
 	tty_setcol(tty, strlen(prompt) + strlen(search));
 	tty_flush(tty);

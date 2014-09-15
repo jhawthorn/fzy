@@ -8,10 +8,12 @@ typedef struct{
 	FILE *fout;
 	struct termios original_termios;
 	int fgcolor;
+	size_t maxwidth;
 } tty_t;
 
 void tty_reset(tty_t *tty);
 void tty_init(tty_t *tty, const char *tty_filename);
+void tty_getwinsz(tty_t *tty);
 char tty_getchar(tty_t *tty);
 
 void tty_setfg(tty_t *tty, int fg);
@@ -44,5 +46,7 @@ void tty_setcol(tty_t *tty, int col);
 
 void tty_printf(tty_t *tty, const char *fmt, ...);
 void tty_flush(tty_t *tty);
+
+size_t tty_getwidth(tty_t *tty);
 
 #endif
