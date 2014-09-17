@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -7,13 +6,13 @@
 
 #define INITIAL_CAPACITY 1
 
-static int cmpchoice(size_t *idx1, size_t *idx2, double *choices_score) {
-	double score1 = choices_score[*idx1];
-	double score2 = choices_score[*idx2];
+static int cmpchoice(const void *_idx1, const void *_idx2) {
+	const struct scored_position *a = _idx1;
+	const struct scored_position *b = _idx2;
 
-	if(score1 == score2)
+	if(a->score == b->score)
 		return 0;
-	else if(score1 < score2)
+	else if(a->score < b->score)
 		return 1;
 	else
 		return -1;
@@ -21,10 +20,9 @@ static int cmpchoice(size_t *idx1, size_t *idx2, double *choices_score) {
 
 static void choices_resize(choices_t *c, int new_capacity){
 	c->strings = realloc(c->strings, new_capacity * sizeof(const char *));
-	c->scores  = realloc(c->scores,  new_capacity * sizeof(double));
-	c->sorted  = realloc(c->sorted,  new_capacity * sizeof(size_t));
+	c->results = realloc(c->results, new_capacity * sizeof(struct scored_position));
 
-	if(!c->strings || !c->scores || !c->sorted){
+	if(!c->strings || !c->results){
 		fprintf(stderr, "Error: Can't allocate memory\n");
 		abort();
 	}
@@ -37,16 +35,14 @@ static void choices_resize(choices_t *c, int new_capacity){
 
 void choices_init(choices_t *c){
 	c->strings = NULL;
-	c->scores  = NULL;
-	c->sorted  = NULL;
+	c->results = NULL;
 	c->capacity = c->size = 0;
 	c->selection = c->available = 0;
 	choices_resize(c, INITIAL_CAPACITY);
 }
 void choices_free(choices_t *c){
 	free(c->strings);
-	free(c->scores);
-	free(c->sorted);
+	free(c->results);
 };
 
 void choices_add(choices_t *c, const char *choice){
@@ -66,23 +62,24 @@ void choices_search(choices_t *c, const char *search){
 
 	for(size_t i = 0; i < c->size; i++){
 		if(has_match(search, c->strings[i])){
-			c->scores[i] = match(search, c->strings[i]);
-			c->sorted[c->available++] = i;
+			c->results[c->available].position = i;
+			c->results[c->available].score = match(search, c->strings[i]);
+			c->available++;
 		}
 	}
 
-	qsort_r(c->sorted, c->available, sizeof(size_t), (int (*)(const void *, const void *, void *))cmpchoice, c->scores);
+	qsort(c->results, c->available, sizeof(struct scored_position), cmpchoice);
 }
 
 const char *choices_get(choices_t *c, size_t n){
 	if(n < c->available){
-		return c->strings[c->sorted[n]];
+		return c->strings[c->results[n].position];
 	}else{
 		return NULL;
 	}
 }
 double choices_getscore(choices_t *c, size_t n){
-	return c->scores[c->sorted[n]];;
+	return c->results[n].score;;
 }
 
 void choices_prev(choices_t *c){

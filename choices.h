@@ -1,14 +1,18 @@
 #ifndef CHOICES_H
 #define CHOICES_H CHOICES_H
 
+struct scored_position {
+	size_t position;
+	double score;
+};
+
 typedef struct {
 	size_t capacity;
 	size_t size;
 
 	const char **strings;
-	double *scores;
+	struct scored_position *results;
 
-	size_t *sorted;
 	size_t available;
 	size_t selection;
 } choices_t;
