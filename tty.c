@@ -16,9 +16,11 @@ void tty_reset(tty_t *tty){
 void tty_init(tty_t *tty, const char *tty_filename){
 	tty->fdin = open(tty_filename, O_RDONLY);
 	tty->fout = fopen(tty_filename, "w");
-	setvbuf(tty->fout, NULL, _IOFBF, 4096);
+	if(setvbuf(tty->fout, NULL, _IOFBF, 4096))
+		perror("setvbuf");
 
-	tcgetattr(tty->fdin, &tty->original_termios);
+	if(tcgetattr(tty->fdin, &tty->original_termios))
+		perror("tcgetattr");
 
 	struct termios new_termios = tty->original_termios;
 
@@ -29,7 +31,8 @@ void tty_init(tty_t *tty, const char *tty_filename){
 	 */
 	new_termios.c_lflag &= ~(ICANON | ECHO);
 
-	tcsetattr(tty->fdin, TCSANOW, &new_termios);
+	if(tcsetattr(tty->fdin, TCSANOW, &new_termios))
+		perror("tcsetattr");
 
 	tty_getwinsz(tty);
 
