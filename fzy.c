@@ -9,6 +9,8 @@
 #include "tty.h"
 #include "choices.h"
 
+#include "config.h"
+
 int flag_show_scores = 0;
 
 size_t num_lines = 10;
@@ -44,8 +46,6 @@ void clear(tty_t *tty){
 	tty_moveup(tty, line-1);
 	tty_flush(tty);
 }
-
-#define TTY_COLOR_HIGHLIGHT TTY_COLOR_YELLOW
 
 void draw_match(tty_t *tty, const char *choice, int selected){
 	int n = strlen(search);
