@@ -246,6 +246,9 @@ int main(int argc, char *argv[]){
 	choices_init(&choices);
 	read_choices(&choices);
 
+	if(num_lines > choices.size)
+		num_lines = choices.size;
+
 	if(benchmark){
 		if(!initial_query){
 			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
@@ -264,6 +267,9 @@ int main(int argc, char *argv[]){
 		/* interactive */
 		tty_t tty;
 		tty_init(&tty, tty_filename);
+
+		if(num_lines + 1 > tty_getheight(&tty))
+			num_lines = tty_getheight(&tty) - 1;
 
 		run(&tty, &choices);
 	}

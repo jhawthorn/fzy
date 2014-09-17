@@ -9,6 +9,7 @@ typedef struct{
 	struct termios original_termios;
 	int fgcolor;
 	size_t maxwidth;
+	size_t maxheight;
 } tty_t;
 
 void tty_reset(tty_t *tty);
@@ -48,5 +49,6 @@ void tty_printf(tty_t *tty, const char *fmt, ...);
 void tty_flush(tty_t *tty);
 
 size_t tty_getwidth(tty_t *tty);
+size_t tty_getheight(tty_t *tty);
 
 #endif

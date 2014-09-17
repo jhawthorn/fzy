@@ -43,8 +43,10 @@ void tty_getwinsz(tty_t *tty){
 	struct winsize ws;
 	if(ioctl(fileno(tty->fout), TIOCGWINSZ, &ws) == -1){
 		tty->maxwidth = 80;
+		tty->maxheight = 25;
 	}else{
 		tty->maxwidth = ws.ws_col;
+		tty->maxheight = ws.ws_row;
 	}
 }
 
@@ -111,4 +113,8 @@ void tty_flush(tty_t *tty){
 
 size_t tty_getwidth(tty_t *tty){
 	return tty->maxwidth;
+}
+
+size_t tty_getheight(tty_t *tty){
+	return tty->maxheight;
 }
