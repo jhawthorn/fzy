@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "choices.h"
 #include "match.h"
@@ -22,6 +23,11 @@ static void choices_resize(choices_t *c, int new_capacity){
 	c->strings = realloc(c->strings, new_capacity * sizeof(const char *));
 	c->scores  = realloc(c->scores,  new_capacity * sizeof(double));
 	c->sorted  = realloc(c->sorted,  new_capacity * sizeof(size_t));
+
+	if(!c->strings || !c->scores || !c->sorted){
+		fprintf(stderr, "Error: Can't allocate memory\n");
+		abort();
+	}
 
 	for(int i = c->capacity; i < new_capacity; i++){
 		c->strings[i] = NULL;
