@@ -1,6 +1,6 @@
 VERSION=0.1beta
 
-CPPFLAGS=-DVERSION=\"${VERSION}\"
+CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
 CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
