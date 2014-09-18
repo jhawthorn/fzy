@@ -80,7 +80,7 @@ const char *choices_get(choices_t *c, size_t n){
 	}
 }
 double choices_getscore(choices_t *c, size_t n){
-	return c->results[n].score;;
+	return c->results[n].score;
 }
 
 void choices_prev(choices_t *c){
