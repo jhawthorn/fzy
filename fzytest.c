@@ -8,6 +8,8 @@ int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
 #define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);return -1;}
 
+#define assert_streq(a, b) assert(!strcmp(a, b))
+
 void runtest(int (*test)()){
 	testsrun++;
 	if(test())
@@ -156,6 +158,57 @@ int test_choices_1(){
 	return 0;
 }
 
+int test_choices_2(){
+	choices_t choices;
+	choices_init(&choices);
+	choices_add(&choices, "tags");
+	choices_add(&choices, "test");
+
+	/* Empty search */
+	choices_search(&choices, "");
+	assert(choices.selection == 0);
+	assert(choices.available == 2);
+	assert_streq(choices_get(&choices, 0), "tags");
+	assert_streq(choices_get(&choices, 1), "test");
+
+	choices_next(&choices);
+	assert(choices.selection == 1);
+	choices_next(&choices);
+	assert(choices.selection == 0);
+
+	choices_prev(&choices);
+	assert(choices.selection == 1);
+	choices_prev(&choices);
+	assert(choices.selection == 0);
+
+	/* Filtered search */
+	choices_search(&choices, "te");
+	assert(choices.available == 1);
+	assert(choices.selection == 0);
+	assert_streq(choices_get(&choices, 0), "test");
+
+	choices_next(&choices);
+	assert(choices.selection == 0);
+
+	choices_prev(&choices);
+	assert(choices.selection == 0);
+
+	/* No results */
+	choices_search(&choices, "foobar");
+	assert(choices.available == 0);
+	assert(choices.selection == 0);
+
+	/* Different order due to scoring */
+	choices_search(&choices, "ts");
+	assert(choices.available == 2);
+	assert(choices.selection == 0);
+	assert_streq(choices_get(&choices, 0), "test");
+	assert_streq(choices_get(&choices, 1), "tags");
+
+	choices_free(&choices);
+	return 0;
+}
+
 void summary(){
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -174,6 +227,7 @@ int main(int argc, char *argv[]){
 
 	runtest(test_choices_empty);
 	runtest(test_choices_1);
+	runtest(test_choices_2);
 
 	summary();
 
