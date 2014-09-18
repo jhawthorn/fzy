@@ -1,7 +1,7 @@
 VERSION=0.1beta
 
 CPPFLAGS=-DVERSION=\"${VERSION}\"
-CFLAGS+=-Wall -Wextra -g -std=c99 -O3
+CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
 BINDIR?=$(PREFIX)/bin

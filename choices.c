@@ -40,10 +40,11 @@ void choices_init(choices_t *c){
 	c->selection = c->available = 0;
 	choices_resize(c, INITIAL_CAPACITY);
 }
+
 void choices_free(choices_t *c){
 	free(c->strings);
 	free(c->results);
-};
+}
 
 void choices_add(choices_t *c, const char *choice){
 	if(c->size == c->capacity){
