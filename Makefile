@@ -21,12 +21,13 @@ test: fzytest
 fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
-%.o: %.c
+%.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 install: fzy
 	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(BINDIR)/fzy
-	$(INSTALL_PROGRAM) -D fzy.1 $(DESTDIR)$(MANDIR)/man1/fzy.1
+	$(INSTALL_PROGRAM) -d $(DESTDIR)$(MANDIR)/man1
+	$(INSTALL_PROGRAM) fzy.1 $(DESTDIR)$(MANDIR)/man1/fzy.1
 
 clean:
 	$(RM) fzy fzytest *.o
