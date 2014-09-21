@@ -24,9 +24,6 @@ int has_match(const char *needle, const char *haystack){
 }
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
-typedef double score_t;
-#define SCORE_MAX INFINITY
-#define SCORE_MIN -INFINITY
 
 /* print one of the internal matrices */
 void mat_print(score_t *mat, const char *needle, const char *haystack){
