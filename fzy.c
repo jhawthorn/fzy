@@ -203,8 +203,8 @@ static struct option longopts[] = {
 
 int main(int argc, char *argv[]){
 	int benchmark = 0;
-	char *initial_query = NULL;
-	char *tty_filename = "/dev/tty";
+	const char *initial_query = NULL;
+	const char *tty_filename = "/dev/tty";
 	char c;
 	while((c = getopt_long(argc, argv, "vhse:l:t:p:", longopts, NULL)) != -1){
 		switch(c){
