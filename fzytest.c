@@ -209,6 +209,27 @@ int test_choices_2(){
 	return 0;
 }
 
+int test_choices_without_search(){
+	/* Before a search is run, it should return no results */
+
+	choices_t choices;
+	choices_init(&choices);
+
+	assert(choices.available == 0);
+	assert(choices.selection == 0);
+	assert(choices.size == 0);
+	assert(choices_get(&choices, 0) == NULL);
+
+	choices_add(&choices, "test");
+
+	assert(choices.available == 0);
+	assert(choices.selection == 0);
+	assert(choices.size == 1);
+	assert(choices_get(&choices, 0) == NULL);
+
+	return 0;
+}
+
 void summary(){
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -228,6 +249,7 @@ int main(int argc, char *argv[]){
 	runtest(test_choices_empty);
 	runtest(test_choices_1);
 	runtest(test_choices_2);
+	runtest(test_choices_without_search);
 
 	summary();
 
