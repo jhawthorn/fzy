@@ -7,8 +7,8 @@
 #define INITIAL_CAPACITY 1
 
 static int cmpchoice(const void *_idx1, const void *_idx2) {
-	const struct scored_position *a = _idx1;
-	const struct scored_position *b = _idx2;
+	const struct scored_result *a = _idx1;
+	const struct scored_result *b = _idx2;
 
 	if(a->score == b->score)
 		return 0;
@@ -65,7 +65,7 @@ size_t choices_available(choices_t *c){
 void choices_search(choices_t *c, const char *search){
 	choices_reset_search(c);
 
-	c->results = malloc(c->size * sizeof(struct scored_position));
+	c->results = malloc(c->size * sizeof(struct scored_result));
 	if(!c->results){
 		fprintf(stderr, "Error: Can't allocate memory\n");
 		abort();
@@ -73,18 +73,18 @@ void choices_search(choices_t *c, const char *search){
 
 	for(size_t i = 0; i < c->size; i++){
 		if(has_match(search, c->strings[i])){
-			c->results[c->available].position = i;
+			c->results[c->available].str = c->strings[i];
 			c->results[c->available].score = match(search, c->strings[i]);
 			c->available++;
 		}
 	}
 
-	qsort(c->results, c->available, sizeof(struct scored_position), cmpchoice);
+	qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);
 }
 
 const char *choices_get(choices_t *c, size_t n){
 	if(n < c->available){
-		return c->strings[c->results[n].position];
+		return c->results[n].str;
 	}else{
 		return NULL;
 	}

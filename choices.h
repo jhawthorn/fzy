@@ -1,9 +1,9 @@
 #ifndef CHOICES_H
 #define CHOICES_H CHOICES_H
 
-struct scored_position {
-	size_t position;
+struct scored_result {
 	double score;
+	const char *str;
 };
 
 typedef struct {
@@ -11,7 +11,7 @@ typedef struct {
 	size_t size;
 
 	const char **strings;
-	struct scored_position *results;
+	struct scored_result *results;
 
 	size_t available;
 	size_t selection;
