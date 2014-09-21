@@ -19,20 +19,19 @@ size_t scrolloff = 1;
 const char *prompt = "> ";
 
 void read_choices(choices_t *c){
-	char *line = NULL;
-	size_t len = 0;
-	ssize_t read;
-
-	while ((read = getline(&line, &len, stdin)) != -1) {
+	const char *line;
+	char buf[4096];
+	while(fgets(buf, sizeof buf, stdin)){
 		char *nl;
-		if((nl = strchr(line, '\n')))
+		if((nl = strchr(buf, '\n')))
 			*nl = '\0';
 
+		if(!(line = strdup(buf))){
+			fprintf(stderr, "Cannot allocate memory");
+			abort();
+		}
 		choices_add(c, line);
-
-		line = NULL;
 	}
-	free(line);
 }
 
 #define SEARCH_SIZE_MAX 4096
