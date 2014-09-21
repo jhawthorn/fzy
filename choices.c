@@ -20,24 +20,26 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 
 static void choices_resize(choices_t *c, int new_capacity){
 	c->strings = realloc(c->strings, new_capacity * sizeof(const char *));
-	c->results = realloc(c->results, new_capacity * sizeof(struct scored_position));
 
-	if(!c->strings || !c->results){
+	if(!c->strings){
 		fprintf(stderr, "Error: Can't allocate memory\n");
 		abort();
 	}
 
-	for(int i = c->capacity; i < new_capacity; i++){
-		c->strings[i] = NULL;
-	}
 	c->capacity = new_capacity;
+}
+
+static void choices_reset_search(choices_t *c){
+	free(c->results);
+	c->selection = c->available = 0;
+	c->results = NULL;
 }
 
 void choices_init(choices_t *c){
 	c->strings = NULL;
 	c->results = NULL;
 	c->capacity = c->size = 0;
-	c->selection = c->available = 0;
+	choices_reset_search(c);
 	choices_resize(c, INITIAL_CAPACITY);
 }
 
@@ -47,6 +49,9 @@ void choices_free(choices_t *c){
 }
 
 void choices_add(choices_t *c, const char *choice){
+	/* Previous search is now invalid */
+	choices_reset_search(c);
+
 	if(c->size == c->capacity){
 		choices_resize(c, c->capacity * 2);
 	}
@@ -58,8 +63,13 @@ size_t choices_available(choices_t *c){
 }
 
 void choices_search(choices_t *c, const char *search){
-	c->selection = 0;
-	c->available = 0;
+	choices_reset_search(c);
+
+	c->results = malloc(c->size * sizeof(struct scored_position));
+	if(!c->results){
+		fprintf(stderr, "Error: Can't allocate memory\n");
+		abort();
+	}
 
 	for(size_t i = 0; i < c->size; i++){
 		if(has_match(search, c->strings[i])){

@@ -227,6 +227,7 @@ int test_choices_without_search(){
 	assert(choices.size == 1);
 	assert(choices_get(&choices, 0) == NULL);
 
+	choices_free(&choices);
 	return 0;
 }
 
