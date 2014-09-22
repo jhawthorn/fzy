@@ -50,7 +50,7 @@ void mat_print(score_t *mat, const char *needle, const char *haystack){
 	fprintf(stderr, "\n\n");
 }
 
-double calculate_score(const char *needle, const char *haystack, size_t *positions){
+score_t calculate_score(const char *needle, const char *haystack, size_t *positions){
 	if(!*haystack || !*needle)
 		return SCORE_MIN;
 
@@ -102,8 +102,8 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	}
 
 	for(int i = 0; i < n; i++){
-		double prev_score = SCORE_MIN;
-		double gap_score = i == n-1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
+		score_t prev_score = SCORE_MIN;
+		score_t gap_score = i == n-1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 		for(int j = 0; j < m; j++){
 			score_t score = SCORE_MIN;
 			if(tolower(needle[i]) == tolower(haystack[j])){
@@ -159,7 +159,7 @@ double calculate_score(const char *needle, const char *haystack, size_t *positio
 	return M[n-1][m-1];
 }
 
-double match_positions(const char *needle, const char *haystack, size_t *positions){
+score_t match_positions(const char *needle, const char *haystack, size_t *positions){
 	if(!*needle){
 		return SCORE_MAX;
 	}else if(!strcasecmp(needle, haystack)){
@@ -174,6 +174,6 @@ double match_positions(const char *needle, const char *haystack, size_t *positio
 	}
 }
 
-double match(const char *needle, const char *haystack){
+score_t match(const char *needle, const char *haystack){
 	return match_positions(needle, haystack, NULL);
 }
