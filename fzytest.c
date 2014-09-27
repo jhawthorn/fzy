@@ -7,7 +7,13 @@
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
-#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);raise(SIGTRAP);testsfailed++;return;}
+#define assert(x) \
+	if(++assertionsrun && !(x)){ \
+		fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__); \
+		raise(SIGTRAP); \
+		testsfailed++; \
+		return; \
+	}
 
 #define assert_streq(a, b) assert(!strcmp(a, b))
 
