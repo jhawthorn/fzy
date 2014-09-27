@@ -26,9 +26,10 @@ fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 install: fzy
-	$(INSTALL_PROGRAM) fzy $(DESTDIR)$(BINDIR)/fzy
-	$(INSTALL_PROGRAM) -d $(DESTDIR)$(MANDIR)/man1
-	$(INSTALL_PROGRAM) fzy.1 $(DESTDIR)$(MANDIR)/man1/fzy.1
+	mkdir -p $(DESTDIR)$(BINDIR)
+	cp fzy $(DESTDIR)$(BINDIR)/
+	mkdir -p $(DESTDIR)$(MANDIR)/man1
+	cp fzy.1 $(DESTDIR)$(MANDIR)/man1/
 
 clean:
 	$(RM) fzy fzytest *.o
