@@ -6,17 +6,16 @@
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
-#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);return -1;}
+#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);testsfailed++;return;}
 
 #define assert_streq(a, b) assert(!strcmp(a, b))
 
-void runtest(int (*test)()){
+void runtest(void (*test)()){
 	testsrun++;
-	if(test())
-		testsfailed++;
+	test();
 }
 
-int test_match(){
+void test_match(){
 	assert(has_match("a", "a"));
 	assert(has_match("a", "ab"));
 	assert(has_match("a", "ba"));
@@ -30,11 +29,9 @@ int test_match(){
 	/* match when query is empty */
 	assert(has_match("", ""));
 	assert(has_match("", "a"));
-
-	return 0;
 }
 
-int test_scoring(){
+void test_scoring(){
 	/* App/Models/Order is better than App/MOdels/zRder  */
 	assert(match("amor", "app/models/order") > match("amor", "app/models/zrder"));
 
@@ -59,21 +56,17 @@ int test_scoring(){
 	/* Prefer shorter matches */
 	assert(match("abc", "    a b c ") > match("abc", " a  b  c "));
 	assert(match("abc", " a b c    ") > match("abc", " a  b  c "));
-
-	return 0;
 }
 
-int test_positions_1(){
+void test_positions_1(){
 	size_t positions[3];
 	match_positions("amo", "app/models/foo", positions);
 	assert(positions[0] == 0);
 	assert(positions[1] == 4);
 	assert(positions[2] == 5);
-
-	return 0;
 }
 
-int test_positions_2(){
+void test_positions_2(){
 	/*
 	 * We should prefer matching the 'o' in order, since it's the beginning
 	 * of a word.
@@ -83,39 +76,31 @@ int test_positions_2(){
 	assert(positions[0] == 0);
 	assert(positions[1] == 4);
 	assert(positions[2] == 11);
-
-	return 0;
 }
 
-int test_positions_3(){
+void test_positions_3(){
 	size_t positions[2];
 	match_positions("as", "tags", positions);
 	assert(positions[0] == 1);
 	assert(positions[1] == 3);
-
-	return 0;
 }
 
-int test_positions_4(){
+void test_positions_4(){
 	size_t positions[2];
 	match_positions("as", "examples.txt", positions);
 	assert(positions[0] == 2);
 	assert(positions[1] == 7);
-
-	return 0;
 }
 
-int test_positions_exact(){
+void test_positions_exact(){
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
 	assert(positions[0] == 0);
 	assert(positions[1] == 1);
 	assert(positions[2] == 2);
-
-	return 0;
 }
 
-int test_choices_empty(){
+void test_choices_empty(){
 	choices_t choices;
 	choices_init(&choices);
 	assert(choices.size == 0);
@@ -129,10 +114,9 @@ int test_choices_empty(){
 	assert(choices.selection == 0);
 
 	choices_free(&choices);
-	return 0;
 }
 
-int test_choices_1(){
+void test_choices_1(){
 	choices_t choices;
 	choices_init(&choices);
 	choices_add(&choices, "tags");
@@ -155,10 +139,9 @@ int test_choices_1(){
 	assert(choices_get(&choices, 1) == NULL);
 
 	choices_free(&choices);
-	return 0;
 }
 
-int test_choices_2(){
+void test_choices_2(){
 	choices_t choices;
 	choices_init(&choices);
 	choices_add(&choices, "tags");
@@ -206,10 +189,9 @@ int test_choices_2(){
 	assert_streq(choices_get(&choices, 1), "tags");
 
 	choices_free(&choices);
-	return 0;
 }
 
-int test_choices_without_search(){
+void test_choices_without_search(){
 	/* Before a search is run, it should return no results */
 
 	choices_t choices;
@@ -228,7 +210,6 @@ int test_choices_without_search(){
 	assert(choices_get(&choices, 0) == NULL);
 
 	choices_free(&choices);
-	return 0;
 }
 
 void summary(){
