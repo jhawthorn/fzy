@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
 
 #include "match.h"
 #include "choices.h"
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
-#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);testsfailed++;return;}
+#define assert(x) if(++assertionsrun && !(x)){fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__);raise(SIGTRAP);testsfailed++;return;}
 
 #define assert_streq(a, b) assert(!strcmp(a, b))
 
@@ -216,9 +217,17 @@ void summary(){
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
 
+static void ignore_signal(int signum){
+	(void) signum;
+}
+
 int main(int argc, char *argv[]){
 	(void) argc;
 	(void) argv;
+
+	/* We raise sigtrap on all assertion failures.
+	 * If we have no debugger running, we should ignore it */
+	signal(SIGTRAP, ignore_signal);
 
 	runtest(test_match);
 	runtest(test_scoring);

@@ -5,7 +5,7 @@ CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
 BINDIR?=$(PREFIX)/bin
-VALGRIND?=
+DEBUGGER?=
 
 INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
@@ -17,7 +17,7 @@ fzytest: fzytest.o match.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
 test: fzytest
-	-$(VALGRIND) ./fzytest
+	-$(DEBUGGER) ./fzytest
 
 fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
