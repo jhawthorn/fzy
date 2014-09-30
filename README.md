@@ -25,7 +25,7 @@ fzy can be integrated very simply in vim. There is also [fzy-vim](https://github
 ``` vim
 function! FzyCommand(choice_command, vim_command)
   try
-    silent let output = system(a:choice_command . " | fzy ")
+    let output = system(a:choice_command . " | fzy ")
   catch /Vim:Interrupt/
     " Swallow errors from ^C, allow redraw! below
   endtry
