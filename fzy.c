@@ -153,6 +153,10 @@ void run(tty_t *tty, choices_t *choices){
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
 			search_size = strlen(search);
 			choices_search(choices, search);
+		}else if(ch == 3 || ch == 4){ /* ^C || ^D */
+			clear(tty);
+			tty_close(tty);
+			exit(EXIT_FAILURE);
 		}else if(ch == 10){ /* Enter */
 			clear(tty);
 
