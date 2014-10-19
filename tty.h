@@ -13,6 +13,7 @@ typedef struct{
 } tty_t;
 
 void tty_reset(tty_t *tty);
+void tty_close(tty_t *tty);
 void tty_init(tty_t *tty, const char *tty_filename);
 void tty_getwinsz(tty_t *tty);
 char tty_getchar(tty_t *tty);

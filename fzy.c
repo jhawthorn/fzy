@@ -157,7 +157,7 @@ void run(tty_t *tty, choices_t *choices){
 			clear(tty);
 
 			/* ttyout should be flushed before outputting on stdout */
-			fclose(tty->fout);
+			tty_close(tty);
 
 			emit(choices);
 		}else if(ch == 27){ /* ESC */

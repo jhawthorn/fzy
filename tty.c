@@ -12,6 +12,12 @@ void tty_reset(tty_t *tty){
 	tcsetattr(tty->fdin, TCSANOW, &tty->original_termios);
 }
 
+void tty_close(tty_t *tty){
+	tty_reset(tty);
+	fclose(tty->fout);
+	close(tty->fdin);
+}
+
 void tty_init(tty_t *tty, const char *tty_filename){
 	tty->fdin = open(tty_filename, O_RDONLY);
 	tty->fout = fopen(tty_filename, "w");
