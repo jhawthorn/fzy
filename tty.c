@@ -33,7 +33,7 @@ void tty_init(tty_t *tty, const char *tty_filename){
 	 * Disable both of
 	 * ICANON  Canonical input (erase and kill processing).
 	 * ECHO    Enable echo.
-	 * ISIG    Disable signals from control characters
+	 * ISIG    Enable signals from control characters
 	 */
 	new_termios.c_lflag &= ~(ICANON | ECHO | ISIG);
 
