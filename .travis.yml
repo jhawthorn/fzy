@@ -3,3 +3,4 @@ script: make && make test
 compiler:
   - clang
   - gcc
+sudo: false
