@@ -1,3 +1,4 @@
 fzy
 fzytest
 *.o
+config.h

@@ -25,6 +25,9 @@ fzy: fzy.o match.o tty.o choices.o
 %.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
+config.h:
+	cp config.def.h config.h
+
 install: fzy
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp fzy $(DESTDIR)$(BINDIR)/
