@@ -35,7 +35,7 @@ void read_choices(choices_t *c) {
 }
 
 #define SEARCH_SIZE_MAX 4096
-int search_size;
+size_t search_size;
 char search[SEARCH_SIZE_MAX + 1] = {0};
 
 void clear(tty_t *tty) {

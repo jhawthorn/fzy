@@ -18,7 +18,7 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 		return -1;
 }
 
-static void choices_resize(choices_t *c, int new_capacity) {
+static void choices_resize(choices_t *c, size_t new_capacity) {
 	c->strings = realloc(c->strings, new_capacity * sizeof(const char *));
 
 	if (!c->strings) {
