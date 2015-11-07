@@ -11,14 +11,14 @@
 
 #include "config.h"
 
-int flag_show_scores = 0;
+static int flag_show_scores = 0;
 
-size_t num_lines = 10;
-size_t scrolloff = 1;
+static size_t num_lines = 10;
+static size_t scrolloff = 1;
 
-const char *prompt = "> ";
+static const char *prompt = "> ";
 
-void read_choices(choices_t *c) {
+static void read_choices(choices_t *c) {
 	const char *line;
 	char buf[4096];
 	while (fgets(buf, sizeof buf, stdin)) {
@@ -35,10 +35,10 @@ void read_choices(choices_t *c) {
 }
 
 #define SEARCH_SIZE_MAX 4096
-size_t search_size;
-char search[SEARCH_SIZE_MAX + 1] = {0};
+static size_t search_size;
+static char search[SEARCH_SIZE_MAX + 1] = {0};
 
-void clear(tty_t *tty) {
+static void clear(tty_t *tty) {
 	tty_setcol(tty, 0);
 	size_t line = 0;
 	while (line++ < num_lines) {
@@ -48,7 +48,7 @@ void clear(tty_t *tty) {
 	tty_flush(tty);
 }
 
-void draw_match(tty_t *tty, const char *choice, int selected) {
+static void draw_match(tty_t *tty, const char *choice, int selected) {
 	int n = strlen(search);
 	size_t positions[n + 1];
 	for (int i = 0; i < n + 1; i++)
@@ -81,7 +81,7 @@ void draw_match(tty_t *tty, const char *choice, int selected) {
 	tty_setnormal(tty);
 }
 
-void draw(tty_t *tty, choices_t *choices) {
+static void draw(tty_t *tty, choices_t *choices) {
 	size_t start = 0;
 	size_t current_selection = choices->selection;
 	if (current_selection + scrolloff >= num_lines) {
@@ -106,7 +106,7 @@ void draw(tty_t *tty, choices_t *choices) {
 	tty_flush(tty);
 }
 
-void emit(choices_t *choices) {
+static void emit(choices_t *choices) {
 	const char *selection = choices_get(choices, choices->selection);
 	if (selection) {
 		/* output the selected result */
@@ -119,7 +119,7 @@ void emit(choices_t *choices) {
 	exit(EXIT_SUCCESS);
 }
 
-void run(tty_t *tty, choices_t *choices) {
+static void run(tty_t *tty, choices_t *choices) {
 	choices_search(choices, search);
 	char ch;
 	do {
@@ -189,7 +189,7 @@ static const char *usage_str =
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
-void usage(const char *argv0) {
+static void usage(const char *argv0) {
 	fprintf(stderr, usage_str, argv0);
 }
 
