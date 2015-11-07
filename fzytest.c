@@ -7,22 +7,23 @@
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
-#define assert(x) \
-	if(++assertionsrun && !(x)){ \
-		fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n", __func__, #x, __FILE__ ,__LINE__); \
-		raise(SIGTRAP); \
-		testsfailed++; \
-		return; \
+#define assert(x)                                                                                  \
+	if (++assertionsrun && !(x)) {                                                             \
+		fprintf(stderr, "test \"%s\" failed\n   assert(%s) was false\n   at %s:%i\n\n",    \
+			__func__, #x, __FILE__, __LINE__);                                         \
+		raise(SIGTRAP);                                                                    \
+		testsfailed++;                                                                     \
+		return;                                                                            \
 	}
 
 #define assert_streq(a, b) assert(!strcmp(a, b))
 
-void runtest(void (*test)()){
+void runtest(void (*test)()) {
 	testsrun++;
 	test();
 }
 
-void test_match(){
+void test_match() {
 	assert(has_match("a", "a"));
 	assert(has_match("a", "ab"));
 	assert(has_match("a", "ba"));
@@ -38,7 +39,7 @@ void test_match(){
 	assert(has_match("", "a"));
 }
 
-void test_scoring(){
+void test_scoring() {
 	/* App/Models/Order is better than App/MOdels/zRder  */
 	assert(match("amor", "app/models/order") > match("amor", "app/models/zrder"));
 
@@ -65,7 +66,7 @@ void test_scoring(){
 	assert(match("abc", " a b c    ") > match("abc", " a  b  c "));
 }
 
-void test_positions_1(){
+void test_positions_1() {
 	size_t positions[3];
 	match_positions("amo", "app/models/foo", positions);
 	assert(positions[0] == 0);
@@ -73,7 +74,7 @@ void test_positions_1(){
 	assert(positions[2] == 5);
 }
 
-void test_positions_2(){
+void test_positions_2() {
 	/*
 	 * We should prefer matching the 'o' in order, since it's the beginning
 	 * of a word.
@@ -85,21 +86,21 @@ void test_positions_2(){
 	assert(positions[2] == 11);
 }
 
-void test_positions_3(){
+void test_positions_3() {
 	size_t positions[2];
 	match_positions("as", "tags", positions);
 	assert(positions[0] == 1);
 	assert(positions[1] == 3);
 }
 
-void test_positions_4(){
+void test_positions_4() {
 	size_t positions[2];
 	match_positions("as", "examples.txt", positions);
 	assert(positions[0] == 2);
 	assert(positions[1] == 7);
 }
 
-void test_positions_exact(){
+void test_positions_exact() {
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
 	assert(positions[0] == 0);
@@ -107,7 +108,7 @@ void test_positions_exact(){
 	assert(positions[2] == 2);
 }
 
-void test_choices_empty(){
+void test_choices_empty() {
 	choices_t choices;
 	choices_init(&choices);
 	assert(choices.size == 0);
@@ -123,7 +124,7 @@ void test_choices_empty(){
 	choices_free(&choices);
 }
 
-void test_choices_1(){
+void test_choices_1() {
 	choices_t choices;
 	choices_init(&choices);
 	choices_add(&choices, "tags");
@@ -148,7 +149,7 @@ void test_choices_1(){
 	choices_free(&choices);
 }
 
-void test_choices_2(){
+void test_choices_2() {
 	choices_t choices;
 	choices_init(&choices);
 	choices_add(&choices, "tags");
@@ -198,7 +199,7 @@ void test_choices_2(){
 	choices_free(&choices);
 }
 
-void test_choices_without_search(){
+void test_choices_without_search() {
 	/* Before a search is run, it should return no results */
 
 	choices_t choices;
@@ -219,17 +220,17 @@ void test_choices_without_search(){
 	choices_free(&choices);
 }
 
-void summary(){
+void summary() {
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
 
-static void ignore_signal(int signum){
-	(void) signum;
+static void ignore_signal(int signum) {
+	(void)signum;
 }
 
-int main(int argc, char *argv[]){
-	(void) argc;
-	(void) argv;
+int main(int argc, char *argv[]) {
+	(void)argc;
+	(void)argv;
 
 	/* We raise sigtrap on all assertion failures.
 	 * If we have no debugger running, we should ignore it */

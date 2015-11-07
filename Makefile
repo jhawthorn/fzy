@@ -31,7 +31,10 @@ install: fzy
 	mkdir -p $(DESTDIR)$(MANDIR)/man1
 	cp fzy.1 $(DESTDIR)$(MANDIR)/man1/
 
+fmt:
+	clang-format -i *.c *.h
+
 clean:
 	$(RM) fzy fzytest *.o
 
-.PHONY: test all clean install
+.PHONY: test all clean install fmt
