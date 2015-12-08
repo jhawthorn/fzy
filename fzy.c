@@ -199,7 +199,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"prompt", required_argument, NULL, 'p'},
 				   {"show-scores", no_argument, NULL, 's'},
 				   {"version", no_argument, NULL, 'v'},
-				   {"benchmark", no_argument, NULL, 'b'},
+				   {"benchmark", optional_argument, NULL, 'b'},
 				   {"help", no_argument, NULL, 'h'},
 				   {NULL, 0, NULL, 0}};
 
@@ -220,7 +220,14 @@ int main(int argc, char *argv[]) {
 				initial_query = optarg;
 				break;
 			case 'b':
-				benchmark = 1;
+				if (optarg) {
+				    if (sscanf(optarg, "%d", &benchmark) != 1) {
+					usage(argv[0]);
+					exit(EXIT_FAILURE);
+				    }
+				} else {
+				    benchmark = 100;
+				}
 				break;
 			case 't':
 				tty_filename = optarg;
@@ -263,7 +270,7 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
 			exit(EXIT_FAILURE);
 		}
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < benchmark; i++)
 			choices_search(&choices, initial_query);
 	} else if (initial_query) {
 		choices_search(&choices, initial_query);
