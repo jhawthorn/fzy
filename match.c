@@ -28,6 +28,7 @@ int has_match(const char *needle, const char *haystack) {
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
+#ifdef DEBUG_VERBOSE
 /* print one of the internal matrices */
 void mat_print(score_t *mat, const char *needle, const char *haystack) {
 	int n = strlen(needle);
@@ -52,6 +53,7 @@ void mat_print(score_t *mat, const char *needle, const char *haystack) {
 	}
 	fprintf(stderr, "\n\n");
 }
+#endif
 
 score_t calculate_score(const char *needle, const char *haystack, size_t *positions) {
 	if (!*haystack || !*needle)
@@ -122,7 +124,7 @@ score_t calculate_score(const char *needle, const char *haystack, size_t *positi
 		}
 	}
 
-#if 0
+#ifdef DEBUG_VERBOSE
 	fprintf(stderr, "\"%s\" =~ \"%s\"\n", needle, haystack);
 	mat_print(&D[0][0], needle, haystack);
 	mat_print(&M[0][0], needle, haystack);
