@@ -100,6 +100,15 @@ void test_positions_4() {
 	assert(positions[1] == 7);
 }
 
+void test_positions_5() {
+	size_t positions[3];
+	match_positions("abc", "a a b c c", positions);
+	assert(positions[0] == 2);
+	assert(positions[1] == 4);
+	assert(positions[2] == 6);
+}
+
+
 void test_positions_exact() {
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
@@ -242,6 +251,7 @@ int main(int argc, char *argv[]) {
 	runtest(test_positions_2);
 	runtest(test_positions_3);
 	runtest(test_positions_4);
+	runtest(test_positions_5);
 	runtest(test_positions_exact);
 
 	runtest(test_choices_empty);
