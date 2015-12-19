@@ -36,7 +36,7 @@ void mat_print(score_t *mat, const char *needle, const char *haystack) {
 	int i, j;
 	fprintf(stderr, "    ");
 	for (j = 0; j < m; j++) {
-		fprintf(stderr, "     %c", haystack[j]);
+		fprintf(stderr, "    %c", haystack[j]);
 	}
 	fprintf(stderr, "\n");
 	for (i = 0; i < n; i++) {
@@ -44,9 +44,9 @@ void mat_print(score_t *mat, const char *needle, const char *haystack) {
 		for (j = 0; j < m; j++) {
 			score_t val = mat[i * m + j];
 			if (val == SCORE_MIN) {
-				fprintf(stderr, "  -inf");
+				fprintf(stderr, "   -\u221E");
 			} else {
-				fprintf(stderr, " % .2f", val);
+				fprintf(stderr, " % 4g", val);
 			}
 		}
 		fprintf(stderr, "\n");
