@@ -221,12 +221,12 @@ int main(int argc, char *argv[]) {
 				break;
 			case 'b':
 				if (optarg) {
-				    if (sscanf(optarg, "%d", &benchmark) != 1) {
-					usage(argv[0]);
-					exit(EXIT_FAILURE);
-				    }
+					if (sscanf(optarg, "%d", &benchmark) != 1) {
+						usage(argv[0]);
+						exit(EXIT_FAILURE);
+					}
 				} else {
-				    benchmark = 100;
+					benchmark = 100;
 				}
 				break;
 			case 't':

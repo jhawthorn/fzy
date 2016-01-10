@@ -108,7 +108,6 @@ void test_positions_5() {
 	assert(positions[2] == 6);
 }
 
-
 void test_positions_exact() {
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
