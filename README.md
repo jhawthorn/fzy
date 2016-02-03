@@ -6,6 +6,9 @@ but with an improved [scoring algorithm](#sorting).
 
 ![](http://i.hawth.ca/u/fzy2.gif)
 
+> It's been kind of life-changing.
+> -[@graygilmore](https://github.com/graygilmore/)
+
 ## Installation
 
     $ make
