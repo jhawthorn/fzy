@@ -157,7 +157,7 @@ static void run(tty_t *tty, choices_t *choices) {
 			clear(tty);
 			tty_close(tty);
 			exit(EXIT_FAILURE);
-		} else if (ch == 10) { /* Enter */
+		} else if (ch == 13) { /* CR */
 			clear(tty);
 
 			/* ttyout should be flushed before outputting on stdout */
