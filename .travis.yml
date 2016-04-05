@@ -3,4 +3,7 @@ script: make && make test
 compiler:
   - clang
   - gcc
+os:
+  - linux
+  - osx
 sudo: false
