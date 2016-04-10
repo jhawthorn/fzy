@@ -119,6 +119,10 @@ static void emit(choices_t *choices) {
 	exit(EXIT_SUCCESS);
 }
 
+#define KEY_CTRL(key) ((key) - ('@'))
+#define KEY_DEL 127
+#define KEY_ESC 27
+
 static void run(tty_t *tty, choices_t *choices) {
 	choices_search(choices, search);
 	char ch;
@@ -131,40 +135,40 @@ static void run(tty_t *tty, choices_t *choices) {
 				search[search_size] = '\0';
 				choices_search(choices, search);
 			}
-		} else if (ch == 127 || ch == 8) { /* DEL || backspace */
+		} else if (ch == KEY_DEL || ch == KEY_CTRL('H')) { /* DEL || Backspace (C-H) */
 			if (search_size)
 				search[--search_size] = '\0';
 			choices_search(choices, search);
-		} else if (ch == 21) { /* C-U */
+		} else if (ch == KEY_CTRL('U')) { /* C-U */
 			search_size = 0;
 			search[0] = '\0';
 			choices_search(choices, search);
-		} else if (ch == 23) { /* C-W */
+		} else if (ch == KEY_CTRL('W')) { /* C-W */
 			if (search_size)
 				search[--search_size] = '\0';
 			while (search_size && !isspace(search[--search_size]))
 				search[search_size] = '\0';
 			choices_search(choices, search);
-		} else if (ch == 14) { /* C-N */
+		} else if (ch == KEY_CTRL('N')) { /* C-N */
 			choices_next(choices);
-		} else if (ch == 16) { /* C-P */
+		} else if (ch == KEY_CTRL('P')) { /* C-P */
 			choices_prev(choices);
-		} else if (ch == 9) { /* TAB */
+		} else if (ch == KEY_CTRL('I')) { /* TAB (C-I) */
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
 			search_size = strlen(search);
 			choices_search(choices, search);
-		} else if (ch == 3 || ch == 4) { /* ^C || ^D */
+		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
 			clear(tty);
 			tty_close(tty);
 			exit(EXIT_FAILURE);
-		} else if (ch == 13) { /* CR */
+		} else if (ch == KEY_CTRL('M')) { /* CR */
 			clear(tty);
 
 			/* ttyout should be flushed before outputting on stdout */
 			tty_close(tty);
 
 			emit(choices);
-		} else if (ch == 27) { /* ESC */
+		} else if (ch == KEY_ESC) { /* ESC */
 			ch = tty_getchar(tty);
 			if (ch == '[' || ch == 'O') {
 				ch = tty_getchar(tty);
