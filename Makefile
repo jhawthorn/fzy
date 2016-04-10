@@ -1,7 +1,7 @@
 VERSION=0.2
 
-CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
-CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic
+CPPFLAGS=-DVERSION=\"${VERSION}\"
+CFLAGS+=-Wall -Wextra -g -O3 -pedantic
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
 BINDIR?=$(PREFIX)/bin
