@@ -11,7 +11,7 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=${INSTALL} -m 644
 
-all: fzy fzytest
+all: fzy
 
 fzytest: fzytest.o match.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
