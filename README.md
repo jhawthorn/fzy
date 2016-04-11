@@ -9,6 +9,9 @@ but with an improved [scoring algorithm](#sorting).
 > It's been kind of life-changing.
 > -[@graygilmore](https://github.com/graygilmore/)
 
+> fzy works great btw
+> -[@alexblackie](https://twitter.com/alexblackie/status/719297828892188672)
+
 ## Installation
 
     $ make
