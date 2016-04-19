@@ -1,16 +1,35 @@
 # fzy
 
-A fuzzy text selector for terminals in C inspired by
-[selecta](https://github.com/garybernhardt/selecta),
-but with an improved [scoring algorithm](#sorting).
+A fast, simple fuzzy text selector for the terminal with an advanced [scoring
+algorithm](#sorting).
 
 ![](http://i.hawth.ca/u/fzy2.gif)
 
-> It's been kind of life-changing.
-> -[@graygilmore](https://github.com/graygilmore/)
+<blockquote>
+It's been kind of life-changing.
+-<a href="https://github.com/graygilmore/">@graygilmore</a>
+</blockquote>
 
-> fzy works great btw
-> -[@alexblackie](https://twitter.com/alexblackie/status/719297828892188672)
+<blockquote>
+fzy works great btw
+-<a href="https://twitter.com/alexblackie/status/719297828892188672">@alexblackie</a>
+</blockquote>
+
+[![Build Status](https://travis-ci.org/jhawthorn/fzy.svg?branch=master)](https://travis-ci.org/jhawthorn/fzy)
+
+## Why use this over fzf, pick, selecta, ctrlp, ...?
+
+fzy is faster and shows better results than other fuzzy finders.
+
+Most other fuzzy matchers sort based on the length of a match. fzy tries to
+find the result the user intended. It does this by favouring matches on
+consecutive letters and starts of words. This allows matching using acronyms or
+different parts of the path.
+
+A gory comparison of the sorting used by fuzzy finders can be found in [ALGORITHM.md](ALGORITHM.md)
+
+fzy is designed to be used both as an editor plugin and on the command line.
+Rather than clearing the screen, fzy displays its interface directly below the current cursor position, scrolling the screen if necessary.
 
 ## Installation
 
