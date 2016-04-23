@@ -18,37 +18,6 @@ static size_t scrolloff = 1;
 
 static const char *prompt = "> ";
 
-static void read_choices(choices_t *c) {
-	size_t bufsize = 65536;
-	size_t pos = 0;
-	size_t sizeread;
-
-	/* Read entire file into contiguous memory buffer */
-	char *buf = malloc(bufsize);
-	while ((sizeread = fread(buf + pos, 1, bufsize - pos, stdin))) {
-		pos += sizeread;
-		bufsize *= 2;
-		buf = realloc(buf, bufsize);
-	}
-	buf = realloc(buf, pos + 1);
-
-	buf[pos] = 0;
-
-	/* Tokenize input and add to choices */
-	char *line = buf;
-	do {
-		char *nl = strchr(line, '\n');
-		if (nl)
-			*nl++ = '\0';
-
-		/* Skip empty lines */
-		if (*line)
-			choices_add(c, line);
-
-		line = nl;
-	} while (line);
-}
-
 #define SEARCH_SIZE_MAX 4096
 static size_t search_size;
 static char search[SEARCH_SIZE_MAX + 1] = {0};
@@ -279,7 +248,7 @@ int main(int argc, char *argv[]) {
 
 	choices_t choices;
 	choices_init(&choices);
-	read_choices(&choices);
+	choices_fread(&choices, stdin);
 
 	if (num_lines > choices.size)
 		num_lines = choices.size;

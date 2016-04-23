@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "choices.h"
 #include "match.h"
@@ -18,14 +19,49 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 		return -1;
 }
 
-static void choices_resize(choices_t *c, size_t new_capacity) {
-	c->strings = realloc(c->strings, new_capacity * sizeof(const char *));
-
-	if (!c->strings) {
-		fprintf(stderr, "Error: Can't allocate memory\n");
+static void *safe_realloc(void *buffer, size_t size) {
+	buffer = realloc(buffer, size);
+	if (!buffer) {
+		fprintf(stderr, "Error: Can't allocate memory (%zu bytes)\n", size);
 		abort();
 	}
 
+	return buffer;
+}
+
+void choices_fread(choices_t *c, FILE *file) {
+	size_t bufsize = 65536, pos = 0;
+	char *buf = safe_realloc(NULL, bufsize);
+
+	/* Continue reading until we get a "short" read, indicating EOF */
+	while ((pos += fread(buf + pos, 1, bufsize - pos, file)) == bufsize) {
+		bufsize *= 2;
+		buf = safe_realloc(buf, bufsize);
+	}
+	buf[pos] = 0;
+
+	/* Truncate buffer to used size, (maybe) freeing some memory for
+	 * future allocations.
+	 */
+	buf = safe_realloc(buf, pos + 1);
+
+	/* Tokenize input and add to choices */
+	char *line = buf;
+	do {
+		char *nl = strchr(line, '\n');
+		if (nl)
+			*nl++ = '\0';
+
+		/* Skip empty lines */
+		if (*line)
+			choices_add(c, line);
+
+		line = nl;
+	} while (line);
+}
+
+static void choices_resize(choices_t *c, size_t new_capacity) {
+	c->strings = safe_realloc(c->strings, new_capacity * sizeof(const char *));
 	c->capacity = new_capacity;
 }
 
