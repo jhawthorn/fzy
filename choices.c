@@ -5,7 +5,11 @@
 #include "choices.h"
 #include "match.h"
 
-#define INITIAL_CAPACITY 1
+/* Initial size of buffer for storing input in memory */
+#define INITIAL_BUFFER_SIZE     4096
+
+/* Initial size of choices array */
+#define INITIAL_CHOICE_CAPACITY 128
 
 static int cmpchoice(const void *_idx1, const void *_idx2) {
 	const struct scored_result *a = _idx1;
@@ -30,7 +34,7 @@ static void *safe_realloc(void *buffer, size_t size) {
 }
 
 void choices_fread(choices_t *c, FILE *file) {
-	size_t bufsize = 65536, pos = 0;
+	size_t bufsize = INITIAL_BUFFER_SIZE, pos = 0;
 	char *buf = safe_realloc(NULL, bufsize);
 
 	/* Continue reading until we get a "short" read, indicating EOF */
@@ -76,7 +80,7 @@ void choices_init(choices_t *c) {
 	c->results = NULL;
 	c->capacity = c->size = 0;
 	choices_reset_search(c);
-	choices_resize(c, INITIAL_CAPACITY);
+	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 }
 
 void choices_free(choices_t *c) {
