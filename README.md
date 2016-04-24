@@ -33,11 +33,18 @@ Rather than clearing the screen, fzy displays its interface directly below the c
 
 ## Installation
 
-    $ make
-    $ sudo make install
+### From source
+
+    make
+    sudo make install
 
 The `PREFIX` environment variable can be used to specify the install location,
 the default is `/usr/local`.
+
+### OS X via Homebrew
+
+    brew tap jhawthorn/fzy
+    brew install fzy
 
 ## Usage
 
