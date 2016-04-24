@@ -102,7 +102,7 @@ void test_positions_4() {
 
 void test_positions_5() {
 	size_t positions[3];
-	match_positions("abc", "a a b c c", positions);
+	match_positions("abc", "a/a/b/c/c", positions);
 	assert(positions[0] == 2);
 	assert(positions[1] == 4);
 	assert(positions[2] == 6);

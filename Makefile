@@ -17,7 +17,7 @@ fzytest: fzytest.o match.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
 test: fzytest
-	-$(DEBUGGER) ./fzytest
+	$(DEBUGGER) ./fzytest
 
 fzy: fzy.o match.o tty.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
