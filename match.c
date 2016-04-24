@@ -30,13 +30,13 @@ int has_match(const char *needle, const char *haystack) {
 
 #ifdef DEBUG_VERBOSE
 /* print one of the internal matrices */
-void mat_print(score_t *mat, const char *needle, const char *haystack) {
+void mat_print(score_t *mat, char name, const char *needle, const char *haystack) {
 	int n = strlen(needle);
 	int m = strlen(haystack);
 	int i, j;
-	fprintf(stderr, "    ");
+	fprintf(stderr, "%c   ", name);
 	for (j = 0; j < m; j++) {
-		fprintf(stderr, "    %c", haystack[j]);
+		fprintf(stderr, "     %c", haystack[j]);
 	}
 	fprintf(stderr, "\n");
 	for (i = 0; i < n; i++) {
@@ -44,9 +44,9 @@ void mat_print(score_t *mat, const char *needle, const char *haystack) {
 		for (j = 0; j < m; j++) {
 			score_t val = mat[i * m + j];
 			if (val == SCORE_MIN) {
-				fprintf(stderr, "   -\u221E");
+				fprintf(stderr, "    -\u221E");
 			} else {
-				fprintf(stderr, " % 4g", val);
+				fprintf(stderr, " %.3f", val);
 			}
 		}
 		fprintf(stderr, "\n");
@@ -111,7 +111,7 @@ score_t calculate_score(const char *needle, const char *haystack, size_t *positi
 			if (tolower(needle[i]) == tolower(haystack[j])) {
 				if (!i) {
 					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
-				} else if (j) {
+				} else if (j) { /* i > 0 && j > 0*/
 					score = max(
 					    M[i - 1][j - 1] + match_bonus[j],
 
@@ -126,8 +126,8 @@ score_t calculate_score(const char *needle, const char *haystack, size_t *positi
 
 #ifdef DEBUG_VERBOSE
 	fprintf(stderr, "\"%s\" =~ \"%s\"\n", needle, haystack);
-	mat_print(&D[0][0], needle, haystack);
-	mat_print(&M[0][0], needle, haystack);
+	mat_print(&D[0][0], 'D', needle, haystack);
+	mat_print(&M[0][0], 'M', needle, haystack);
 	fprintf(stderr, "\n");
 #endif
 
