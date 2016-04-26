@@ -41,12 +41,17 @@ Rather than clearing the screen, fzy displays its interface directly below the c
 The `PREFIX` environment variable can be used to specify the install location,
 the default is `/usr/local`.
 
+### Ubuntu/Debian 64-bit
+
+    wget https://github.com/jhawthorn/fzy/releases/download/0.3/fzy_0.3-1_amd64.deb
+    sudo dpkg -i fzy_0.3-1_amd64.deb
+
 ### Arch Linux
 
 fzy is available
 [in the AUR](https://aur.archlinux.org/packages/fzy/)
 with a very simple
-[PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=fzy).
+[PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=fzy)
 
 ### OS X via Homebrew
 
