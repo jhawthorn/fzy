@@ -11,19 +11,22 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=${INSTALL} -m 644
 
+OBJECTS=fzy.o match.o tty.o choices.o
+TESTOBJECTS=fzytest.o match.o choices.o
+
 all: fzy
 
-fzytest: fzytest.o match.o choices.o
-	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
+fzytest: $(TESTOBJECTS)
+	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(TESTOBJECTS)
 
 test: check
 check: fzytest
 	$(DEBUGGER) ./fzytest
 
-fzy: fzy.o match.o tty.o choices.o
-	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
+fzy: $(OBJECTS)
+	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS)
 
-%.o: %.c config.h
+.c.o: config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 config.h:
@@ -39,6 +42,6 @@ fmt:
 	clang-format -i *.c *.h
 
 clean:
-	$(RM) fzy fzytest *.o
+	rm -f fzy fzytest *.o
 
 .PHONY: test check all clean install fmt
