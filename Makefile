@@ -26,7 +26,7 @@ check: fzytest
 fzy: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS)
 
-.c.o: config.h
+%.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 config.h:
