@@ -16,7 +16,8 @@ all: fzy
 fzytest: fzytest.o match.o choices.o
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $^
 
-test: fzytest
+test: check
+check: fzytest
 	$(DEBUGGER) ./fzytest
 
 fzy: fzy.o match.o tty.o choices.o
@@ -40,4 +41,4 @@ fmt:
 clean:
 	$(RM) fzy fzytest *.o
 
-.PHONY: test all clean install fmt
+.PHONY: test check all clean install fmt
