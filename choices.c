@@ -6,7 +6,7 @@
 #include "match.h"
 
 /* Initial size of buffer for storing input in memory */
-#define INITIAL_BUFFER_SIZE     4096
+#define INITIAL_BUFFER_CAPACITY 4096
 
 /* Initial size of choices array */
 #define INITIAL_CHOICE_CAPACITY 128
@@ -34,23 +34,32 @@ static void *safe_realloc(void *buffer, size_t size) {
 }
 
 void choices_fread(choices_t *c, FILE *file) {
-	size_t bufsize = INITIAL_BUFFER_SIZE, pos = 0;
-	char *buf = safe_realloc(NULL, bufsize);
+	/* Save current position for parsing later */
+	size_t buffer_start = c->buffer_size;
+
+	/* Resize buffer to at least one byte more capacity than our current
+	 * size. This uses a power of two of INITIAL_BUFFER_CAPACITY.
+	 * This must work even when c->buffer is NULL and c->buffer_size is 0
+	 */
+	size_t capacity = INITIAL_BUFFER_CAPACITY;
+	while (capacity <= c->buffer_size)
+		capacity *= 2;
+	c->buffer = safe_realloc(c->buffer, capacity);
 
 	/* Continue reading until we get a "short" read, indicating EOF */
-	while ((pos += fread(buf + pos, 1, bufsize - pos, file)) == bufsize) {
-		bufsize *= 2;
-		buf = safe_realloc(buf, bufsize);
+	while ((c->buffer_size += fread(c->buffer + c->buffer_size, 1, capacity - c->buffer_size, file)) == capacity) {
+		capacity *= 2;
+		c->buffer = safe_realloc(c->buffer, capacity);
 	}
-	buf[pos] = 0;
+	c->buffer = safe_realloc(c->buffer, c->buffer_size + 1);
+	c->buffer[c->buffer_size++] = 0;
 
 	/* Truncate buffer to used size, (maybe) freeing some memory for
 	 * future allocations.
 	 */
-	buf = safe_realloc(buf, pos + 1);
 
 	/* Tokenize input and add to choices */
-	char *line = buf;
+	char *line = c->buffer + buffer_start;
 	do {
 		char *nl = strchr(line, '\n');
 		if (nl)
@@ -78,14 +87,28 @@ static void choices_reset_search(choices_t *c) {
 void choices_init(choices_t *c) {
 	c->strings = NULL;
 	c->results = NULL;
+
+	c->buffer_size = 0;
+	c->buffer = NULL;
+
 	c->capacity = c->size = 0;
-	choices_reset_search(c);
 	choices_resize(c, INITIAL_CHOICE_CAPACITY);
+
+	choices_reset_search(c);
 }
 
 void choices_free(choices_t *c) {
+	free(c->buffer);
+	c->buffer = NULL;
+	c->buffer_size = 0;
+
 	free(c->strings);
+	c->strings = NULL;
+	c->capacity = c->size = 0;
+
 	free(c->results);
+	c->results = NULL;
+	c->available = c->selection = 0;
 }
 
 void choices_add(choices_t *c, const char *choice) {

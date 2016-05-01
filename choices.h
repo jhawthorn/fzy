@@ -9,6 +9,9 @@ struct scored_result {
 };
 
 typedef struct {
+	char *buffer;
+	size_t buffer_size;
+
 	size_t capacity;
 	size_t size;
 
