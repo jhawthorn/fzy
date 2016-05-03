@@ -99,8 +99,6 @@ static void emit(choices_t *choices) {
 		/* No match, output the query instead */
 		printf("%s\n", search);
 	}
-
-	exit(EXIT_SUCCESS);
 }
 
 #define KEY_CTRL(key) ((key) - ('@'))
@@ -152,6 +150,9 @@ static void run(tty_t *tty, choices_t *choices) {
 			tty_close(tty);
 
 			emit(choices);
+
+			/* Return to eventually exit successfully */
+			return;
 		} else if (ch == KEY_ESC) { /* ESC */
 			ch = tty_getchar(tty);
 			if (ch == '[' || ch == 'O') {
