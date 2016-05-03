@@ -97,7 +97,7 @@ void choices_init(choices_t *c) {
 	choices_reset_search(c);
 }
 
-void choices_free(choices_t *c) {
+void choices_destroy(choices_t *c) {
 	free(c->buffer);
 	c->buffer = NULL;
 	c->buffer_size = 0;
