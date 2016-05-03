@@ -278,5 +278,7 @@ int main(int argc, char *argv[]) {
 		run(&tty, &choices);
 	}
 
+	choices_destroy(&choices);
+
 	return 0;
 }
