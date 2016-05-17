@@ -52,7 +52,7 @@ void choices_fread(choices_t *c, FILE *file) {
 		c->buffer = safe_realloc(c->buffer, capacity);
 	}
 	c->buffer = safe_realloc(c->buffer, c->buffer_size + 1);
-	c->buffer[c->buffer_size++] = 0;
+	c->buffer[c->buffer_size++] = '\0';
 
 	/* Truncate buffer to used size, (maybe) freeing some memory for
 	 * future allocations.
