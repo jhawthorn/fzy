@@ -195,7 +195,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 
 int main(int argc, char *argv[]) {
 	int benchmark = 0;
-	const char *initial_query = NULL;
+	const char *filter = NULL;
 	const char *tty_filename = "/dev/tty";
 	char c;
 	while ((c = getopt_long(argc, argv, "vhse:l:t:p:", longopts, NULL)) != -1) {
@@ -207,7 +207,7 @@ int main(int argc, char *argv[]) {
 				flag_show_scores = 1;
 				break;
 			case 'e':
-				initial_query = optarg;
+				filter = optarg;
 				break;
 			case 'b':
 				if (optarg) {
@@ -256,14 +256,14 @@ int main(int argc, char *argv[]) {
 		num_lines = choices.size;
 
 	if (benchmark) {
-		if (!initial_query) {
+		if (!filter) {
 			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
 			exit(EXIT_FAILURE);
 		}
 		for (int i = 0; i < benchmark; i++)
-			choices_search(&choices, initial_query);
-	} else if (initial_query) {
-		choices_search(&choices, initial_query);
+			choices_search(&choices, filter);
+	} else if (filter) {
+		choices_search(&choices, filter);
 		for (size_t i = 0; i < choices_available(&choices); i++) {
 			if (flag_show_scores)
 				printf("%f\t", choices_getscore(&choices, i));
