@@ -19,7 +19,6 @@ static size_t scrolloff = 1;
 static const char *prompt = "> ";
 
 #define SEARCH_SIZE_MAX 4096
-static size_t search_size;
 static char search[SEARCH_SIZE_MAX + 1] = {0};
 
 static void clear(tty_t *tty) {
@@ -112,6 +111,7 @@ static void run(tty_t *tty, choices_t *choices) {
 	do {
 		draw(tty, choices);
 		ch = tty_getchar(tty);
+		size_t search_size = strlen(search);
 		if (isprint(ch)) {
 			if (search_size < SEARCH_SIZE_MAX) {
 				search[search_size++] = ch;
@@ -138,7 +138,6 @@ static void run(tty_t *tty, choices_t *choices) {
 			choices_prev(choices);
 		} else if (ch == KEY_CTRL('I')) { /* TAB (C-I) */
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
-			search_size = strlen(search);
 			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
 			clear(tty);
@@ -173,6 +172,7 @@ static const char *usage_str =
     "Usage: fzy [OPTION]...\n"
     " -l, --lines=LINES        Specify how many lines of results to show (default 10)\n"
     " -p, --prompt=PROMPT      Input prompt (default '> ')\n"
+    " -q, --query=QUERY        Use QUERY as the initial search string\n"
     " -e, --show-matches=QUERY Output the sorted matches of QUERY\n"
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
@@ -184,6 +184,7 @@ static void usage(const char *argv0) {
 }
 
 static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'},
+				   {"query", required_argument, NULL, 'q'},
 				   {"lines", required_argument, NULL, 'l'},
 				   {"tty", required_argument, NULL, 't'},
 				   {"prompt", required_argument, NULL, 'p'},
@@ -198,13 +199,16 @@ int main(int argc, char *argv[]) {
 	const char *filter = NULL;
 	const char *tty_filename = "/dev/tty";
 	char c;
-	while ((c = getopt_long(argc, argv, "vhse:l:t:p:", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
 				exit(EXIT_SUCCESS);
 			case 's':
 				flag_show_scores = 1;
+				break;
+			case 'q':
+				strncpy(search, optarg, SEARCH_SIZE_MAX);
 				break;
 			case 'e':
 				filter = optarg;
