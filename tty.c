@@ -20,12 +20,26 @@ void tty_close(tty_t *tty) {
 
 void tty_init(tty_t *tty, const char *tty_filename) {
 	tty->fdin = open(tty_filename, O_RDONLY);
-	tty->fout = fopen(tty_filename, "w");
-	if (setvbuf(tty->fout, NULL, _IOFBF, 4096))
-		perror("setvbuf");
+	if (tty->fdin < 0) {
+		perror("Failed to open tty");
+		exit(EXIT_FAILURE);
+	}
 
-	if (tcgetattr(tty->fdin, &tty->original_termios))
+	tty->fout = fopen(tty_filename, "w");
+	if (!tty->fout) {
+		perror("Failed to open tty");
+		exit(EXIT_FAILURE);
+	}
+
+	if (setvbuf(tty->fout, NULL, _IOFBF, 4096)) {
+		perror("setvbuf");
+		exit(EXIT_FAILURE);
+	}
+
+	if (tcgetattr(tty->fdin, &tty->original_termios)) {
 		perror("tcgetattr");
+		exit(EXIT_FAILURE);
+	}
 
 	struct termios new_termios = tty->original_termios;
 

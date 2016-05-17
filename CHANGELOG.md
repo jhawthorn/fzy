@@ -7,6 +7,7 @@ Features:
 Bugfixes:
 
   - Fixed last line of results not being cleared on exit
+  - Check errors when opening the TTY device
 
 ## 0.3 (April 25, 2016)
 
