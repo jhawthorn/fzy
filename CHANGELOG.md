@@ -1,3 +1,13 @@
+## 0.4 (unreleased)
+
+Features:
+
+  - Add `-q`/`--query` for specifying initial query
+
+Bugfixes:
+
+  - Fixed last line of results not being cleared on exit
+
 ## 0.3 (April 25, 2016)
 
 Bugfixes:
