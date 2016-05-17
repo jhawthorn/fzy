@@ -28,6 +28,7 @@ static void clear(tty_t *tty) {
 	while (line++ < num_lines) {
 		tty_newline(tty);
 	}
+	tty_clearline(tty);
 	tty_moveup(tty, line - 1);
 	tty_flush(tty);
 }
