@@ -129,7 +129,7 @@ void test_choices_empty() {
 	choices_next(&choices);
 	assert(choices.selection == 0);
 
-	choices_free(&choices);
+	choices_destroy(&choices);
 }
 
 void test_choices_1() {
@@ -154,7 +154,7 @@ void test_choices_1() {
 	assert(!strcmp(choices_get(&choices, 0), "tags"));
 	assert(choices_get(&choices, 1) == NULL);
 
-	choices_free(&choices);
+	choices_destroy(&choices);
 }
 
 void test_choices_2() {
@@ -204,7 +204,7 @@ void test_choices_2() {
 	assert_streq(choices_get(&choices, 0), "test");
 	assert_streq(choices_get(&choices, 1), "tags");
 
-	choices_free(&choices);
+	choices_destroy(&choices);
 }
 
 void test_choices_without_search() {
@@ -225,7 +225,7 @@ void test_choices_without_search() {
 	assert(choices.size == 1);
 	assert(choices_get(&choices, 0) == NULL);
 
-	choices_free(&choices);
+	choices_destroy(&choices);
 }
 
 void summary() {
