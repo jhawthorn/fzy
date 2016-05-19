@@ -48,8 +48,7 @@ the default is `/usr/local`.
 
 ### Fedora/Redhat/CentOS
 
-    wget https://github.com/jhawthorn/fzy/releases/download/0.4/fzy-0.4-1.x86_64.rpm
-    sudo rpm -i fzy-0.4-1.x86_64.rpm
+    sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.4/fzy-0.4-1.x86_64.rpm
 
 ### Arch Linux
 
