@@ -35,8 +35,10 @@ config.h:
 install: fzy
 	mkdir -p $(DESTDIR)$(BINDIR)
 	cp fzy $(DESTDIR)$(BINDIR)/
+	chmod 755 ${DESTDIR}${BINDIR}/fzy
 	mkdir -p $(DESTDIR)$(MANDIR)/man1
 	cp fzy.1 $(DESTDIR)$(MANDIR)/man1/
+	chmod 644 ${DESTDIR}${MANDIR}/man1/fzy.1
 
 fmt:
 	clang-format -i *.c *.h
