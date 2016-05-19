@@ -1,4 +1,4 @@
-VERSION=0.3
+VERSION=0.4
 
 CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
 CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic

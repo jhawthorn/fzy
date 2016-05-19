@@ -1,4 +1,4 @@
-## 0.4 (unreleased)
+## 0.4 (May 19, 2016)
 
 Features:
 
