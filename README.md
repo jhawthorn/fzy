@@ -1,6 +1,6 @@
-# fzy
+<img src="http://i.hawth.ca/u/fzy-200.png" width="200" height="116" alt="fzy" />
 
-A fast, simple fuzzy text selector for the terminal with an advanced [scoring
+**fzy** is a fast, simple fuzzy text selector for the terminal with an advanced [scoring
 algorithm](#sorting).
 
 ![](http://i.hawth.ca/u/fzy2.gif)
