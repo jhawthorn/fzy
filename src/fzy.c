@@ -9,7 +9,7 @@
 #include "tty.h"
 #include "choices.h"
 
-#include "config.h"
+#include "../config.h"
 
 static int flag_show_scores = 0;
 

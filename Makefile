@@ -11,8 +11,8 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=${INSTALL} -m 644
 
-OBJECTS=fzy.o match.o tty.o choices.o
-TESTOBJECTS=fzytest.o match.o choices.o
+OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o
+TESTOBJECTS=src/fzytest.o src/match.o src/choices.o
 
 all: fzy
 
@@ -30,7 +30,7 @@ fzy: $(OBJECTS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
 config.h:
-	cp config.def.h config.h
+	cp src/config.def.h config.h
 
 install: fzy
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -41,9 +41,9 @@ install: fzy
 	chmod 644 ${DESTDIR}${MANDIR}/man1/fzy.1
 
 fmt:
-	clang-format -i *.c *.h
+	clang-format -i src/*.c src/*.h
 
 clean:
-	rm -f fzy fzytest *.o
+	rm -f fzy fzytest src/*.o
 
 .PHONY: test check all clean install fmt

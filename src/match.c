@@ -7,7 +7,7 @@
 
 #include "match.h"
 
-#include "config.h"
+#include "../config.h"
 
 char *strcasechr(const char *s, char c) {
 	const char accept[3] = {c, toupper(c), 0};
