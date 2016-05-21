@@ -1,4 +1,4 @@
-<img src="http://i.hawth.ca/u/fzy-200.png" width="200" height="116" alt="fzy" />
+![fzy](fzy.png)
 
 **fzy** is a fast, simple fuzzy text selector for the terminal with an advanced [scoring
 algorithm](#sorting).
