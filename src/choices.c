@@ -151,7 +151,9 @@ void choices_search(choices_t *c, const char *search) {
 		}
 	}
 
-	qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);
+	if(*search) {
+		qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);
+	}
 }
 
 const char *choices_get(choices_t *c, size_t n) {
