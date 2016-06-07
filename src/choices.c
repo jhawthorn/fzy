@@ -15,12 +15,21 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 	const struct scored_result *a = _idx1;
 	const struct scored_result *b = _idx2;
 
-	if (a->score == b->score)
-		return 0;
-	else if (a->score < b->score)
+	if (a->score == b->score) {
+		/* To ensure a stable sort, we must also sort by the string
+		 * pointers. We can do this since we know all the stings are
+		 * from a contiguous memory segment (buffer in choices_t).
+		 */
+		if (a->str < b->str) {
+			return -1;
+		} else {
+			return 1;
+		}
+	} else if (a->score < b->score) {
 		return 1;
-	else
+	} else {
 		return -1;
+	}
 }
 
 static void *safe_realloc(void *buffer, size_t size) {
