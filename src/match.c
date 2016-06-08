@@ -56,11 +56,22 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 #endif
 
 score_t calculate_score(const char *needle, const char *haystack, size_t *positions) {
-	if (!*haystack || !*needle)
+	if (!*needle)
 		return SCORE_MIN;
 
 	int n = strlen(needle);
 	int m = strlen(haystack);
+
+	if (n == m) {
+		/* Since this method can only be called with a haystack which
+		 * matches needle. If the lengths of the strings are equal the
+		 * strings themselves must also be equal (ignoring case).
+		 */
+		if (positions)
+			for (int i = 0; i < n; i++)
+				positions[i] = i;
+		return SCORE_MAX;
+	}
 
 	if (m > 1024) {
 		/*
@@ -164,18 +175,7 @@ score_t calculate_score(const char *needle, const char *haystack, size_t *positi
 }
 
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
-	if (!*needle) {
-		return SCORE_MAX;
-	} else if (!strcasecmp(needle, haystack)) {
-		if (positions) {
-			int n = strlen(needle);
-			for (int i = 0; i < n; i++)
-				positions[i] = i;
-		}
-		return SCORE_MAX;
-	} else {
-		return calculate_score(needle, haystack, positions);
-	}
+	return calculate_score(needle, haystack, positions);
 }
 
 score_t match(const char *needle, const char *haystack) {
