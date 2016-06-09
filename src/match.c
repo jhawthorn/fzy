@@ -55,7 +55,7 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 }
 #endif
 
-score_t calculate_score(const char *needle, const char *haystack, size_t *positions) {
+score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
 	if (!*needle)
 		return SCORE_MIN;
 
@@ -172,10 +172,6 @@ score_t calculate_score(const char *needle, const char *haystack, size_t *positi
 	}
 
 	return M[n - 1][m - 1];
-}
-
-score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
-	return calculate_score(needle, haystack, positions);
 }
 
 score_t match(const char *needle, const char *haystack) {
