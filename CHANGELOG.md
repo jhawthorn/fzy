@@ -1,3 +1,9 @@
+## 0.5 (Unreleased)
+
+Bugfixes:
+
+  - Made sorting stable on all platforms
+
 ## 0.4 (May 19, 2016)
 
 Features:
