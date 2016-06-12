@@ -43,12 +43,12 @@ the default is `/usr/local`.
 
 ### Ubuntu/Debian 64-bit
 
-    wget https://github.com/jhawthorn/fzy/releases/download/0.4/fzy_0.4-1_amd64.deb
-    sudo dpkg -i fzy_0.4-1_amd64.deb
+    wget https://github.com/jhawthorn/fzy/releases/download/0.5/fzy_0.5-1_amd64.deb
+    sudo dpkg -i fzy_0.5-1_amd64.deb
 
 ### Fedora/Redhat/CentOS
 
-    sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.4/fzy-0.4-1.x86_64.rpm
+    sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.5/fzy-0.5-1.x86_64.rpm
 
 ### Arch Linux
 

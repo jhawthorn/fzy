@@ -1,4 +1,4 @@
-## 0.5 (Unreleased)
+## 0.5 (2016-06-11)
 
 Bugfixes:
 
