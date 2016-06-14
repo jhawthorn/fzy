@@ -2,6 +2,7 @@
 #include <string.h>
 #include <signal.h>
 
+#include "../config.h"
 #include "match.h"
 #include "choices.h"
 
@@ -39,7 +40,7 @@ void test_match() {
 	assert(has_match("", "a"));
 }
 
-void test_scoring() {
+void test_relative_scores() {
 	/* App/Models/Order is better than App/MOdels/zRder  */
 	assert(match("amor", "app/models/order") > match("amor", "app/models/zrder"));
 
@@ -64,6 +65,45 @@ void test_scoring() {
 	/* Prefer shorter matches */
 	assert(match("abc", "    a b c ") > match("abc", " a  b  c "));
 	assert(match("abc", " a b c    ") > match("abc", " a  b  c "));
+}
+
+void test_exact_scores() {
+	/* Exact match is SCORE_MAX */
+	assert(match("abc", "abc") == SCORE_MAX);
+	assert(match("aBc", "abC") == SCORE_MAX);
+
+	/* Empty query always results in SCORE_MIN */
+	assert(match("", "") == SCORE_MIN);
+	assert(match("", "a") == SCORE_MIN);
+	assert(match("", "bb") == SCORE_MIN);
+
+	/* Gaps */
+	assert(match("a", "*a") == SCORE_GAP_LEADING);
+	assert(match("a", "*ba") == SCORE_GAP_LEADING*2);
+	assert(match("a", "**a*") == SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING);
+	assert(match("a", "**a**") == SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2);
+	assert(match("aa", "**aa**") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2);
+	assert(match("aa", "**a*a**") == SCORE_GAP_LEADING + SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_GAP_TRAILING + SCORE_GAP_TRAILING);
+
+	/* Consecutive */
+	assert(match("aa", "*aa") == SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE);
+	assert(match("aaa", "*aaa") == SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2);
+	assert(match("aaa", "*a*aa") == SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE);
+
+	/* Slash */
+	assert(match("a", "/a") == SCORE_GAP_LEADING + SCORE_MATCH_SLASH);
+	assert(match("a", "*/a") == SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH);
+	assert(match("aa", "a/aa") == SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE);
+
+	/* Capital */
+	assert(match("a", "bA") == SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL);
+	assert(match("a", "baA") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL);
+	assert(match("aa", "baAa") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE);
+
+	/* Dot */
+	assert(match("a", ".a") == SCORE_GAP_LEADING + SCORE_MATCH_DOT);
+	assert(match("a", "*a.a") == SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT);
+	assert(match("a", "*a.a") == SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT);
 }
 
 void test_positions_1() {
@@ -245,7 +285,8 @@ int main(int argc, char *argv[]) {
 	signal(SIGTRAP, ignore_signal);
 
 	runtest(test_match);
-	runtest(test_scoring);
+	runtest(test_relative_scores);
+	runtest(test_exact_scores);
 	runtest(test_positions_1);
 	runtest(test_positions_2);
 	runtest(test_positions_3);

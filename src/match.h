@@ -1,6 +1,8 @@
 #ifndef MATCH_H
 #define MATCH_H MATCH_H
 
+#include <math.h>
+
 typedef double score_t;
 #define SCORE_MAX INFINITY
 #define SCORE_MIN -INFINITY
