@@ -117,9 +117,10 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	for (int i = 0; i < n; i++) {
 		score_t prev_score = SCORE_MIN;
 		score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
+
 		for (int j = 0; j < m; j++) {
-			score_t score = SCORE_MIN;
 			if (tolower(needle[i]) == tolower(haystack[j])) {
+				score_t score = SCORE_MIN;
 				if (!i) {
 					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				} else if (j) { /* i > 0 && j > 0*/
@@ -129,9 +130,12 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 					    /* consecutive match, doesn't stack with match_bonus */
 					    D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
 				}
+				D[i][j] = score;
+				M[i][j] = prev_score = max(score, prev_score + gap_score);
+			} else {
+				D[i][j] = SCORE_MIN;
+				M[i][j] = prev_score = prev_score + gap_score;
 			}
-			D[i][j] = score;
-			M[i][j] = prev_score = max(score, prev_score + gap_score);
 		}
 	}
 
