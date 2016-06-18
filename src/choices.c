@@ -134,22 +134,76 @@ size_t choices_available(choices_t *c) {
 	return c->available;
 }
 
+#include <pthread.h>
+
+struct worker {
+	pthread_t thread_id;
+	choices_t *choices;
+	const char *search;
+	size_t worker_count;
+	size_t worker_num;
+	struct scored_result *results;
+	size_t available;
+};
+
+static void *choices_search_worker(void *data) {
+	struct worker *w = (struct worker *)data;
+	const choices_t *c = w->choices;
+
+	size_t start = (w->worker_num) * c->size / w->worker_count;
+	size_t end = (w->worker_num + 1) * c->size / w->worker_count;
+
+	for(size_t i = start; i < end; i++) {
+		if (has_match(w->search, c->strings[i])) {
+			w->results[w->available].str = c->strings[i];
+			w->results[w->available].score = match(w->search, c->strings[i]);
+			w->available++;
+		}
+	}
+
+	return w;
+}
+
 void choices_search(choices_t *c, const char *search) {
 	choices_reset_search(c);
 
+	/* allocate storage for our results */
 	c->results = malloc(c->size * sizeof(struct scored_result));
 	if (!c->results) {
 		fprintf(stderr, "Error: Can't allocate memory\n");
 		abort();
 	}
 
-	for (size_t i = 0; i < c->size; i++) {
-		if (has_match(search, c->strings[i])) {
-			c->results[c->available].str = c->strings[i];
-			c->results[c->available].score = match(search, c->strings[i]);
-			c->available++;
+	int worker_count = 8;
+	struct worker *workers = calloc(worker_count, sizeof(struct worker));
+	for (int i = 0; i < worker_count; i++) {
+		workers[i].choices = c;
+		workers[i].search = search;
+		workers[i].worker_count = worker_count;
+		workers[i].worker_num = i;
+		workers[i].results = malloc(c->size * sizeof(struct scored_result)); /* FIXME: This is overkill */
+		int ret = pthread_create(&workers[i].thread_id, NULL, &choices_search_worker, &workers[i]);
+		if (ret != 0) {
+			perror("pthread_create");
+			exit(EXIT_FAILURE);
 		}
 	}
+
+	for (int i = 0; i < worker_count; i++) {
+		struct worker *w = &workers[i];
+
+		int ret = pthread_join(w->thread_id, NULL);
+		if (ret != 0) {
+			perror("pthread_join");
+			exit(EXIT_FAILURE);
+		}
+
+		memcpy(&c->results[c->available], w->results,  w->available * sizeof(struct scored_result));
+		c->available += w->available;
+
+		free(w->results);
+	}
+	free(workers);
 
 	if(*search) {
 		qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);

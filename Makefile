@@ -11,20 +11,21 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=${INSTALL} -m 644
 
+LIBS=-lpthread
 OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o src/options.o src/tty_interface.o
 TESTOBJECTS=test/fzytest.c src/match.o src/choices.o
 
 all: fzy
 
 test/fzytest: $(TESTOBJECTS)
-	$(CC) $(CFLAGS) $(CCFLAGS) -Isrc -o $@ $(TESTOBJECTS)
+	$(CC) $(CFLAGS) $(CCFLAGS) -Isrc -o $@ $(TESTOBJECTS) $(LIBS)
 
 test: check
 check: test/fzytest
 	$(DEBUGGER) ./test/fzytest
 
 fzy: $(OBJECTS)
-	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS)
+	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 %.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
