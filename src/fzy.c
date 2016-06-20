@@ -16,10 +16,10 @@ options_t options;
 #define SEARCH_SIZE_MAX 4096
 static char search[SEARCH_SIZE_MAX + 1] = {0};
 
-static void clear(tty_t *tty) {
+static void clear(tty_t *tty, options_t *options) {
 	tty_setcol(tty, 0);
 	size_t line = 0;
-	while (line++ < options.num_lines) {
+	while (line++ < options->num_lines) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
@@ -27,7 +27,7 @@ static void clear(tty_t *tty) {
 	tty_flush(tty);
 }
 
-static void draw_match(tty_t *tty, const char *choice, int selected) {
+static void draw_match(tty_t *tty, const char *choice, int selected, options_t *options) {
 	int n = strlen(search);
 	size_t positions[n + 1];
 	for (int i = 0; i < n + 1; i++)
@@ -37,7 +37,7 @@ static void draw_match(tty_t *tty, const char *choice, int selected) {
 
 	size_t maxwidth = tty_getwidth(tty);
 
-	if (options.show_scores)
+	if (options->show_scores)
 		tty_printf(tty, "(%5.2f) ", score);
 
 	if (selected)
@@ -60,29 +60,29 @@ static void draw_match(tty_t *tty, const char *choice, int selected) {
 	tty_setnormal(tty);
 }
 
-static void draw(tty_t *tty, choices_t *choices) {
-	unsigned int num_lines = options.num_lines;
+static void draw(tty_t *tty, choices_t *choices, options_t *options) {
+	unsigned int num_lines = options->num_lines;
 	size_t start = 0;
 	size_t current_selection = choices->selection;
-	if (current_selection + options.scrolloff >= num_lines) {
-		start = current_selection + options.scrolloff - num_lines + 1;
+	if (current_selection + options->scrolloff >= num_lines) {
+		start = current_selection + options->scrolloff - num_lines + 1;
 		if (start + num_lines >= choices_available(choices)) {
 			start = choices_available(choices) - num_lines;
 		}
 	}
 	tty_setcol(tty, 0);
-	tty_printf(tty, "%s%s", options.prompt, search);
+	tty_printf(tty, "%s%s", options->prompt, search);
 	tty_clearline(tty);
 	for (size_t i = start; i < start + num_lines; i++) {
 		tty_printf(tty, "\n");
 		tty_clearline(tty);
 		const char *choice = choices_get(choices, i);
 		if (choice) {
-			draw_match(tty, choice, i == choices->selection);
+			draw_match(tty, choice, i == choices->selection, options);
 		}
 	}
 	tty_moveup(tty, num_lines);
-	tty_setcol(tty, strlen(options.prompt) + strlen(search));
+	tty_setcol(tty, strlen(options->prompt) + strlen(search));
 	tty_flush(tty);
 }
 
@@ -101,11 +101,11 @@ static void emit(choices_t *choices) {
 #define KEY_DEL 127
 #define KEY_ESC 27
 
-static void run(tty_t *tty, choices_t *choices) {
+static void run(tty_t *tty, choices_t *choices, options_t *options) {
 	choices_search(choices, search);
 	char ch;
 	do {
-		draw(tty, choices);
+		draw(tty, choices, options);
 		ch = tty_getchar(tty);
 		size_t search_size = strlen(search);
 		if (isprint(ch)) {
@@ -136,11 +136,11 @@ static void run(tty_t *tty, choices_t *choices) {
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
 			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
-			clear(tty);
+			clear(tty, options);
 			tty_close(tty);
 			exit(EXIT_FAILURE);
 		} else if (ch == KEY_CTRL('M')) { /* CR */
-			clear(tty);
+			clear(tty, options);
 
 			/* ttyout should be flushed before outputting on stdout */
 			tty_close(tty);
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 		if (options.init_search)
 			strncpy(search, options.init_search, SEARCH_SIZE_MAX);
 
-		run(&tty, &choices);
+		run(&tty, &choices, &options);
 	}
 
 	choices_destroy(&choices);
