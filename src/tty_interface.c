@@ -106,6 +106,42 @@ static void action_emit(tty_interface_t *state) {
 	state->exit = EXIT_SUCCESS;
 }
 
+static void action_del_char(tty_interface_t *state) {
+	if (*state->search)
+		state->search[strlen(state->search) - 1] = '\0';
+}
+
+static void action_del_word(tty_interface_t *state) {
+	size_t search_size = strlen(state->search);
+	if (search_size)
+		state->search[--search_size] = '\0';
+	while (search_size && !isspace(state->search[--search_size]))
+		state->search[search_size] = '\0';
+}
+
+static void action_del_all(tty_interface_t *state) {
+	strcpy(state->search, "");
+}
+
+static void action_prev(tty_interface_t *state) {
+	choices_prev(state->choices);
+}
+
+static void action_next(tty_interface_t *state) {
+	choices_next(state->choices);
+}
+
+static void action_autocomplete(tty_interface_t *state) {
+	strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
+}
+
+static void action_exit(tty_interface_t *state) {
+	clear(state);
+	tty_close(state->tty);
+
+	state->exit = EXIT_FAILURE;
+}
+
 #define KEY_CTRL(key) ((key) - ('@'))
 #define KEY_DEL 127
 #define KEY_ESC 27
@@ -138,7 +174,6 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 
 int tty_interface_run(tty_interface_t *state) {
 	tty_t *tty = state->tty;
-	choices_t *choices = state->choices;
 	char *search = state->search;
 
 	char ch;
@@ -152,26 +187,19 @@ int tty_interface_run(tty_interface_t *state) {
 				search[search_size] = '\0';
 			}
 		} else if (ch == KEY_DEL || ch == KEY_CTRL('H')) { /* DEL || Backspace (C-H) */
-			if (search_size)
-				search[--search_size] = '\0';
+			action_del_char(state);
 		} else if (ch == KEY_CTRL('U')) { /* C-U */
-			search_size = 0;
-			search[0] = '\0';
+			action_del_all(state);
 		} else if (ch == KEY_CTRL('W')) { /* C-W */
-			if (search_size)
-				search[--search_size] = '\0';
-			while (search_size && !isspace(search[--search_size]))
-				search[search_size] = '\0';
+			action_del_word(state);
 		} else if (ch == KEY_CTRL('N')) { /* C-N */
-			choices_next(choices);
+			action_next(state);
 		} else if (ch == KEY_CTRL('P')) { /* C-P */
-			choices_prev(choices);
+			action_prev(state);
 		} else if (ch == KEY_CTRL('I')) { /* TAB (C-I) */
-			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
+			action_autocomplete(state);
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
-			clear(state);
-			tty_close(tty);
-			state->exit = EXIT_FAILURE;
+			action_exit(state);
 		} else if (ch == KEY_CTRL('M')) { /* CR */
 			action_emit(state);
 		} else if (ch == KEY_ESC) { /* ESC */
@@ -179,9 +207,9 @@ int tty_interface_run(tty_interface_t *state) {
 			if (ch == '[' || ch == 'O') {
 				ch = tty_getchar(tty);
 				if (ch == 'A') { /* UP ARROW */
-					choices_prev(choices);
+					action_prev(state);
 				} else if (ch == 'B') { /* DOWN ARROW */
-					choices_next(choices);
+					action_next(state);
 				}
 			}
 		}
