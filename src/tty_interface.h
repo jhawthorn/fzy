@@ -13,6 +13,7 @@ typedef struct {
 	options_t *options;
 
 	char search[SEARCH_SIZE_MAX + 1];
+	char last_search[SEARCH_SIZE_MAX + 1];
 
 	int exit;
 } tty_interface_t;

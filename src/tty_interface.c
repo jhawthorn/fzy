@@ -110,15 +110,30 @@ static void action_emit(tty_interface_t *state) {
 #define KEY_DEL 127
 #define KEY_ESC 27
 
+static void update_search(tty_interface_t *state) {
+	choices_search(state->choices, state->search);
+	strcpy(state->last_search, state->search);
+}
+
+void update_state(tty_interface_t *state) {
+	if (strcmp(state->last_search, state->search))
+		update_search(state);
+}
+
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
 
+	strcpy(state->search, "");
+	strcpy(state->last_search, "");
+
 	state->exit = -1;
 
 	if (options->init_search)
 		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
+
+	update_search(state);
 }
 
 int tty_interface_run(tty_interface_t *state) {
@@ -126,7 +141,6 @@ int tty_interface_run(tty_interface_t *state) {
 	choices_t *choices = state->choices;
 	char *search = state->search;
 
-	choices_search(choices, search);
 	char ch;
 	while (state->exit < 0) {
 		draw(state);
@@ -136,29 +150,24 @@ int tty_interface_run(tty_interface_t *state) {
 			if (search_size < SEARCH_SIZE_MAX) {
 				search[search_size++] = ch;
 				search[search_size] = '\0';
-				choices_search(choices, search);
 			}
 		} else if (ch == KEY_DEL || ch == KEY_CTRL('H')) { /* DEL || Backspace (C-H) */
 			if (search_size)
 				search[--search_size] = '\0';
-			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('U')) { /* C-U */
 			search_size = 0;
 			search[0] = '\0';
-			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('W')) { /* C-W */
 			if (search_size)
 				search[--search_size] = '\0';
 			while (search_size && !isspace(search[--search_size]))
 				search[search_size] = '\0';
-			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('N')) { /* C-N */
 			choices_next(choices);
 		} else if (ch == KEY_CTRL('P')) { /* C-P */
 			choices_prev(choices);
 		} else if (ch == KEY_CTRL('I')) { /* TAB (C-I) */
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
-			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
 			clear(state);
 			tty_close(tty);
@@ -176,6 +185,7 @@ int tty_interface_run(tty_interface_t *state) {
 				}
 			}
 		}
+		update_state(state);
 	}
 
 	return state->exit;
