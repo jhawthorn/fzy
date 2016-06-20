@@ -87,10 +87,14 @@ static void draw(tty_interface_t *state) {
 	tty_flush(tty);
 }
 
-static void emit(tty_interface_t *state) {
-	choices_t *choices = state->choices;
+static void action_emit(tty_interface_t *state) {
+	/* Reset the tty as close as possible to the previous state */
+	clear(state);
 
-	const char *selection = choices_get(choices, choices->selection);
+	/* ttyout should be flushed before outputting on stdout */
+	tty_close(state->tty);
+
+	const char *selection = choices_get(state->choices, state->choices->selection);
 	if (selection) {
 		/* output the selected result */
 		printf("%s\n", selection);
@@ -98,6 +102,8 @@ static void emit(tty_interface_t *state) {
 		/* No match, output the query instead */
 		printf("%s\n", state->search);
 	}
+
+	state->exit = EXIT_SUCCESS;
 }
 
 #define KEY_CTRL(key) ((key) - ('@'))
@@ -108,6 +114,8 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
+
+	state->exit = -1;
 
 	if (options->init_search)
 		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
@@ -120,7 +128,7 @@ int tty_interface_run(tty_interface_t *state) {
 
 	choices_search(choices, search);
 	char ch;
-	do {
+	while (state->exit < 0) {
 		draw(state);
 		ch = tty_getchar(tty);
 		size_t search_size = strlen(search);
@@ -154,17 +162,9 @@ int tty_interface_run(tty_interface_t *state) {
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
 			clear(state);
 			tty_close(tty);
-			exit(EXIT_FAILURE);
+			state->exit = EXIT_FAILURE;
 		} else if (ch == KEY_CTRL('M')) { /* CR */
-			clear(state);
-
-			/* ttyout should be flushed before outputting on stdout */
-			tty_close(tty);
-
-			emit(state);
-
-			/* Return to eventually exit successfully */
-			return 0;
+			action_emit(state);
 		} else if (ch == KEY_ESC) { /* ESC */
 			ch = tty_getchar(tty);
 			if (ch == '[' || ch == 'O') {
@@ -176,7 +176,7 @@ int tty_interface_run(tty_interface_t *state) {
 				}
 			}
 		}
-	} while (1);
+	}
 
-	return 0;
+	return state->exit;
 }
