@@ -151,10 +151,6 @@ static void append_search(tty_interface_t *state, char ch) {
 	}
 }
 
-#define KEY_CTRL(key) ((key) - ('@'))
-#define KEY_DEL 127
-#define KEY_ESC 27
-
 static void update_search(tty_interface_t *state) {
 	choices_search(state->choices, state->search);
 	strcpy(state->last_search, state->search);
@@ -170,6 +166,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	state->choices = choices;
 	state->options = options;
 
+	strcpy(state->input, "");
 	strcpy(state->search, "");
 	strcpy(state->last_search, "");
 
@@ -181,42 +178,67 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	update_search(state);
 }
 
-int tty_interface_run(tty_interface_t *state) {
-	tty_t *tty = state->tty;
+typedef struct {
+	const char *key;
+	void (*action)(tty_interface_t *);
+} keybinding_t;
 
-	char ch;
+#define KEY_CTRL(key) ((const char[]){((key) - ('@')), '\0'})
+
+static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
+					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */
+					   {KEY_CTRL('W'), action_del_word}, /* C-W */
+					   {KEY_CTRL('U'), action_del_all},  /* C-U */
+					   {KEY_CTRL('I'), action_autocomplete}, /* TAB (C-I ) */
+					   {KEY_CTRL('C'), action_exit},	 /* C-C */
+					   {KEY_CTRL('D'), action_exit},	 /* C-D */
+					   {KEY_CTRL('M'), action_emit},	 /* CR */
+					   {KEY_CTRL('P'), action_prev},	 /* C-P */
+					   {KEY_CTRL('N'), action_next},	 /* C-N */
+
+					   {"\x1b[A", action_prev}, /* UP */
+					   {"\x1bOA", action_prev}, /* UP */
+					   {"\x1b[B", action_next}, /* DOWN */
+					   {"\x1bOB", action_next}, /* DOWN */
+					   {NULL, NULL}};
+
+#undef KEY_CTRL
+
+void handle_input(tty_interface_t *state) {
+	char *input = state->input;
+
+	/* See if we have matched a keybinding */
+	for (int i = 0; keybindings[i].key; i++) {
+		if (!strcmp(input, keybindings[i].key)) {
+			keybindings[i].action(state);
+			strcpy(input, "");
+			return;
+		}
+	}
+
+	/* Check if we are in the middle of a keybinding */
+	for (int i = 0; keybindings[i].key; i++)
+		if (!strncmp(input, keybindings[i].key, strlen(input)))
+			return;
+
+	/* No matching keybinding, add to search */
+	for (int i = 0; input[i]; i++)
+		if (isprint(input[i]))
+			append_search(state, input[i]);
+
+	/* We have processed the input, so clear it */
+	strcpy(input, "");
+}
+
+int tty_interface_run(tty_interface_t *state) {
 	while (state->exit < 0) {
 		draw(state);
-		ch = tty_getchar(tty);
-		if (isprint(ch)) {
-			append_search(state, ch);
-		} else if (ch == KEY_DEL || ch == KEY_CTRL('H')) { /* DEL || Backspace (C-H) */
-			action_del_char(state);
-		} else if (ch == KEY_CTRL('U')) { /* C-U */
-			action_del_all(state);
-		} else if (ch == KEY_CTRL('W')) { /* C-W */
-			action_del_word(state);
-		} else if (ch == KEY_CTRL('N')) { /* C-N */
-			action_next(state);
-		} else if (ch == KEY_CTRL('P')) { /* C-P */
-			action_prev(state);
-		} else if (ch == KEY_CTRL('I')) { /* TAB (C-I) */
-			action_autocomplete(state);
-		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
-			action_exit(state);
-		} else if (ch == KEY_CTRL('M')) { /* CR */
-			action_emit(state);
-		} else if (ch == KEY_ESC) { /* ESC */
-			ch = tty_getchar(tty);
-			if (ch == '[' || ch == 'O') {
-				ch = tty_getchar(tty);
-				if (ch == 'A') { /* UP ARROW */
-					action_prev(state);
-				} else if (ch == 'B') { /* DOWN ARROW */
-					action_next(state);
-				}
-			}
-		}
+
+		char s[2] = {tty_getchar(state->tty), '\0'};
+		strcat(state->input, s);
+
+		handle_input(state);
+
 		update_state(state);
 	}
 
