@@ -131,6 +131,16 @@ static void action_next(tty_interface_t *state) {
 	choices_next(state->choices);
 }
 
+static void action_pageup(tty_interface_t *state) {
+	for(size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
+		choices_prev(state->choices);
+}
+
+static void action_pagedown(tty_interface_t *state) {
+	for(size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available-1; i++)
+		choices_next(state->choices);
+}
+
 static void action_autocomplete(tty_interface_t *state) {
 	strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
 }
@@ -200,6 +210,8 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {"\x1bOA", action_prev}, /* UP */
 					   {"\x1b[B", action_next}, /* DOWN */
 					   {"\x1bOB", action_next}, /* DOWN */
+					   {"\x1b[5~", action_pageup},
+					   {"\x1b[6~", action_pagedown},
 					   {NULL, NULL}};
 
 #undef KEY_CTRL
