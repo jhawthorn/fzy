@@ -11,7 +11,7 @@ INSTALL=install
 INSTALL_PROGRAM=$(INSTALL)
 INSTALL_DATA=${INSTALL} -m 644
 
-OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o
+OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o src/options.o
 TESTOBJECTS=test/fzytest.c src/match.o src/choices.o
 
 all: fzy
