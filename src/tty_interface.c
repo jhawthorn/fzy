@@ -7,12 +7,12 @@
 #include "tty_interface.h"
 #include "../config.h"
 
-static char search[SEARCH_SIZE_MAX + 1];
+static void clear(tty_interface_t *state) {
+	tty_t *tty = state->tty;
 
-static void clear(tty_t *tty, options_t *options) {
 	tty_setcol(tty, 0);
 	size_t line = 0;
-	while (line++ < options->num_lines) {
+	while (line++ < state->options->num_lines) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
@@ -20,7 +20,11 @@ static void clear(tty_t *tty, options_t *options) {
 	tty_flush(tty);
 }
 
-static void draw_match(tty_t *tty, const char *choice, int selected, options_t *options) {
+static void draw_match(tty_interface_t *state, const char *choice, int selected) {
+	tty_t *tty = state->tty;
+	options_t *options = state->options;
+	char *search = state->search;
+
 	int n = strlen(search);
 	size_t positions[n + 1];
 	for (int i = 0; i < n + 1; i++)
@@ -53,7 +57,11 @@ static void draw_match(tty_t *tty, const char *choice, int selected, options_t *
 	tty_setnormal(tty);
 }
 
-static void draw(tty_t *tty, choices_t *choices, options_t *options) {
+static void draw(tty_interface_t *state) {
+	tty_t *tty = state->tty;
+	choices_t *choices = state->choices;
+	options_t *options = state->options;
+
 	unsigned int num_lines = options->num_lines;
 	size_t start = 0;
 	size_t current_selection = choices->selection;
@@ -64,29 +72,31 @@ static void draw(tty_t *tty, choices_t *choices, options_t *options) {
 		}
 	}
 	tty_setcol(tty, 0);
-	tty_printf(tty, "%s%s", options->prompt, search);
+	tty_printf(tty, "%s%s", options->prompt, state->search);
 	tty_clearline(tty);
 	for (size_t i = start; i < start + num_lines; i++) {
 		tty_printf(tty, "\n");
 		tty_clearline(tty);
 		const char *choice = choices_get(choices, i);
 		if (choice) {
-			draw_match(tty, choice, i == choices->selection, options);
+			draw_match(state, choice, i == choices->selection);
 		}
 	}
 	tty_moveup(tty, num_lines);
-	tty_setcol(tty, strlen(options->prompt) + strlen(search));
+	tty_setcol(tty, strlen(options->prompt) + strlen(state->search));
 	tty_flush(tty);
 }
 
-static void emit(choices_t *choices) {
+static void emit(tty_interface_t *state) {
+	choices_t *choices = state->choices;
+
 	const char *selection = choices_get(choices, choices->selection);
 	if (selection) {
 		/* output the selected result */
 		printf("%s\n", selection);
 	} else {
 		/* No match, output the query instead */
-		printf("%s\n", search);
+		printf("%s\n", state->search);
 	}
 }
 
@@ -106,13 +116,12 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 void tty_interface_run(tty_interface_t *state) {
 	tty_t *tty = state->tty;
 	choices_t *choices = state->choices;
-	options_t *options = state->options;
 	char *search = state->search;
 
 	choices_search(choices, search);
 	char ch;
 	do {
-		draw(tty, choices, options);
+		draw(state);
 		ch = tty_getchar(tty);
 		size_t search_size = strlen(search);
 		if (isprint(ch)) {
@@ -143,16 +152,16 @@ void tty_interface_run(tty_interface_t *state) {
 			strncpy(search, choices_get(choices, choices->selection), SEARCH_SIZE_MAX);
 			choices_search(choices, search);
 		} else if (ch == KEY_CTRL('C') || ch == KEY_CTRL('D')) { /* ^C || ^D */
-			clear(tty, options);
+			clear(state);
 			tty_close(tty);
 			exit(EXIT_FAILURE);
 		} else if (ch == KEY_CTRL('M')) { /* CR */
-			clear(tty, options);
+			clear(state);
 
 			/* ttyout should be flushed before outputting on stdout */
 			tty_close(tty);
 
-			emit(choices);
+			emit(state);
 
 			/* Return to eventually exit successfully */
 			return;
