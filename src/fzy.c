@@ -46,7 +46,9 @@ int main(int argc, char *argv[]) {
 		if (options.num_lines + 1 > tty_getheight(&tty))
 			options.num_lines = tty_getheight(&tty) - 1;
 
-		tty_interface_run(&tty, &choices, &options);
+		tty_interface_t tty_interface;
+		tty_interface_init(&tty_interface, &tty, &choices, &options);
+		tty_interface_run(&tty_interface);
 	}
 
 	choices_destroy(&choices);

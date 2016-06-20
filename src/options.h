@@ -1,3 +1,6 @@
+#ifndef OPTIONS_H
+#define OPTIONS_H OPTIONS_H
+
 typedef struct {
 	int benchmark;
 	const char *filter;
@@ -10,3 +13,5 @@ typedef struct {
 } options_t;
 
 void options_parse(options_t *options, int argc, char *argv[]);
+
+#endif

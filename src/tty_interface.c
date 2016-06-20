@@ -94,9 +94,20 @@ static void emit(choices_t *choices) {
 #define KEY_DEL 127
 #define KEY_ESC 27
 
-void tty_interface_run(tty_t *tty, choices_t *choices, options_t *options) {
+void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
+	state->tty = tty;
+	state->choices = choices;
+	state->options = options;
+
 	if (options->init_search)
-		strncpy(search, options->init_search, SEARCH_SIZE_MAX);
+		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
+}
+
+void tty_interface_run(tty_interface_t *state) {
+	tty_t *tty = state->tty;
+	choices_t *choices = state->choices;
+	options_t *options = state->options;
+	char *search = state->search;
 
 	choices_search(choices, search);
 	char ch;
