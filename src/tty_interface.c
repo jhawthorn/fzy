@@ -142,6 +142,15 @@ static void action_exit(tty_interface_t *state) {
 	state->exit = EXIT_FAILURE;
 }
 
+static void append_search(tty_interface_t *state, char ch) {
+	char *search = state->search;
+	size_t search_size = strlen(search);
+	if (search_size < SEARCH_SIZE_MAX) {
+		search[search_size++] = ch;
+		search[search_size] = '\0';
+	}
+}
+
 #define KEY_CTRL(key) ((key) - ('@'))
 #define KEY_DEL 127
 #define KEY_ESC 27
@@ -174,18 +183,13 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 
 int tty_interface_run(tty_interface_t *state) {
 	tty_t *tty = state->tty;
-	char *search = state->search;
 
 	char ch;
 	while (state->exit < 0) {
 		draw(state);
 		ch = tty_getchar(tty);
-		size_t search_size = strlen(search);
 		if (isprint(ch)) {
-			if (search_size < SEARCH_SIZE_MAX) {
-				search[search_size++] = ch;
-				search[search_size] = '\0';
-			}
+			append_search(state, ch);
 		} else if (ch == KEY_DEL || ch == KEY_CTRL('H')) { /* DEL || Backspace (C-H) */
 			action_del_char(state);
 		} else if (ch == KEY_CTRL('U')) { /* C-U */
