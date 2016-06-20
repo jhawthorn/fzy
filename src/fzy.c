@@ -13,6 +13,8 @@
 #include "../config.h"
 
 int main(int argc, char *argv[]) {
+	int ret = 0;
+
 	options_t options;
 	options_parse(&options, argc, argv);
 
@@ -47,10 +49,10 @@ int main(int argc, char *argv[]) {
 
 		tty_interface_t tty_interface;
 		tty_interface_init(&tty_interface, &tty, &choices, &options);
-		tty_interface_run(&tty_interface);
+		ret = tty_interface_run(&tty_interface);
 	}
 
 	choices_destroy(&choices);
 
-	return 0;
+	return ret;
 }

@@ -113,7 +113,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
 }
 
-void tty_interface_run(tty_interface_t *state) {
+int tty_interface_run(tty_interface_t *state) {
 	tty_t *tty = state->tty;
 	choices_t *choices = state->choices;
 	char *search = state->search;
@@ -164,7 +164,7 @@ void tty_interface_run(tty_interface_t *state) {
 			emit(state);
 
 			/* Return to eventually exit successfully */
-			return;
+			return 0;
 		} else if (ch == KEY_ESC) { /* ESC */
 			ch = tty_getchar(tty);
 			if (ch == '[' || ch == 'O') {
@@ -177,4 +177,6 @@ void tty_interface_run(tty_interface_t *state) {
 			}
 		}
 	} while (1);
+
+	return 0;
 }
