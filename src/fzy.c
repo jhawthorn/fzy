@@ -12,9 +12,8 @@
 
 #include "../config.h"
 
-options_t options;
-
 int main(int argc, char *argv[]) {
+	options_t options;
 	options_parse(&options, argc, argv);
 
 	choices_t choices;
