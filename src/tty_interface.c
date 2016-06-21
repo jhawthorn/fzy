@@ -23,7 +23,7 @@ static void clear(tty_interface_t *state) {
 static void draw_match(tty_interface_t *state, const char *choice, int selected) {
 	tty_t *tty = state->tty;
 	options_t *options = state->options;
-	char *search = state->search;
+	char *search = state->last_search;
 
 	int n = strlen(search);
 	size_t positions[n + 1];
@@ -87,7 +87,21 @@ static void draw(tty_interface_t *state) {
 	tty_flush(tty);
 }
 
+static void update_search(tty_interface_t *state) {
+	choices_search(state->choices, state->search);
+	strcpy(state->last_search, state->search);
+}
+
+void update_state(tty_interface_t *state) {
+	if (strcmp(state->last_search, state->search)) {
+		update_search(state);
+		draw(state);
+	}
+}
+
 static void action_emit(tty_interface_t *state) {
+	update_state(state);
+
 	/* Reset the tty as close as possible to the previous state */
 	clear(state);
 
@@ -124,24 +138,29 @@ static void action_del_all(tty_interface_t *state) {
 }
 
 static void action_prev(tty_interface_t *state) {
+	update_state(state);
 	choices_prev(state->choices);
 }
 
 static void action_next(tty_interface_t *state) {
+	update_state(state);
 	choices_next(state->choices);
 }
 
 static void action_pageup(tty_interface_t *state) {
+	update_state(state);
 	for(size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
 		choices_prev(state->choices);
 }
 
 static void action_pagedown(tty_interface_t *state) {
+	update_state(state);
 	for(size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available-1; i++)
 		choices_next(state->choices);
 }
 
 static void action_autocomplete(tty_interface_t *state) {
+	update_state(state);
 	strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
 }
 
@@ -159,16 +178,6 @@ static void append_search(tty_interface_t *state, char ch) {
 		search[search_size++] = ch;
 		search[search_size] = '\0';
 	}
-}
-
-static void update_search(tty_interface_t *state) {
-	choices_search(state->choices, state->search);
-	strcpy(state->last_search, state->search);
-}
-
-void update_state(tty_interface_t *state) {
-	if (strcmp(state->last_search, state->search))
-		update_search(state);
 }
 
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
@@ -216,8 +225,9 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 
 #undef KEY_CTRL
 
-void handle_input(tty_interface_t *state) {
+void handle_input(tty_interface_t *state, const char *s) {
 	char *input = state->input;
+	strcat(state->input, s);
 
 	/* See if we have matched a keybinding */
 	for (int i = 0; keybindings[i].key; i++) {
@@ -243,13 +253,18 @@ void handle_input(tty_interface_t *state) {
 }
 
 int tty_interface_run(tty_interface_t *state) {
-	while (state->exit < 0) {
-		draw(state);
+	draw(state);
 
-		char s[2] = {tty_getchar(state->tty), '\0'};
-		strcat(state->input, s);
+	for (;;) {
+		do {
+			char s[2] = {tty_getchar(state->tty), '\0'};
+			handle_input(state, s);
 
-		handle_input(state);
+			if (state->exit >= 0)
+				return state->exit;
+
+			draw(state);
+		} while (tty_input_ready(state->tty));
 
 		update_state(state);
 	}

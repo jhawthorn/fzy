@@ -86,6 +86,14 @@ char tty_getchar(tty_t *tty) {
 	}
 }
 
+int tty_input_ready(tty_t *tty) {
+	fd_set readfs;
+	struct timeval tv = {0, 0};
+	FD_SET(tty->fdin, &readfs);
+	select(tty->fdin + 1, &readfs, NULL, NULL, &tv);
+	return FD_ISSET(tty->fdin, &readfs);
+}
+
 static void tty_sgr(tty_t *tty, int code) {
 	tty_printf(tty, "%c%c%im", 0x1b, '[', code);
 }
