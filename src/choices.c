@@ -104,6 +104,8 @@ void choices_init(choices_t *c) {
 	c->capacity = c->size = 0;
 	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
+	c->worker_count = 8;
+
 	choices_reset_search(c);
 }
 
@@ -149,8 +151,8 @@ static void *choices_search_worker(void *data) {
 	struct worker *w = (struct worker *)data;
 	const choices_t *c = w->choices;
 
-	size_t start = (w->worker_num) * c->size / w->worker_count;
-	size_t end = (w->worker_num + 1) * c->size / w->worker_count;
+	size_t start = (w->worker_num) * c->size / c->worker_count;
+	size_t end = (w->worker_num + 1) * c->size / c->worker_count;
 
 	for(size_t i = start; i < end; i++) {
 		if (has_match(w->search, c->strings[i])) {
@@ -173,12 +175,10 @@ void choices_search(choices_t *c, const char *search) {
 		abort();
 	}
 
-	int worker_count = 8;
-	struct worker *workers = calloc(worker_count, sizeof(struct worker));
-	for (int i = 0; i < worker_count; i++) {
+	struct worker *workers = calloc(c->worker_count, sizeof(struct worker));
+	for (unsigned int i = 0; i < c->worker_count; i++) {
 		workers[i].choices = c;
 		workers[i].search = search;
-		workers[i].worker_count = worker_count;
 		workers[i].worker_num = i;
 		workers[i].results = malloc(c->size * sizeof(struct scored_result)); /* FIXME: This is overkill */
 		if (pthread_create(&workers[i].thread_id, NULL, &choices_search_worker, &workers[i])) {
@@ -187,7 +187,7 @@ void choices_search(choices_t *c, const char *search) {
 		}
 	}
 
-	for (int i = 0; i < worker_count; i++) {
+	for (unsigned int i = 0; i < c->worker_count; i++) {
 		struct worker *w = &workers[i];
 
 		if (pthread_join(w->thread_id, NULL)) {

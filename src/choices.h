@@ -20,6 +20,8 @@ typedef struct {
 
 	size_t available;
 	size_t selection;
+
+	unsigned int worker_count;
 } choices_t;
 
 void choices_init(choices_t *c);
