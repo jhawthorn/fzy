@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 
 #include "choices.h"
 #include "match.h"
@@ -134,8 +135,6 @@ size_t choices_available(choices_t *c) {
 	return c->available;
 }
 
-#include <pthread.h>
-
 struct worker {
 	pthread_t thread_id;
 	choices_t *choices;
@@ -182,8 +181,7 @@ void choices_search(choices_t *c, const char *search) {
 		workers[i].worker_count = worker_count;
 		workers[i].worker_num = i;
 		workers[i].results = malloc(c->size * sizeof(struct scored_result)); /* FIXME: This is overkill */
-		int ret = pthread_create(&workers[i].thread_id, NULL, &choices_search_worker, &workers[i]);
-		if (ret != 0) {
+		if (pthread_create(&workers[i].thread_id, NULL, &choices_search_worker, &workers[i])) {
 			perror("pthread_create");
 			exit(EXIT_FAILURE);
 		}
@@ -192,8 +190,7 @@ void choices_search(choices_t *c, const char *search) {
 	for (int i = 0; i < worker_count; i++) {
 		struct worker *w = &workers[i];
 
-		int ret = pthread_join(w->thread_id, NULL);
-		if (ret != 0) {
+		if (pthread_join(w->thread_id, NULL)) {
 			perror("pthread_join");
 			exit(EXIT_FAILURE);
 		}
