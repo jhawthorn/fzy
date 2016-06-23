@@ -1,3 +1,10 @@
+## 0.6 (Unreleased)
+
+Performance:
+
+  - Use threads to parallelize searching and scoring
+  - Read all pending input from tty before searching
+
 ## 0.5 (2016-06-11)
 
 Bugfixes:
@@ -25,8 +32,11 @@ Bugfixes:
 
 Features:
 
-  - Reduced memory usage on large sets
   - Allow specifying custom prompt
+
+Performance:
+
+  - Reduce memory usage on large sets
 
 Bugfixes:
 
