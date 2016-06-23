@@ -48,7 +48,7 @@ void options_set_defaults(options_t *options) {
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_set_defaults(options);
 
-	char c;
+	int c;
 	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':

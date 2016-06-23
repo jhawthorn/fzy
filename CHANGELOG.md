@@ -5,6 +5,10 @@ Performance:
   - Use threads to parallelize searching and scoring
   - Read all pending input from tty before searching
 
+Bugfixes:
+
+  - Fixed command line parsing on ARM
+
 ## 0.5 (2016-06-11)
 
 Bugfixes:
