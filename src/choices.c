@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "choices.h"
 #include "match.h"
@@ -104,7 +105,7 @@ void choices_init(choices_t *c) {
 	c->capacity = c->size = 0;
 	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
-	c->worker_count = 8;
+	c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
 
 	choices_reset_search(c);
 }
