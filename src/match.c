@@ -55,6 +55,33 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 }
 #endif
 
+static void precompute_bonus(const char *haystack, score_t *match_bonus) {
+	/* Which positions are beginning of words */
+	int m = strlen(haystack);
+	char last_ch = '\0';
+	for (int i = 0; i < m; i++) {
+		char ch = haystack[i];
+
+		score_t score = 0;
+		if (isalnum(ch)) {
+			if (!last_ch || last_ch == '/') {
+				score = SCORE_MATCH_SLASH;
+			} else if (last_ch == '-' || last_ch == '_' || last_ch == ' ' ||
+				   (last_ch >= '0' && last_ch <= '9')) {
+				score = SCORE_MATCH_WORD;
+			} else if (last_ch >= 'a' && last_ch <= 'z' && ch >= 'A' && ch <= 'Z') {
+				/* CamelCase */
+				score = SCORE_MATCH_CAPITAL;
+			} else if (last_ch == '.') {
+				score = SCORE_MATCH_DOT;
+			}
+		}
+
+		match_bonus[i] = score;
+		last_ch = ch;
+	}
+}
+
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
 	if (!*needle)
 		return SCORE_MIN;
@@ -89,30 +116,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
 	 */
-
-	/* Which positions are beginning of words */
-	char last_ch = '\0';
-	for (int i = 0; i < m; i++) {
-		char ch = haystack[i];
-
-		score_t score = 0;
-		if (isalnum(ch)) {
-			if (!last_ch || last_ch == '/') {
-				score = SCORE_MATCH_SLASH;
-			} else if (last_ch == '-' || last_ch == '_' || last_ch == ' ' ||
-				   (last_ch >= '0' && last_ch <= '9')) {
-				score = SCORE_MATCH_WORD;
-			} else if (last_ch >= 'a' && last_ch <= 'z' && ch >= 'A' && ch <= 'Z') {
-				/* CamelCase */
-				score = SCORE_MATCH_CAPITAL;
-			} else if (last_ch == '.') {
-				score = SCORE_MATCH_DOT;
-			}
-		}
-
-		match_bonus[i] = score;
-		last_ch = ch;
-	}
+	precompute_bonus(haystack, match_bonus);
 
 	for (int i = 0; i < n; i++) {
 		score_t prev_score = SCORE_MIN;
