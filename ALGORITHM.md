@@ -69,7 +69,7 @@ is able to score based on the optimal match.
 * Matches (positive score)
   * consecutive
   * following a slash
-  * following a space, underscore, dash, or number (the start of a word)
+  * following a space, underscore, or dash (the start of a word)
   * capital letter (the start of a CamelCase word)
   * following a dot (often a file extension)
 

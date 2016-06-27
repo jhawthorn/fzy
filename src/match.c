@@ -66,8 +66,7 @@ static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 		if (isalnum(ch)) {
 			if (!last_ch || last_ch == '/') {
 				score = SCORE_MATCH_SLASH;
-			} else if (last_ch == '-' || last_ch == '_' || last_ch == ' ' ||
-				   (last_ch >= '0' && last_ch <= '9')) {
+			} else if (last_ch == '-' || last_ch == '_' || last_ch == ' ') {
 				score = SCORE_MATCH_WORD;
 			} else if (last_ch >= 'a' && last_ch <= 'z' && ch >= 'A' && ch <= 'Z') {
 				/* CamelCase */
