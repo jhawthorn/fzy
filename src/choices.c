@@ -216,7 +216,7 @@ const char *choices_get(choices_t *c, size_t n) {
 	}
 }
 
-double choices_getscore(choices_t *c, size_t n) {
+score_t choices_getscore(choices_t *c, size_t n) {
 	return c->results[n].score;
 }
 

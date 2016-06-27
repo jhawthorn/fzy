@@ -30,12 +30,17 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 	for (int i = 0; i < n + 1; i++)
 		positions[i] = -1;
 
-	double score = match_positions(search, choice, &positions[0]);
+	score_t score = match_positions(search, choice, &positions[0]);
 
 	size_t maxwidth = tty_getwidth(tty);
 
-	if (options->show_scores)
-		tty_printf(tty, "(%5.2f) ", score);
+	if (options->show_scores) {
+		if (score == SCORE_MIN) {
+			tty_printf(tty, "(     ) ");
+		} else {
+			tty_printf(tty, "(%5.2f) ", score);
+		}
+	}
 
 	if (selected)
 		tty_setinvert(tty);
