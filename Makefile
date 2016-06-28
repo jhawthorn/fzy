@@ -47,4 +47,7 @@ fmt:
 clean:
 	rm -f fzy test/fzytest src/*.o
 
-.PHONY: test check all clean install fmt
+veryclean: clean
+	rm -f config.h
+
+.PHONY: test check all clean veryclean install fmt
