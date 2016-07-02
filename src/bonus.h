@@ -3,6 +3,74 @@
 
 #include "../config.h"
 
+#define ASSIGN_LOWER(v) \
+	['a'] = (v), \
+	['b'] = (v), \
+	['c'] = (v), \
+	['d'] = (v), \
+	['e'] = (v), \
+	['f'] = (v), \
+	['g'] = (v), \
+	['h'] = (v), \
+	['i'] = (v), \
+	['j'] = (v), \
+	['k'] = (v), \
+	['l'] = (v), \
+	['m'] = (v), \
+	['n'] = (v), \
+	['o'] = (v), \
+	['p'] = (v), \
+	['q'] = (v), \
+	['r'] = (v), \
+	['s'] = (v), \
+	['t'] = (v), \
+	['u'] = (v), \
+	['v'] = (v), \
+	['w'] = (v), \
+	['x'] = (v), \
+	['y'] = (v), \
+	['z'] = (v)
+
+#define ASSIGN_UPPER(v) \
+	['A'] = (v), \
+	['B'] = (v), \
+	['C'] = (v), \
+	['D'] = (v), \
+	['E'] = (v), \
+	['F'] = (v), \
+	['G'] = (v), \
+	['H'] = (v), \
+	['I'] = (v), \
+	['J'] = (v), \
+	['K'] = (v), \
+	['L'] = (v), \
+	['M'] = (v), \
+	['N'] = (v), \
+	['O'] = (v), \
+	['P'] = (v), \
+	['Q'] = (v), \
+	['R'] = (v), \
+	['S'] = (v), \
+	['T'] = (v), \
+	['U'] = (v), \
+	['V'] = (v), \
+	['W'] = (v), \
+	['X'] = (v), \
+	['Y'] = (v), \
+	['Z'] = (v)
+
+#define ASSIGN_DIGIT(v) \
+	['0'] = (v), \
+	['1'] = (v), \
+	['2'] = (v), \
+	['3'] = (v), \
+	['4'] = (v), \
+	['5'] = (v), \
+	['6'] = (v), \
+	['7'] = (v), \
+	['8'] = (v), \
+	['9'] = (v)
+
 const score_t bonus_states[3][256] = {
 	{ 0 },
 	{
@@ -20,103 +88,19 @@ const score_t bonus_states[3][256] = {
 		['.'] = SCORE_MATCH_DOT,
 
 		/* ['a' ... 'z'] = SCORE_MATCH_CAPITAL, */
-		['a'] = SCORE_MATCH_CAPITAL,
-		['b'] = SCORE_MATCH_CAPITAL,
-		['c'] = SCORE_MATCH_CAPITAL,
-		['d'] = SCORE_MATCH_CAPITAL,
-		['e'] = SCORE_MATCH_CAPITAL,
-		['f'] = SCORE_MATCH_CAPITAL,
-		['g'] = SCORE_MATCH_CAPITAL,
-		['h'] = SCORE_MATCH_CAPITAL,
-		['i'] = SCORE_MATCH_CAPITAL,
-		['j'] = SCORE_MATCH_CAPITAL,
-		['k'] = SCORE_MATCH_CAPITAL,
-		['l'] = SCORE_MATCH_CAPITAL,
-		['m'] = SCORE_MATCH_CAPITAL,
-		['n'] = SCORE_MATCH_CAPITAL,
-		['o'] = SCORE_MATCH_CAPITAL,
-		['p'] = SCORE_MATCH_CAPITAL,
-		['q'] = SCORE_MATCH_CAPITAL,
-		['r'] = SCORE_MATCH_CAPITAL,
-		['s'] = SCORE_MATCH_CAPITAL,
-		['t'] = SCORE_MATCH_CAPITAL,
-		['u'] = SCORE_MATCH_CAPITAL,
-		['v'] = SCORE_MATCH_CAPITAL,
-		['w'] = SCORE_MATCH_CAPITAL,
-		['x'] = SCORE_MATCH_CAPITAL,
-		['y'] = SCORE_MATCH_CAPITAL,
-		['z'] = SCORE_MATCH_CAPITAL,
-	},
+		ASSIGN_LOWER(SCORE_MATCH_CAPITAL)
+	}
 };
 
 const size_t bonus_index[256] = {
 	/* ['A' ... 'Z'] = 2 */
-	['A'] = 2,
-	['B'] = 2,
-	['C'] = 2,
-	['D'] = 2,
-	['E'] = 2,
-	['F'] = 2,
-	['G'] = 2,
-	['H'] = 2,
-	['I'] = 2,
-	['J'] = 2,
-	['K'] = 2,
-	['L'] = 2,
-	['M'] = 2,
-	['N'] = 2,
-	['O'] = 2,
-	['P'] = 2,
-	['Q'] = 2,
-	['R'] = 2,
-	['S'] = 2,
-	['T'] = 2,
-	['U'] = 2,
-	['V'] = 2,
-	['W'] = 2,
-	['X'] = 2,
-	['Y'] = 2,
-	['Z'] = 2,
+	ASSIGN_UPPER(2),
 
 	/* ['a' ... 'z'] = 1 */
-	['a'] = 1,
-	['b'] = 1,
-	['c'] = 1,
-	['d'] = 1,
-	['e'] = 1,
-	['f'] = 1,
-	['g'] = 1,
-	['h'] = 1,
-	['i'] = 1,
-	['j'] = 1,
-	['k'] = 1,
-	['l'] = 1,
-	['m'] = 1,
-	['n'] = 1,
-	['o'] = 1,
-	['p'] = 1,
-	['q'] = 1,
-	['r'] = 1,
-	['s'] = 1,
-	['t'] = 1,
-	['u'] = 1,
-	['v'] = 1,
-	['w'] = 1,
-	['x'] = 1,
-	['y'] = 1,
-	['z'] = 1,
+	ASSIGN_LOWER(1),
 
 	/* ['0' ... '9'] = 1 */
-	['0'] = 1,
-	['1'] = 1,
-	['2'] = 1,
-	['3'] = 1,
-	['4'] = 1,
-	['5'] = 1,
-	['6'] = 1,
-	['7'] = 1,
-	['8'] = 1,
-	['9'] = 1
+	ASSIGN_DIGIT(1)
 };
 
 #define COMPUTE_BONUS(last_ch, ch) (bonus_states[bonus_index[(size_t)(ch)]][(size_t)(last_ch)])
