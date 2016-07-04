@@ -55,10 +55,12 @@ Inspired by the [Gotoh algorithm
 (pdf)](http://www.cs.unibo.it/~dilena/LabBII/Papers/AffineGaps.pdf), fzy
 computes a second `D` (for diagonal) matrix in parallel with the score matrix.
 The `D` matrix computes the best score which *ends* in a match. This allows
-both computation of the penlalty for starting a gap and the score for a
+both computation of the penalty for starting a gap and the score for a
 consecutive match.
 
-Using this algorithm fzy is able to score based on the optimal match.
+Using [this 
+algorithm](https://github.com/jhawthorn/fzy/blob/master/src/match.c#L58) fzy 
+is able to score based on the optimal match.
 
 * Gaps (negative score)
   * at the start of the match
@@ -67,8 +69,8 @@ Using this algorithm fzy is able to score based on the optimal match.
 * Matches (positive score)
   * consecutive
   * following a slash
-  * following a space (the start of a word)
-  * capital letter (the start of a CamlCase word)
+  * following a space, underscore, dash, or number (the start of a word)
+  * capital letter (the start of a CamelCase word)
   * following a dot (often a file extension)
 
 
