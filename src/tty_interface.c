@@ -97,7 +97,7 @@ static void update_search(tty_interface_t *state) {
 	strcpy(state->last_search, state->search);
 }
 
-void update_state(tty_interface_t *state) {
+static void update_state(tty_interface_t *state) {
 	if (strcmp(state->last_search, state->search)) {
 		update_search(state);
 		draw(state);
@@ -233,7 +233,7 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 
 #undef KEY_CTRL
 
-void handle_input(tty_interface_t *state, const char *s) {
+static void handle_input(tty_interface_t *state, const char *s) {
 	char *input = state->input;
 	strcat(state->input, s);
 
