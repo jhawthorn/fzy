@@ -8,6 +8,7 @@ Performance:
 Bugfixes:
 
   - Fixed command line parsing on ARM
+  - Fix error when autocompleting and there are no matches
 
 ## 0.5 (2016-06-11)
 

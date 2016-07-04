@@ -166,7 +166,10 @@ static void action_pagedown(tty_interface_t *state) {
 
 static void action_autocomplete(tty_interface_t *state) {
 	update_state(state);
-	strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
+	const char *current_selection = choices_get(state->choices, state->choices->selection);
+	if (current_selection) {
+		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
+	}
 }
 
 static void action_exit(tty_interface_t *state) {
