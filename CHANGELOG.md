@@ -4,6 +4,7 @@ Performance:
 
   - Use threads to parallelize searching and scoring
   - Read all pending input from tty before searching
+  - Use a lookup table for computing bonuses
 
 Bugfixes:
 
