@@ -55,28 +55,38 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 }
 #endif
 
+const score_t bonus_states[][256] = {
+	{ 0 },
+	{
+		['/'] = SCORE_MATCH_SLASH,
+		['-'] = SCORE_MATCH_WORD,
+		['_'] = SCORE_MATCH_WORD,
+		[' '] = SCORE_MATCH_WORD,
+		['.'] = SCORE_MATCH_DOT,
+	},
+	{
+		['a' ... 'z'] = SCORE_MATCH_CAPITAL,
+		['/'] = SCORE_MATCH_SLASH,
+		['-'] = SCORE_MATCH_WORD,
+		['_'] = SCORE_MATCH_WORD,
+		[' '] = SCORE_MATCH_WORD,
+		['.'] = SCORE_MATCH_DOT,
+	},
+};
+
+const size_t bonus_index[256] = {
+	['A' ... 'Z'] = 2,
+	['a' ... 'z'] = 1,
+	['0' ... '9'] = 1,
+};
+
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
 	int m = strlen(haystack);
-	char last_ch = '\0';
+	char last_ch = '/';
 	for (int i = 0; i < m; i++) {
 		char ch = haystack[i];
-
-		score_t score = 0;
-		if (isalnum(ch)) {
-			if (!last_ch || last_ch == '/') {
-				score = SCORE_MATCH_SLASH;
-			} else if (last_ch == '-' || last_ch == '_' || last_ch == ' ') {
-				score = SCORE_MATCH_WORD;
-			} else if (last_ch >= 'a' && last_ch <= 'z' && ch >= 'A' && ch <= 'Z') {
-				/* CamelCase */
-				score = SCORE_MATCH_CAPITAL;
-			} else if (last_ch == '.') {
-				score = SCORE_MATCH_DOT;
-			}
-		}
-
-		match_bonus[i] = score;
+		match_bonus[i] = bonus_states[bonus_index[(size_t)ch]][(size_t)last_ch];
 		last_ch = ch;
 	}
 }
