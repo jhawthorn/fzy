@@ -1,4 +1,4 @@
-## 0.6 (Unreleased)
+## 0.6 (2016-07-26)
 
 Performance:
 
