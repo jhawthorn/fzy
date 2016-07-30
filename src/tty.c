@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <sys/select.h>
 
 #include "tty.h"
 
