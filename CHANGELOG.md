@@ -1,3 +1,8 @@
+## 0.7 (unreleased)
+
+Bugfixes:
+  - Fixed building against musl libc
+
 ## 0.6 (2016-07-26)
 
 Performance:
