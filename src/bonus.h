@@ -103,6 +103,6 @@ const size_t bonus_index[256] = {
 	ASSIGN_DIGIT(1)
 };
 
-#define COMPUTE_BONUS(last_ch, ch) (bonus_states[bonus_index[(size_t)(ch)]][(size_t)(last_ch)])
+#define COMPUTE_BONUS(last_ch, ch) (bonus_states[bonus_index[(unsigned char)(ch)]][(unsigned char)(last_ch)])
 
 #endif

@@ -268,6 +268,17 @@ void test_choices_without_search() {
 	choices_destroy(&choices);
 }
 
+/* Regression test for segfault */
+void test_choices_unicode() {
+	choices_t choices;
+	choices_init(&choices);
+
+	choices_add(&choices, "Edmund Husserl - Méditations cartésiennes - Introduction a la phénoménologie.pdf");
+	choices_search(&choices, "e");
+
+	choices_destroy(&choices);
+}
+
 void summary() {
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -298,6 +309,7 @@ int main(int argc, char *argv[]) {
 	runtest(test_choices_1);
 	runtest(test_choices_2);
 	runtest(test_choices_without_search);
+	runtest(test_choices_unicode);
 
 	summary();
 

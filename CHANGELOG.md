@@ -1,6 +1,8 @@
 ## 0.7 (unreleased)
 
 Bugfixes:
+
+  - Fixed a segfault when encountering non-ascii characters
   - Fixed building against musl libc
 
 ## 0.6 (2016-07-26)
