@@ -88,7 +88,7 @@ static void draw(tty_interface_t *state) {
 		}
 	}
 	tty_moveup(tty, num_lines);
-	tty_setcol(tty, strlen(options->prompt) + strlen(state->search));
+	tty_setcol(tty, strlen(options->prompt) + state->cursor);
 	tty_flush(tty);
 }
 
@@ -126,8 +126,10 @@ static void action_emit(tty_interface_t *state) {
 }
 
 static void action_del_char(tty_interface_t *state) {
-	if (*state->search)
-		state->search[strlen(state->search) - 1] = '\0';
+	if (*state->search && state->cursor > 0) {
+		state->search[state->cursor-1] = '\0';
+		state->cursor--;
+	}
 }
 
 static void action_del_word(tty_interface_t *state) {
@@ -150,6 +152,24 @@ static void action_prev(tty_interface_t *state) {
 static void action_next(tty_interface_t *state) {
 	update_state(state);
 	choices_next(state->choices);
+}
+
+static void action_right(tty_interface_t *state) {
+	if (state->cursor < (int)strlen(state->search))
+		state->cursor += 1;
+}
+
+static void action_left(tty_interface_t *state) {
+	if (state->cursor + (int)strlen(state->options->prompt) > (int)strlen(state->options->prompt))
+		state->cursor -= 1;
+}
+
+static void action_bol(tty_interface_t *state) {
+	state->cursor = 0;
+}
+
+static void action_eol(tty_interface_t *state) {
+	state->cursor = strlen(state->search);
 }
 
 static void action_pageup(tty_interface_t *state) {
@@ -179,10 +199,11 @@ static void action_exit(tty_interface_t *state) {
 	state->exit = EXIT_FAILURE;
 }
 
-static void append_search(tty_interface_t *state, char ch) {
+static void append_search(tty_interface_t *state, char ch, int pos) {
 	char *search = state->search;
 	size_t search_size = strlen(search);
 	if (search_size < SEARCH_SIZE_MAX) {
+		// TODO: search[pos] = ch;
 		search[search_size++] = ch;
 		search[search_size] = '\0';
 	}
@@ -198,6 +219,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	strcpy(state->last_search, "");
 
 	state->exit = -1;
+	state->cursor = 0;
 
 	if (options->init_search)
 		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
@@ -222,11 +244,17 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {KEY_CTRL('M'), action_emit},	 /* CR */
 					   {KEY_CTRL('P'), action_prev},	 /* C-P */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
+					   {KEY_CTRL('A'), action_bol},	 /* C-A */
+					   {KEY_CTRL('E'), action_eol},	 /* C-E */
 
 					   {"\x1b[A", action_prev}, /* UP */
 					   {"\x1bOA", action_prev}, /* UP */
 					   {"\x1b[B", action_next}, /* DOWN */
 					   {"\x1bOB", action_next}, /* DOWN */
+					   {"\x1b[C", action_right}, /* UP */
+					   {"\x1bOC", action_right}, /* UP */
+					   {"\x1b[D", action_left}, /* DOWN */
+					   {"\x1bOD", action_left}, /* DOWN */
 					   {"\x1b[5~", action_pageup},
 					   {"\x1b[6~", action_pagedown},
 					   {NULL, NULL}};
@@ -254,7 +282,7 @@ static void handle_input(tty_interface_t *state, const char *s) {
 	/* No matching keybinding, add to search */
 	for (int i = 0; input[i]; i++)
 		if (isprint(input[i]))
-			append_search(state, input[i]);
+			append_search(state, input[i], state->cursor++);
 
 	/* We have processed the input, so clear it */
 	strcpy(input, "");
