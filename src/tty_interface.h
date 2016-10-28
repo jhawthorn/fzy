@@ -18,6 +18,7 @@ typedef struct {
 	char input[32]; /* Pending input buffer */
 
 	int exit;
+	int cursor;
 } tty_interface_t;
 
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options);
