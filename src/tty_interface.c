@@ -72,8 +72,9 @@ static void draw(tty_interface_t *state) {
 	size_t current_selection = choices->selection;
 	if (current_selection + options->scrolloff >= num_lines) {
 		start = current_selection + options->scrolloff - num_lines + 1;
-		if (start + num_lines >= choices_available(choices)) {
-			start = choices_available(choices) - num_lines;
+		size_t available = choices_available(choices);
+		if (start + num_lines >= available && available > 0) {
+			start = available - num_lines;
 		}
 	}
 	tty_setcol(tty, 0);
@@ -87,7 +88,9 @@ static void draw(tty_interface_t *state) {
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
-	tty_moveup(tty, num_lines);
+	if (num_lines > 0) {
+		tty_moveup(tty, num_lines);
+	}
 	tty_setcol(tty, strlen(options->prompt) + strlen(state->search));
 	tty_flush(tty);
 }
