@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.10.1)
-    ttytest (0.1.0)
+    ttytest (0.2.0)
 
 PLATFORMS
   ruby
