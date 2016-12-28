@@ -16,7 +16,9 @@ static void clear(tty_interface_t *state) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
-	tty_moveup(tty, line - 1);
+	if (state->options->num_lines > 0) {
+		tty_moveup(tty, line - 1);
+	}
 	tty_flush(tty);
 }
 
