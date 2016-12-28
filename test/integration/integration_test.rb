@@ -92,4 +92,35 @@ class FzyTest < Minitest::Test
     @tty.assert_row(1, 'tz')
     @tty.assert_cursor_position(y: 2, x: 0)
   end
+
+  def ctrl(key)
+    ((key.upcase.ord) - ('A'.ord) + 1).chr
+  end
+
+  def test_editing
+    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test\nfoo" | fzy})
+    @tty.assert_row(0, 'placeholder')
+    @tty.assert_row(1, '>')
+    @tty.assert_cursor_position(y: 1, x: 2)
+
+    @tty.send_keys("foo bar baz")
+    @tty.assert_row(0, 'placeholder')
+    @tty.assert_row(1, '> foo bar baz')
+    @tty.assert_cursor_position(y: 1, x: 13)
+
+    @tty.send_keys(ctrl('H'))
+    @tty.assert_row(0, 'placeholder')
+    @tty.assert_row(1, '> foo bar ba')
+    @tty.assert_cursor_position(y: 1, x: 12)
+
+    @tty.send_keys(ctrl('W'))
+    @tty.assert_row(0, 'placeholder')
+    @tty.assert_row(1, '> foo bar')
+    @tty.assert_cursor_position(y: 1, x: 10)
+
+    @tty.send_keys(ctrl('U'))
+    @tty.assert_row(0, 'placeholder')
+    @tty.assert_row(1, '>')
+    @tty.assert_cursor_position(y: 1, x: 2)
+  end
 end
