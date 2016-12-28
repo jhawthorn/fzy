@@ -20,6 +20,9 @@ all: fzy
 test/fzytest: $(TESTOBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -Isrc -o $@ $(TESTOBJECTS) $(LIBS)
 
+integration_test: fzy
+	cd test/integration && bundle && bundle exec ruby integration_test.rb
+
 test: check
 check: test/fzytest
 	$(DEBUGGER) ./test/fzytest
@@ -50,4 +53,4 @@ clean:
 veryclean: clean
 	rm -f config.h
 
-.PHONY: test check all clean veryclean install fmt
+.PHONY: test check all clean veryclean install fmt integration_test
