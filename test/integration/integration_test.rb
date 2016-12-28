@@ -12,7 +12,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_empty_list
-    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "" | #{FZY_PATH}})
     @tty.assert_row(0, 'placeholder')
     @tty.assert_row(1, '>')
     @tty.assert_row(2, '')
@@ -37,7 +37,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_one_item
-    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test" | #{FZY_PATH}})
     @tty.assert_row(0, 'placeholder')
     @tty.assert_row(1, '>')
     @tty.assert_row(2, 'test')
@@ -65,7 +65,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_two_items
-    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test\nfoo" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test\nfoo" | #{FZY_PATH}})
     @tty.assert_row(0, 'placeholder')
     @tty.assert_row(1, '>')
     @tty.assert_row(2, 'test')
@@ -98,7 +98,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_editing
-    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test\nfoo" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo placeholder;echo -n "test\nfoo" | #{FZY_PATH}})
     @tty.assert_row(0, 'placeholder')
     @tty.assert_row(1, '>')
     @tty.assert_cursor_position(y: 1, x: 2)
@@ -125,7 +125,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_ctrl_d
-    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
     @tty.assert_row(0, '>')
 
     @tty.send_keys('foo')
@@ -139,7 +139,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_ctrl_c
-    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | fzy})
+    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
     @tty.assert_row(0, '>')
 
     @tty.send_keys('foo')
