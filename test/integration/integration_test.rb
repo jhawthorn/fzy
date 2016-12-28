@@ -123,4 +123,32 @@ class FzyTest < Minitest::Test
     @tty.assert_row(1, '>')
     @tty.assert_cursor_position(y: 1, x: 2)
   end
+
+  def test_ctrl_d
+    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | fzy})
+    @tty.assert_row(0, '>')
+
+    @tty.send_keys('foo')
+    @tty.assert_row(0, '> foo')
+
+    @tty.send_keys(ctrl('D'))
+    @tty.assert_row(0, '')
+    @tty.assert_row(1, '')
+    @tty.assert_row(2, '')
+    @tty.assert_cursor_position(y: 0, x: 0)
+  end
+
+  def test_ctrl_c
+    @tty = TTYtest.driver.new_terminal(%{echo -n "foo\nbar" | fzy})
+    @tty.assert_row(0, '>')
+
+    @tty.send_keys('foo')
+    @tty.assert_row(0, '> foo')
+
+    @tty.send_keys(ctrl('C'))
+    @tty.assert_row(0, '')
+    @tty.assert_row(1, '')
+    @tty.assert_row(2, '')
+    @tty.assert_cursor_position(y: 0, x: 0)
+  end
 end
