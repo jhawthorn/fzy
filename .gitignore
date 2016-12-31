@@ -2,4 +2,4 @@ fzy
 fzytest
 *.o
 config.h
-test/integration/vendor/bundle
+test/acceptance/vendor/bundle
