@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     minitest (5.10.1)
-    ttytest (0.3.0)
+    ttytest (0.4.0)
 
 PLATFORMS
   ruby
@@ -12,4 +12,4 @@ DEPENDENCIES
   ttytest
 
 BUNDLED WITH
-   1.13.6
+   1.13.7
