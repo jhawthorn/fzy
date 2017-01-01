@@ -1,4 +1,4 @@
-## 0.8 (unreleased)
+## 0.8 (2017-01-01)
 
 Bugfixes:
 
