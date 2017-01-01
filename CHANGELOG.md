@@ -1,4 +1,10 @@
-## 0.7 (unreleased)
+## 0.8 (unreleased)
+
+Bugfixes:
+
+  - Fix cursor position shifing upwards when input has less than 2 items.
+
+## 0.7 (2016-08-03)
 
 Bugfixes:
 
