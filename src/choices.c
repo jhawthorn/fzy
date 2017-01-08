@@ -142,7 +142,6 @@ struct worker {
 	pthread_t thread_id;
 	choices_t *choices;
 	const char *search;
-	size_t worker_count;
 	size_t worker_num;
 	struct scored_result *results;
 	size_t available;
