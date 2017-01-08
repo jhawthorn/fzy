@@ -138,9 +138,13 @@ size_t choices_available(choices_t *c) {
 	return c->available;
 }
 
+#define BATCH_SIZE 512
+
 struct search_job {
+	pthread_mutex_t lock;
 	choices_t *choices;
 	const char *search;
+	size_t processed;
 };
 
 struct worker {
@@ -151,19 +155,41 @@ struct worker {
 	size_t available;
 };
 
+static void worker_get_next_batch(struct search_job *job, size_t *start, size_t *end) {
+	pthread_mutex_lock(&job->lock);
+
+	*start = job->processed;
+
+	job->processed += BATCH_SIZE;
+	if (job->processed > job->choices->size) {
+		job->processed = job->choices->size;
+	}
+
+	*end = job->processed;
+
+	pthread_mutex_unlock(&job->lock);
+}
+
 static void *choices_search_worker(void *data) {
 	struct worker *w = (struct worker *)data;
 	struct search_job *job = w->job;
 	const choices_t *c = job->choices;
 
-	size_t start = (w->worker_num) * c->size / c->worker_count;
-	size_t end = (w->worker_num + 1) * c->size / c->worker_count;
+	size_t start, end;
 
-	for(size_t i = start; i < end; i++) {
-		if (has_match(job->search, c->strings[i])) {
-			w->results[w->available].str = c->strings[i];
-			w->results[w->available].score = match(job->search, c->strings[i]);
-			w->available++;
+	for(;;) {
+		worker_get_next_batch(job, &start, &end);
+
+		if(start == end) {
+			break;
+		}
+
+		for(size_t i = start; i < end; i++) {
+			if (has_match(job->search, c->strings[i])) {
+				w->results[w->available].str = c->strings[i];
+				w->results[w->available].score = match(job->search, c->strings[i]);
+				w->available++;
+			}
 		}
 	}
 
@@ -176,6 +202,10 @@ void choices_search(choices_t *c, const char *search) {
 	struct search_job *job = calloc(1, sizeof(struct search_job));
 	job->search = search;
 	job->choices = c;
+	if (pthread_mutex_init(&job->lock, NULL) != 0) {
+		fprintf(stderr, "Error: pthread_mutex_init failed\n");
+		abort();
+	}
 
 	/* allocate storage for our results */
 	c->results = malloc(c->size * sizeof(struct scored_result));
@@ -208,6 +238,8 @@ void choices_search(choices_t *c, const char *search) {
 
 		free(w->results);
 	}
+
+	pthread_mutex_destroy(&job->lock);
 	free(workers);
 
 	if(*search) {
