@@ -139,12 +139,12 @@ size_t choices_available(choices_t *c) {
 }
 
 struct search_job {
+	choices_t *choices;
 	const char *search;
 };
 
 struct worker {
 	pthread_t thread_id;
-	choices_t *choices;
 	struct search_job *job;
 	size_t worker_num;
 	struct scored_result *results;
@@ -154,7 +154,7 @@ struct worker {
 static void *choices_search_worker(void *data) {
 	struct worker *w = (struct worker *)data;
 	struct search_job *job = w->job;
-	const choices_t *c = w->choices;
+	const choices_t *c = job->choices;
 
 	size_t start = (w->worker_num) * c->size / c->worker_count;
 	size_t end = (w->worker_num + 1) * c->size / c->worker_count;
@@ -175,6 +175,7 @@ void choices_search(choices_t *c, const char *search) {
 
 	struct search_job *job = calloc(1, sizeof(struct search_job));
 	job->search = search;
+	job->choices = c;
 
 	/* allocate storage for our results */
 	c->results = malloc(c->size * sizeof(struct scored_result));
@@ -185,7 +186,6 @@ void choices_search(choices_t *c, const char *search) {
 
 	struct worker *workers = calloc(c->worker_count, sizeof(struct worker));
 	for (unsigned int i = 0; i < c->worker_count; i++) {
-		workers[i].choices = c;
 		workers[i].job = job;
 		workers[i].worker_num = i;
 		workers[i].results = malloc(c->size * sizeof(struct scored_result)); /* FIXME: This is overkill */
