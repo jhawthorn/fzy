@@ -174,4 +174,30 @@ class FzyTest < Minitest::Test
     @tty.assert_matches ''
     @tty.assert_cursor_position(y: 0, x: 0)
   end
+
+  def test_down_arrow
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty.assert_matches ">\nfoo\nbar"
+    @tty.send_keys("\e[A\r")
+    @tty.assert_matches "bar"
+
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty.assert_matches ">\nfoo\nbar"
+    @tty.send_keys("\eOA\r")
+    @tty.assert_matches "bar"
+  end
+
+  def test_up_arrow
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty.assert_matches ">\nfoo\nbar"
+    @tty.send_keys("\e[A")   # first down
+    @tty.send_keys("\e[B\r") # and back up
+    @tty.assert_matches "foo"
+
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty.assert_matches ">\nfoo\nbar"
+    @tty.send_keys("\eOA")   # first down
+    @tty.send_keys("\e[B\r") # and back up
+    @tty.assert_matches "foo"
+  end
 end
