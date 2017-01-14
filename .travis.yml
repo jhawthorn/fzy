@@ -7,3 +7,15 @@ os:
   - linux
   - osx
 sudo: false
+matrix:
+  include:
+    - language: ruby
+      rvm: 2.3.3
+      script: make acceptance
+      env: NAME="Acceptance Tests"
+      dist: trusty
+      compiler:
+      addons:
+        apt:
+          packages:
+          - tmux
