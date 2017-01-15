@@ -241,6 +241,7 @@ void choices_search(choices_t *c, const char *search) {
 
 	pthread_mutex_destroy(&job->lock);
 	free(workers);
+	free(job);
 
 	if(*search) {
 		qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);
