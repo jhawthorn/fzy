@@ -140,6 +140,11 @@ size_t choices_available(choices_t *c) {
 
 #define BATCH_SIZE 512
 
+struct result_list {
+	struct scored_result *list;
+	size_t size;
+};
+
 struct search_job {
 	pthread_mutex_t lock;
 	choices_t *choices;
@@ -199,40 +204,57 @@ static void *choices_search_worker(void *data) {
 	return w;
 }
 
-static void merge_step(struct search_job *job, struct worker *all_workers) {
+static struct result_list merge2(struct result_list list1, struct result_list list2) {
+	size_t result_index = 0, index1 = 0, index2 = 0;
+
+	struct result_list result;
+	result.size = list1.size + list2.size;
+	result.list = malloc(result.size * sizeof(struct scored_result));
+	if (!result.list) {
+		fprintf(stderr, "Error: Can't allocate memory\n");
+		abort();
+	}
+
+	while(index1 < list1.size && index2 < list2.size) {
+		if (cmpchoice(&list1.list[index1], &list2.list[index2]) < 0) {
+			result.list[result_index++] = list1.list[index1++];
+		} else {
+			result.list[result_index++] = list2.list[index2++];
+		}
+	}
+
+	while(index1 < list1.size) {
+		result.list[result_index++] = list1.list[index1++];
+	}
+	while(index2 < list2.size) {
+		result.list[result_index++] = list2.list[index2++];
+	}
+
+	free(list1.list);
+	free(list2.list);
+
+	return result;
+}
+
+static void merge_step(struct search_job *job, struct worker *workers) {
 	/* Merge our sorted partial-results */
 	choices_t *c = job->choices;
-	size_t worker_count = 0;
-	struct worker *workers[c->worker_count];
-	size_t indexes[c->worker_count];
+
+	struct result_list result = {NULL, 0};
 
 	for (unsigned int w = 0; w < c->worker_count; w++) {
-		indexes[w] = 0;
-		if (all_workers[w].available) {
-			workers[worker_count++] = &all_workers[w];
-		}
+		struct result_list new_result;
+		struct worker *worker = &workers[w];
+
+		struct result_list worker_result = {worker->results, worker->available};
+		new_result = merge2(result, worker_result);
+
+		free(result.list);
+		result = new_result;
 	}
 
-	while (worker_count) {
-		/* Loop over each sorted block to find the lowest scoring result */
-		unsigned int min_w = 0;
-		for (unsigned int w = 0; w < worker_count; w++) {
-			if (cmpchoice(&workers[w]->results[indexes[w]], &workers[min_w]->results[indexes[min_w]]) < 0) {
-				min_w = w;
-			}
-		}
-
-		/* Move that result onto our global list */
-		c->results[c->available++] = workers[min_w]->results[indexes[min_w]++];
-
-		/* If we have merged all the results for this worker, shuffle it
-		 * out of our list */
-		if (indexes[min_w] == workers[min_w]->available) {
-			indexes[min_w] = indexes[worker_count - 1];
-			workers[min_w] = workers[worker_count - 1];
-			worker_count--;
-		}
-	}
+	c->results = result.list;
+	c->available = result.size;
 }
 
 void choices_search(choices_t *c, const char *search) {
@@ -243,13 +265,6 @@ void choices_search(choices_t *c, const char *search) {
 	job->choices = c;
 	if (pthread_mutex_init(&job->lock, NULL) != 0) {
 		fprintf(stderr, "Error: pthread_mutex_init failed\n");
-		abort();
-	}
-
-	/* allocate storage for our results */
-	c->results = malloc(c->size * sizeof(struct scored_result));
-	if (!c->results) {
-		fprintf(stderr, "Error: Can't allocate memory\n");
 		abort();
 	}
 
