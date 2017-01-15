@@ -193,7 +193,46 @@ static void *choices_search_worker(void *data) {
 		}
 	}
 
+	/* Sort the partial result */
+	qsort(w->results, w->available, sizeof(struct scored_result), cmpchoice);
+
 	return w;
+}
+
+static void merge_step(struct search_job *job, struct worker *all_workers) {
+	/* Merge our sorted partial-results */
+	choices_t *c = job->choices;
+	size_t worker_count = 0;
+	struct worker *workers[c->worker_count];
+	size_t indexes[c->worker_count];
+
+	for (unsigned int w = 0; w < c->worker_count; w++) {
+		indexes[w] = 0;
+		if (all_workers[w].available) {
+			workers[worker_count++] = &all_workers[w];
+		}
+	}
+
+	while (worker_count) {
+		/* Loop over each sorted block to find the lowest scoring result */
+		unsigned int min_w = 0;
+		for (unsigned int w = 0; w < worker_count; w++) {
+			if (cmpchoice(&workers[w]->results[indexes[w]], &workers[min_w]->results[indexes[min_w]]) < 0) {
+				min_w = w;
+			}
+		}
+
+		/* Move that result onto our global list */
+		c->results[c->available++] = workers[min_w]->results[indexes[min_w]++];
+
+		/* If we have merged all the results for this worker, shuffle it
+		 * out of our list */
+		if (indexes[min_w] == workers[min_w]->available) {
+			indexes[min_w] = indexes[worker_count - 1];
+			workers[min_w] = workers[worker_count - 1];
+			worker_count--;
+		}
+	}
 }
 
 void choices_search(choices_t *c, const char *search) {
@@ -226,26 +265,21 @@ void choices_search(choices_t *c, const char *search) {
 	}
 
 	for (unsigned int i = 0; i < c->worker_count; i++) {
-		struct worker *w = &workers[i];
-
-		if (pthread_join(w->thread_id, NULL)) {
+		if (pthread_join(workers[i].thread_id, NULL)) {
 			perror("pthread_join");
 			exit(EXIT_FAILURE);
 		}
 
-		memcpy(&c->results[c->available], w->results,  w->available * sizeof(struct scored_result));
-		c->available += w->available;
-
-		free(w->results);
 	}
 
-	pthread_mutex_destroy(&job->lock);
+	merge_step(job, workers);
+
+	for (unsigned int i = 0; i < c->worker_count; i++) {
+		free(workers[i].results);
+	}
 	free(workers);
+	pthread_mutex_destroy(&job->lock);
 	free(job);
-
-	if(*search) {
-		qsort(c->results, c->available, sizeof(struct scored_result), cmpchoice);
-	}
 }
 
 const char *choices_get(choices_t *c, size_t n) {
