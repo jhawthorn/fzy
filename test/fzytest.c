@@ -1,6 +1,8 @@
+#define _GNU_SOURCE
+#include <malloc.h>
+#include <signal.h>
 #include <stdio.h>
 #include <string.h>
-#include <signal.h>
 
 #include "../config.h"
 #include "match.h"
@@ -279,6 +281,32 @@ void test_choices_unicode() {
 	choices_destroy(&choices);
 }
 
+void test_choices_large_input() {
+	choices_t choices;
+	choices_init(&choices);
+
+	int N = 100000;
+	char *strings[N];
+
+	for(int i = 0; i < N; i++) {
+		asprintf(&strings[i], "%i", i);
+		choices_add(&choices, strings[i]);
+	}
+
+	choices_search(&choices, "12");
+
+	/* Must match `seq 0 99999 | grep '.*1.*2.*' | wc -l` */
+	assert(choices.available == 8146);
+
+	assert_streq(choices_get(&choices, 0), "12")
+
+	for(int i = 0; i < N; i++) {
+		free(strings[i]);
+	}
+
+	choices_destroy(&choices);
+}
+
 void summary() {
 	printf("%i tests, %i assertions, %i failures\n", testsrun, assertionsrun, testsfailed);
 }
@@ -310,6 +338,7 @@ int main(int argc, char *argv[]) {
 	runtest(test_choices_2);
 	runtest(test_choices_without_search);
 	runtest(test_choices_unicode);
+	runtest(test_choices_large_input);
 
 	summary();
 
