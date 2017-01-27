@@ -1,5 +1,5 @@
 #define _GNU_SOURCE
-#include <malloc.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
