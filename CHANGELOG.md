@@ -1,3 +1,14 @@
+## 0.9 (unreleased)
+
+Features:
+
+  - Support Ctrl-k and Ctrl-j for movement
+
+Performance:
+
+  - Use threads to parallelize sorting
+  - Improve parallelism of searching and scoring
+
 ## 0.8 (2017-01-01)
 
 Bugfixes:
