@@ -7,6 +7,7 @@
 #include "../config.h"
 #include "match.h"
 #include "choices.h"
+#include "options.h"
 
 int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 
@@ -20,6 +21,8 @@ int testsrun = 0, testsfailed = 0, assertionsrun = 0;
 	}
 
 #define assert_streq(a, b) assert(!strcmp(a, b))
+
+static options_t default_options;
 
 void runtest(void (*test)()) {
 	testsrun++;
@@ -160,7 +163,7 @@ void test_positions_exact() {
 
 void test_choices_empty() {
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 	assert(choices.size == 0);
 	assert(choices.available == 0);
 	assert(choices.selection == 0);
@@ -176,7 +179,7 @@ void test_choices_empty() {
 
 void test_choices_1() {
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 	choices_add(&choices, "tags");
 
 	choices_search(&choices, "");
@@ -201,7 +204,7 @@ void test_choices_1() {
 
 void test_choices_2() {
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 	choices_add(&choices, "tags");
 	choices_add(&choices, "test");
 
@@ -253,7 +256,7 @@ void test_choices_without_search() {
 	/* Before a search is run, it should return no results */
 
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 
 	assert(choices.available == 0);
 	assert(choices.selection == 0);
@@ -273,7 +276,7 @@ void test_choices_without_search() {
 /* Regression test for segfault */
 void test_choices_unicode() {
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 
 	choices_add(&choices, "Edmund Husserl - Méditations cartésiennes - Introduction a la phénoménologie.pdf");
 	choices_search(&choices, "e");
@@ -283,7 +286,7 @@ void test_choices_unicode() {
 
 void test_choices_large_input() {
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &default_options);
 
 	int N = 100000;
 	char *strings[N];
@@ -322,6 +325,8 @@ int main(int argc, char *argv[]) {
 	/* We raise sigtrap on all assertion failures.
 	 * If we have no debugger running, we should ignore it */
 	signal(SIGTRAP, ignore_signal);
+
+	options_init(&default_options);
 
 	runtest(test_match);
 	runtest(test_relative_scores);

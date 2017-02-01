@@ -13,7 +13,7 @@ INSTALL_DATA=${INSTALL} -m 644
 
 LIBS=-lpthread
 OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o src/options.o src/tty_interface.o
-TESTOBJECTS=test/fzytest.c src/match.o src/choices.o
+TESTOBJECTS=test/fzytest.c src/match.o src/choices.o src/options.o
 
 all: fzy
 

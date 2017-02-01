@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 	options_parse(&options, argc, argv);
 
 	choices_t choices;
-	choices_init(&choices);
+	choices_init(&choices, &options);
 	choices_fread(&choices, stdin);
 
 	if (options.benchmark) {

@@ -30,10 +30,11 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"show-scores", no_argument, NULL, 's'},
 				   {"version", no_argument, NULL, 'v'},
 				   {"benchmark", optional_argument, NULL, 'b'},
+				   {"workers", required_argument, NULL, 'j'},
 				   {"help", no_argument, NULL, 'h'},
 				   {NULL, 0, NULL, 0}};
 
-void options_set_defaults(options_t *options) {
+void options_init(options_t *options) {
 	/* set defaults */
 	options->benchmark = 0;
 	options->filter = NULL;
@@ -46,7 +47,7 @@ void options_set_defaults(options_t *options) {
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
-	options_set_defaults(options);
+	options_init(options);
 
 	int c;
 	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:", longopts, NULL)) != -1) {

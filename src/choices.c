@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "options.h"
 #include "choices.h"
 #include "match.h"
 
@@ -96,7 +97,7 @@ static void choices_reset_search(choices_t *c) {
 	c->results = NULL;
 }
 
-void choices_init(choices_t *c) {
+void choices_init(choices_t *c, options_t *options) {
 	c->strings = NULL;
 	c->results = NULL;
 

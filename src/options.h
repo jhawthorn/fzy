@@ -12,6 +12,7 @@ typedef struct {
 	const char *prompt;
 } options_t;
 
+void options_init(options_t *options);
 void options_parse(options_t *options, int argc, char *argv[]);
 
 #endif
