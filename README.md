@@ -68,7 +68,7 @@ fzy is a drop in replacement for [selecta](https://github.com/garybernhardt/sele
 
 ### Use with Vim
 
-fzy can be integrated very simply in vim. There is also [fzy-vim](https://github.com/Dkendal/fzy-vim), a more fully featured vim plugin.
+fzy can be easily integrated with vim.
 
 ``` vim
 function! FzyCommand(choice_command, vim_command)
