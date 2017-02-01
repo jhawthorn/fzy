@@ -15,6 +15,7 @@ static const char *usage_str =
     " -e, --show-matches=QUERY Output the sorted matches of QUERY\n"
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
+    " -j, --workers NUM        Use NUM workers for searching. (default is number of CPU threads)\n"
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
@@ -44,13 +45,14 @@ void options_init(options_t *options) {
 	options->num_lines = 10;
 	options->scrolloff = 1;
 	options->prompt = "> ";
+	options->workers = 0;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:j:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " (c) 2014 John Hawthorn\n", argv[0]);
@@ -79,6 +81,12 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				break;
 			case 'p':
 				options->prompt = optarg;
+				break;
+			case 'j':
+				if (sscanf(optarg, "%u", &options->workers) != 1) {
+					usage(argv[0]);
+					exit(EXIT_FAILURE);
+				}
 				break;
 			case 'l': {
 				int l;

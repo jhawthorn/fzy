@@ -10,6 +10,7 @@ typedef struct {
 	unsigned int num_lines;
 	unsigned int scrolloff;
 	const char *prompt;
+	unsigned int workers;
 } options_t;
 
 void options_init(options_t *options);

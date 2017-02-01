@@ -107,7 +107,11 @@ void choices_init(choices_t *c, options_t *options) {
 	c->capacity = c->size = 0;
 	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
-	c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
+	if (options->workers) {
+		c->worker_count = options->workers;
+	} else {
+		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
+	}
 
 	choices_reset_search(c);
 }
