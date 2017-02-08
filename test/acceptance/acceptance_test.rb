@@ -245,6 +245,32 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "> f\n#{expected_score} foo"
   end
 
+  def test_large_input
+    @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -l 3})
+    @tty.send_keys('34')
+    @tty.assert_matches "> 34\n34\n340\n341"
+
+    @tty.send_keys('5')
+    @tty.assert_matches "> 345\n345\n3450\n3451"
+
+    @tty.send_keys('z')
+    @tty.assert_matches "> 345z"
+  end
+
+  def test_worker_count
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -j1})
+    @tty.send_keys('foo')
+    @tty.assert_matches "> foo\nfoo"
+
+    @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -j1 -l3})
+    @tty.send_keys('34')
+    @tty.assert_matches "> 34\n34\n340\n341"
+
+    @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -j200 -l3})
+    @tty.send_keys('34')
+    @tty.assert_matches "> 34\n34\n340\n341"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
