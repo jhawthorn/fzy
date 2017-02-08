@@ -1,0 +1,50 @@
+#!/bin/sh
+
+_echo() {
+    printf %s\\n "$*"
+}
+
+fatal() {
+    _echo "$*" >&2
+    exit 1
+}
+
+main() {
+    if [ -z "${DVTM_CMD_FIFO}" ]; then
+        fatal "No DVTM_CMD_FIFO variable detected in the environment"
+    fi
+
+    readonly PATH_DIR_TMP=$(mktemp -d)
+    readonly PATH_FIFO_IN="${PATH_DIR_TMP}/in"
+    readonly PATH_FIFO_OUT="${PATH_DIR_TMP}/out"
+    readonly PATH_FIFO_RET="${PATH_DIR_TMP}/ret"
+
+    if [ -z "${PATH_DIR_TMP}" ]; then
+        fatal "Unable to create a temporary directory"
+    fi
+
+    args=""
+    for i in "$@"; do
+        if [ -z "${args}" ]; then
+            args="\\'${i}\\'"
+        else
+            args="${args} \\'${i}\\'"
+        fi
+    done
+
+    mkfifo "${PATH_FIFO_IN}" "${PATH_FIFO_OUT}"
+
+    _echo \
+        "create 'fzy ${args} < \\'${PATH_FIFO_IN}\\' > \\'${PATH_FIFO_OUT}\\' 2>&1; echo $? > \\'${PATH_FIFO_RET}\\''" \
+        > "${DVTM_CMD_FIFO}"
+    cat <&0 > "${PATH_FIFO_IN}" &
+    cat < "${PATH_FIFO_OUT}"
+
+    readonly CODE_RET=$(head -n 1 "${PATH_FIFO_RET}")
+
+    rm -rf "${PATH_DIR_TMP}"
+
+    exit "${CODE_RET}"
+}
+
+main "$@"

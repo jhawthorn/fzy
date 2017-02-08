@@ -1,0 +1,44 @@
+#!/bin/sh
+
+_echo() {
+    printf %s\\n "$*"
+}
+
+fatal() {
+    _echo "$*" >&2
+    exit 1
+}
+
+main() {
+    if [ -z "${TMUX}" ]; then
+        fatal "No TMUX variable detected in the environment"
+    fi
+
+    readonly PATH_DIR_TMP=$(mktemp -d)
+    readonly PATH_FIFO_IN="${PATH_DIR_TMP}/in"
+    readonly PATH_FIFO_OUT="${PATH_DIR_TMP}/out"
+    readonly PATH_FIFO_RET="${PATH_DIR_TMP}/ret"
+
+    if [ -z "${PATH_DIR_TMP}" ]; then
+        fatal "Unable to create a temporary directory"
+    fi
+
+    mkfifo "${PATH_FIFO_IN}" "${PATH_FIFO_OUT}"
+
+    export TMUX=$(_echo "${TMUX}" | cut -d , -f 1,2)
+    eval "tmux \
+        set-window-option synchronize-panes off \\; \
+        set-window-option remain-on-exit off \\; \
+        split-window \"fzy $* < '${PATH_FIFO_IN}' > '${PATH_FIFO_OUT}' 2>&1; echo $? > '${PATH_FIFO_RET}'\""
+
+    cat <&0 > "${PATH_FIFO_IN}" &
+    cat < "${PATH_FIFO_OUT}"
+
+    readonly CODE_RET=$(head -n 1 "${PATH_FIFO_RET}")
+
+    rm -rf "${PATH_DIR_TMP}"
+
+    exit "${CODE_RET}"
+}
+
+main "$@"
