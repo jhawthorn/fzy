@@ -271,6 +271,18 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "> 34\n34\n340\n341"
   end
 
+  def test_initial_query
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -q fo})
+    @tty.assert_matches "> fo\nfoo"
+    @tty.send_keys("o")
+    @tty.assert_matches "> foo\nfoo"
+    @tty.send_keys("o")
+    @tty.assert_matches "> fooo"
+
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -q asdf})
+    @tty.assert_matches "> asdf"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
