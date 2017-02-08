@@ -228,4 +228,20 @@ class FzyTest < Minitest::Test
     @tty.send_keys("baz")
     @tty.assert_matches "foo bar baz"
   end
+
+  def test_help
+    @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
+    @tty.assert_matches <<TTY
+Usage: fzy [OPTION]...
+ -l, --lines=LINES        Specify how many lines of results to show (default 10)
+ -p, --prompt=PROMPT      Input prompt (default '> ')
+ -q, --query=QUERY        Use QUERY as the initial search string
+ -e, --show-matches=QUERY Output the sorted matches of QUERY
+ -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
+ -s, --show-scores        Show the scores of each match
+ -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)
+ -h, --help     Display this help and exit
+ -v, --version  Output version information and exit
+TTY
+  end
 end

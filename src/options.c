@@ -15,7 +15,7 @@ static const char *usage_str =
     " -e, --show-matches=QUERY Output the sorted matches of QUERY\n"
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
-    " -j, --workers NUM        Use NUM workers for searching. (default is number of CPU threads)\n"
+    " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
