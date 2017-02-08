@@ -229,6 +229,22 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "foo bar baz"
   end
 
+  def test_show_scores
+    expected_score = '(  inf)'
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -s})
+    @tty.send_keys('foo')
+    @tty.assert_matches "> foo\n#{expected_score} foo"
+
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} --show-scores})
+    @tty.send_keys('foo')
+    @tty.assert_matches "> foo\n#{expected_score} foo"
+
+    expected_score = '( 0.89)'
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -s})
+    @tty.send_keys('f')
+    @tty.assert_matches "> f\n#{expected_score} foo"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
