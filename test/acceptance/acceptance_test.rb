@@ -200,4 +200,32 @@ class FzyTest < Minitest::Test
     @tty.send_keys("\e[B\r") # and back up
     @tty.assert_matches "foo"
   end
+
+  def test_lines
+    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH}})
+    @tty.assert_matches ">\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+
+    @tty = TTYtest.new_terminal(%{seq 20 | #{FZY_PATH}})
+    @tty.assert_matches ">\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+
+    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH} -l 5})
+    @tty.assert_matches ">\n1\n2\n3\n4\n5"
+
+    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH} --lines=5})
+    @tty.assert_matches ">\n1\n2\n3\n4\n5"
+  end
+
+  def test_prompt
+    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH}})
+    @tty.send_keys("foo")
+    @tty.assert_matches '> foo'
+
+    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH} -p 'C:\\'})
+    @tty.send_keys("foo")
+    @tty.assert_matches 'C:\foo'
+
+    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH} --prompt="foo bar "})
+    @tty.send_keys("baz")
+    @tty.assert_matches "foo bar baz"
+  end
 end
