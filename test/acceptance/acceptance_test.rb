@@ -283,6 +283,11 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "> asdf"
   end
 
+  def test_non_interactive
+    @tty = TTYtest.new_terminal(%{echo before; echo -n "foo\nbar" | #{FZY_PATH} -e foo; echo after})
+    @tty.assert_matches "before\nfoo\nafter"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
