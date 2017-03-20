@@ -59,8 +59,7 @@ with a very simple
 
 ### OS X via Homebrew
 
-    brew tap jhawthorn/fzy
-    brew install fzy
+    brew install jhawthorn/fzy/fzy
 
 ## Usage
 
