@@ -1,0 +1,3 @@
+*.o
+test_theft
+libtheft.a
