@@ -233,7 +233,7 @@ TEST test_choices_2() {
 	choices_search(&choices, "te");
 	ASSERT(choices.available == 1);
 	ASSERT(choices.selection == 0);
-	ASSERT_STR_EQ(choices_get(&choices, 0), "test");
+	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 
 	choices_next(&choices);
 	ASSERT(choices.selection == 0);
@@ -250,8 +250,8 @@ TEST test_choices_2() {
 	choices_search(&choices, "ts");
 	ASSERT(choices.available == 2);
 	ASSERT(choices.selection == 0);
-	ASSERT_STR_EQ(choices_get(&choices, 0), "test");
-	ASSERT_STR_EQ(choices_get(&choices, 1), "tags");
+	ASSERT_STR_EQ("test", choices_get(&choices, 0));
+	ASSERT_STR_EQ("tags", choices_get(&choices, 1));
 
 	choices_destroy(&choices);
 
@@ -310,7 +310,7 @@ TEST test_choices_large_input() {
 	/* Must match `seq 0 99999 | grep '.*1.*2.*' | wc -l` */
 	ASSERT(choices.available == 8146);
 
-	ASSERT_STR_EQ(choices_get(&choices, 0), "12");
+	ASSERT_STR_EQ("12", choices_get(&choices, 0));
 
 	for(int i = 0; i < N; i++) {
 		free(strings[i]);
