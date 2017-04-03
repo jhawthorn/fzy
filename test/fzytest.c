@@ -62,41 +62,41 @@ TEST test_relative_scores() {
 
 TEST test_exact_scores() {
 	/* Exact match is SCORE_MAX */
-	ASSERT(match("abc", "abc") == SCORE_MAX);
-	ASSERT(match("aBc", "abC") == SCORE_MAX);
+	ASSERT_EQ(SCORE_MAX, match("abc", "abc"));
+	ASSERT_EQ(SCORE_MAX, match("aBc", "abC"));
 
 	/* Empty query always results in SCORE_MIN */
-	ASSERT(match("", "") == SCORE_MIN);
-	ASSERT(match("", "a") == SCORE_MIN);
-	ASSERT(match("", "bb") == SCORE_MIN);
+	ASSERT_EQ(SCORE_MIN, match("", ""));
+	ASSERT_EQ(SCORE_MIN, match("", "a"));
+	ASSERT_EQ(SCORE_MIN, match("", "bb"));
 
 	/* Gaps */
-	ASSERT(match("a", "*a") == SCORE_GAP_LEADING);
-	ASSERT(match("a", "*ba") == SCORE_GAP_LEADING*2);
-	ASSERT(match("a", "**a*") == SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING);
-	ASSERT(match("a", "**a**") == SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2);
-	ASSERT(match("aa", "**aa**") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2);
-	ASSERT(match("aa", "**a*a**") == SCORE_GAP_LEADING + SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_GAP_TRAILING + SCORE_GAP_TRAILING);
+	ASSERT_EQ(SCORE_GAP_LEADING, match("a", "*a"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2, match("a", "*ba"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING, match("a", "**a*"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2, match("a", "**a**"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2, match("aa", "**aa**"));
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_GAP_TRAILING + SCORE_GAP_TRAILING, match("aa", "**a*a**"));
 
 	/* Consecutive */
-	ASSERT(match("aa", "*aa") == SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE);
-	ASSERT(match("aaa", "*aaa") == SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2);
-	ASSERT(match("aaa", "*a*aa") == SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE);
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, match("aa", "*aa"));
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2, match("aaa", "*aaa"));
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE, match("aaa", "*a*aa"));
 
 	/* Slash */
-	ASSERT(match("a", "/a") == SCORE_GAP_LEADING + SCORE_MATCH_SLASH);
-	ASSERT(match("a", "*/a") == SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH);
-	ASSERT(match("aa", "a/aa") == SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE);
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_SLASH, match("a", "/a"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH, match("a", "*/a"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE, match("aa", "a/aa"));
 
 	/* Capital */
-	ASSERT(match("a", "bA") == SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL);
-	ASSERT(match("a", "baA") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL);
-	ASSERT(match("aa", "baAa") == SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE);
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL, match("a", "bA"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL, match("a", "baA"));
+	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE, match("aa", "baAa"));
 
 	/* Dot */
-	ASSERT(match("a", ".a") == SCORE_GAP_LEADING + SCORE_MATCH_DOT);
-	ASSERT(match("a", "*a.a") == SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT);
-	ASSERT(match("a", "*a.a") == SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT);
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_DOT, match("a", ".a"));
+	ASSERT_EQ(SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT, match("a", "*a.a"));
+	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT, match("a", "*a.a"));
 
 	PASS();
 }
@@ -104,9 +104,9 @@ TEST test_exact_scores() {
 TEST test_positions_1() {
 	size_t positions[3];
 	match_positions("amo", "app/models/foo", positions);
-	ASSERT(positions[0] == 0);
-	ASSERT(positions[1] == 4);
-	ASSERT(positions[2] == 5);
+	ASSERT_EQ(0, positions[0]);
+	ASSERT_EQ(4, positions[1]);
+	ASSERT_EQ(5, positions[2]);
 
 	PASS();
 }
@@ -118,9 +118,9 @@ TEST test_positions_2() {
 	 */
 	size_t positions[4];
 	match_positions("amor", "app/models/order", positions);
-	ASSERT(positions[0] == 0);
-	ASSERT(positions[1] == 4);
-	ASSERT(positions[2] == 11);
+	ASSERT_EQ(0, positions[0]);
+	ASSERT_EQ(4, positions[1]);
+	ASSERT_EQ(11, positions[2]);
 
 	PASS();
 }
@@ -128,8 +128,8 @@ TEST test_positions_2() {
 TEST test_positions_3() {
 	size_t positions[2];
 	match_positions("as", "tags", positions);
-	ASSERT(positions[0] == 1);
-	ASSERT(positions[1] == 3);
+	ASSERT_EQ(1, positions[0]);
+	ASSERT_EQ(3, positions[1]);
 
 	PASS();
 }
@@ -137,8 +137,8 @@ TEST test_positions_3() {
 TEST test_positions_4() {
 	size_t positions[2];
 	match_positions("as", "examples.txt", positions);
-	ASSERT(positions[0] == 2);
-	ASSERT(positions[1] == 7);
+	ASSERT_EQ(2, positions[0]);
+	ASSERT_EQ(7, positions[1]);
 
 	PASS();
 }
@@ -146,9 +146,9 @@ TEST test_positions_4() {
 TEST test_positions_5() {
 	size_t positions[3];
 	match_positions("abc", "a/a/b/c/c", positions);
-	ASSERT(positions[0] == 2);
-	ASSERT(positions[1] == 4);
-	ASSERT(positions[2] == 6);
+	ASSERT_EQ(2, positions[0]);
+	ASSERT_EQ(4, positions[1]);
+	ASSERT_EQ(6, positions[2]);
 
 	PASS();
 }
@@ -156,9 +156,9 @@ TEST test_positions_5() {
 TEST test_positions_exact() {
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
-	ASSERT(positions[0] == 0);
-	ASSERT(positions[1] == 1);
-	ASSERT(positions[2] == 2);
+	ASSERT_EQ(0, positions[0]);
+	ASSERT_EQ(1, positions[1]);
+	ASSERT_EQ(2, positions[2]);
 
 	PASS();
 }
@@ -166,15 +166,15 @@ TEST test_positions_exact() {
 TEST test_choices_empty() {
 	choices_t choices;
 	choices_init(&choices, &default_options);
-	ASSERT(choices.size == 0);
-	ASSERT(choices.available == 0);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.size);
+	ASSERT_EQ(0, choices.available);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_next(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_destroy(&choices);
 
@@ -187,21 +187,21 @@ TEST test_choices_1() {
 	choices_add(&choices, "tags");
 
 	choices_search(&choices, "");
-	ASSERT(choices.available == 1);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(1, choices.available);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_search(&choices, "t");
-	ASSERT(choices.available == 1);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(1, choices.available);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_next(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	ASSERT(!strcmp(choices_get(&choices, 0), "tags"));
-	ASSERT(choices_get(&choices, 1) == NULL);
+	ASSERT_EQ(NULL, choices_get(&choices, 1));
 
 	choices_destroy(&choices);
 
@@ -216,40 +216,40 @@ TEST test_choices_2() {
 
 	/* Empty search */
 	choices_search(&choices, "");
-	ASSERT(choices.selection == 0);
-	ASSERT(choices.available == 2);
+	ASSERT_EQ(0, choices.selection);
+	ASSERT_EQ(2, choices.available);
 
 	choices_next(&choices);
-	ASSERT(choices.selection == 1);
+	ASSERT_EQ(1, choices.selection);
 	choices_next(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT(choices.selection == 1);
+	ASSERT_EQ(1, choices.selection);
 	choices_prev(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	/* Filtered search */
 	choices_search(&choices, "te");
-	ASSERT(choices.available == 1);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(1, choices.available);
+	ASSERT_EQ(0, choices.selection);
 	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 
 	choices_next(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.selection);
 
 	/* No results */
 	choices_search(&choices, "foobar");
-	ASSERT(choices.available == 0);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(0, choices.available);
+	ASSERT_EQ(0, choices.selection);
 
 	/* Different order due to scoring */
 	choices_search(&choices, "ts");
-	ASSERT(choices.available == 2);
-	ASSERT(choices.selection == 0);
+	ASSERT_EQ(2, choices.available);
+	ASSERT_EQ(0, choices.selection);
 	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 	ASSERT_STR_EQ("tags", choices_get(&choices, 1));
 
@@ -264,17 +264,17 @@ TEST test_choices_without_search() {
 	choices_t choices;
 	choices_init(&choices, &default_options);
 
-	ASSERT(choices.available == 0);
-	ASSERT(choices.selection == 0);
-	ASSERT(choices.size == 0);
-	ASSERT(choices_get(&choices, 0) == NULL);
+	ASSERT_EQ(0, choices.available);
+	ASSERT_EQ(0, choices.selection);
+	ASSERT_EQ(0, choices.size);
+	ASSERT_EQ(NULL, choices_get(&choices, 0));
 
 	choices_add(&choices, "test");
 
-	ASSERT(choices.available == 0);
-	ASSERT(choices.selection == 0);
-	ASSERT(choices.size == 1);
-	ASSERT(choices_get(&choices, 0) == NULL);
+	ASSERT_EQ(0, choices.available);
+	ASSERT_EQ(0, choices.selection);
+	ASSERT_EQ(1, choices.size);
+	ASSERT_EQ(NULL, choices_get(&choices, 0));
 
 	choices_destroy(&choices);
 
@@ -308,7 +308,7 @@ TEST test_choices_large_input() {
 	choices_search(&choices, "12");
 
 	/* Must match `seq 0 99999 | grep '.*1.*2.*' | wc -l` */
-	ASSERT(choices.available == 8146);
+	ASSERT_EQ(8146, choices.available);
 
 	ASSERT_STR_EQ("12", choices_get(&choices, 0));
 
