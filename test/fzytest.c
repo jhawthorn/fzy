@@ -321,6 +321,8 @@ TEST test_choices_large_input() {
 	PASS();
 }
 
+SUITE(properties);
+
 GREATEST_MAIN_DEFS();
 
 int main(int argc, char *argv[]) {
@@ -344,6 +346,8 @@ int main(int argc, char *argv[]) {
 	RUN_TEST(test_choices_without_search);
 	RUN_TEST(test_choices_unicode);
 	RUN_TEST(test_choices_large_input);
+
+	RUN_SUITE(properties);
 
 	GREATEST_MAIN_END();
 }
