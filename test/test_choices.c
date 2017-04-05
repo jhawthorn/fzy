@@ -8,11 +8,24 @@
 
 #include "greatest/greatest.h"
 
+#define ASSERT_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%d")
+
 static options_t default_options;
+static choices_t choices;
+
+static void setup(void *udata) {
+    (void)udata;
+
+    options_init(&default_options);
+    choices_init(&choices, &default_options);
+}
+
+static void teardown(void *udata) {
+    (void)udata;
+    choices_destroy(&choices);
+}
 
 TEST test_choices_empty() {
-	choices_t choices;
-	choices_init(&choices, &default_options);
 	ASSERT_EQ(0, choices.size);
 	ASSERT_EQ(0, choices.available);
 	ASSERT_EQ(0, choices.selection);
@@ -23,14 +36,10 @@ TEST test_choices_empty() {
 	choices_next(&choices);
 	ASSERT_EQ(0, choices.selection);
 
-	choices_destroy(&choices);
-
 	PASS();
 }
 
 TEST test_choices_1() {
-	choices_t choices;
-	choices_init(&choices, &default_options);
 	choices_add(&choices, "tags");
 
 	choices_search(&choices, "");
@@ -50,14 +59,10 @@ TEST test_choices_1() {
 	ASSERT(!strcmp(choices_get(&choices, 0), "tags"));
 	ASSERT_EQ(NULL, choices_get(&choices, 1));
 
-	choices_destroy(&choices);
-
 	PASS();
 }
 
 TEST test_choices_2() {
-	choices_t choices;
-	choices_init(&choices, &default_options);
 	choices_add(&choices, "tags");
 	choices_add(&choices, "test");
 
@@ -100,16 +105,11 @@ TEST test_choices_2() {
 	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 	ASSERT_STR_EQ("tags", choices_get(&choices, 1));
 
-	choices_destroy(&choices);
-
 	PASS();
 }
 
 TEST test_choices_without_search() {
 	/* Before a search is run, it should return no results */
-
-	choices_t choices;
-	choices_init(&choices, &default_options);
 
 	ASSERT_EQ(0, choices.available);
 	ASSERT_EQ(0, choices.selection);
@@ -123,27 +123,18 @@ TEST test_choices_without_search() {
 	ASSERT_EQ(1, choices.size);
 	ASSERT_EQ(NULL, choices_get(&choices, 0));
 
-	choices_destroy(&choices);
-
 	PASS();
 }
 
 /* Regression test for segfault */
 TEST test_choices_unicode() {
-	choices_t choices;
-	choices_init(&choices, &default_options);
-
 	choices_add(&choices, "Edmund Husserl - Méditations cartésiennes - Introduction a la phénoménologie.pdf");
 	choices_search(&choices, "e");
 
-	choices_destroy(&choices);
 	PASS();
 }
 
 TEST test_choices_large_input() {
-	choices_t choices;
-	choices_init(&choices, &default_options);
-
 	int N = 100000;
 	char *strings[N];
 
@@ -163,13 +154,12 @@ TEST test_choices_large_input() {
 		free(strings[i]);
 	}
 
-	choices_destroy(&choices);
-
 	PASS();
 }
 
 SUITE(choices_suite) {
-	options_init(&default_options);
+	SET_SETUP(setup, NULL);
+	SET_TEARDOWN(teardown, NULL);
 
 	RUN_TEST(test_choices_empty);
 	RUN_TEST(test_choices_1);

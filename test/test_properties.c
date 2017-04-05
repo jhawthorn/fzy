@@ -133,6 +133,7 @@ static theft_trial_res prop_positions_should_match_characters_in_string(char *ne
 		}
 	}
 
+	/* Matching characters must be in returned positions */
 	for (int i = 0; i < n; i++) {
 		if (toupper(needle[i]) != toupper(haystack[positions[i]])) {
 			return THEFT_TRIAL_FAIL;
