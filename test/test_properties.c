@@ -53,13 +53,14 @@ static void string_print_cb(FILE *f, void *instance, void *env) {
 }
 
 static uint64_t string_hash_cb(void *instance, void *env) {
+	(void)env;
 	char *str = (char *)instance;
 	int size = strlen(str);
-	(void)env;
-	return theft_hash_onepass(str, size);
+	return theft_hash_onepass((uint8_t *)str, size);
 }
 
 static void *string_shrink_cb(void *instance, uint32_t tactic, void *env) {
+	(void)env;
 	char *str = (char *)instance;
 	int n = strlen(str);
 
@@ -157,7 +158,7 @@ TEST positions_should_match_characters_in_string() {
 	PASS();
 }
 
-SUITE(properties) {
+SUITE(properties_suite) {
 	RUN_TEST(should_return_results_if_there_is_a_match);
 	RUN_TEST(positions_should_match_characters_in_string);
 }

@@ -14,7 +14,7 @@ INSTALL_DATA=${INSTALL} -m 644
 LIBS=-lpthread
 OBJECTS=src/fzy.o src/match.o src/tty.o src/choices.o src/options.o src/tty_interface.o
 THEFTDEPS = deps/theft/theft.o deps/theft/theft_bloom.o deps/theft/theft_mt.o deps/theft/theft_hash.o
-TESTOBJECTS=test/fzytest.c test/test_properties.c src/match.o src/choices.o src/options.o $(THEFTDEPS)
+TESTOBJECTS=test/fzytest.c test/test_properties.c test/test_choices.c test/test_match.c src/match.o src/choices.o src/options.o $(THEFTDEPS)
 
 all: fzy
 
