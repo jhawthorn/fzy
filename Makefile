@@ -49,7 +49,7 @@ fmt:
 	clang-format -i src/*.c src/*.h
 
 clean:
-	rm -f fzy test/fzytest src/*.o
+	rm -f fzy test/fzytest src/*.o deps/*/*.o
 
 veryclean: clean
 	rm -f config.h
