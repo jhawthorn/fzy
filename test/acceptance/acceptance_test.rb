@@ -293,6 +293,7 @@ class FzyTest < Minitest::Test
     @tty.assert_matches <<TTY
 Usage: fzy [OPTION]...
  -l, --lines=LINES        Specify how many lines of results to show (default 10)
+ -a, --all                Print all matched lines
  -p, --prompt=PROMPT      Input prompt (default '> ')
  -q, --query=QUERY        Use QUERY as the initial search string
  -e, --show-matches=QUERY Output the sorted matches of QUERY
