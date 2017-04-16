@@ -41,6 +41,7 @@ indexed_action_t default_keybindings[] = {
 #ifdef WITH_LIBCONFIG
 indexed_action_t actions[] = {
 	{"emit", action_emit},
+	{"emit all", action_emit_all},
 	{"del char", action_del_char},
 	{"del word", action_del_word},
 	{"del all", action_del_all},

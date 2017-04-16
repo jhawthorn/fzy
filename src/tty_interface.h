@@ -24,6 +24,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 int tty_interface_run(tty_interface_t *state);
 
 void action_emit(tty_interface_t *state);
+void action_emit_all(tty_interface_t *state);
 void action_del_char(tty_interface_t *state);
 void action_del_word(tty_interface_t *state);
 void action_del_all(tty_interface_t *state);

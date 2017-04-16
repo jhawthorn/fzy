@@ -131,6 +131,30 @@ void action_emit(tty_interface_t *state) {
 	state->exit = EXIT_SUCCESS;
 }
 
+void action_emit_all(tty_interface_t *state) {
+	update_state(state);
+
+	/* Reset the tty as close as possible to the previous state */
+	clear(state);
+
+	/* ttyout should be flushed before outputting on stdout */
+	tty_close(state->tty);
+
+	int end = choices_available(state->choices);
+	for (int i = 0; i < end; ++i) {
+		const char *selection = choices_get(state->choices, i);
+		if (selection) {
+			/* output the selected result */
+			printf("%s\n", selection);
+		} else {
+			/* No match, output the query instead */
+			printf("%s\n", state->search);
+		}
+	}
+
+	state->exit = EXIT_SUCCESS;
+}
+
 void action_del_char(tty_interface_t *state) {
 	if (*state->search)
 		state->search[strlen(state->search) - 1] = '\0';
