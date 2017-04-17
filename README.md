@@ -107,3 +107,27 @@ It prefers shorter matches: `abce` matches <tt><b>abc</b>d<b>e</b>f</tt> over <t
 
 It prefers shorter candidates: `test` matches <tt><b>test</b>s</tt> over <tt><b>test</b>ing</b></tt>.
 
+## Configuration
+
+fzy loads configuration from `~/.config/fzy` when it is available. This example configuration file shows the default key bindings:
+
+```
+key-bindings = {
+	up        = "prev"
+	c-k       = "prev"
+	c-p       = "prev"
+	down      = "next"
+	c-j       = "next"
+	c-n       = "next"
+	c-c       = "exit"
+	c-d       = "exit"
+	delete    = "del char"
+	c-h       = "del char"
+	c-w       = "del word"
+	c-u       = "del all"
+	c-m       = "emit"
+	tab       = "autocomplete"
+	page-up   = "page up"
+	page-down = "page down"
+}
+```
