@@ -5,7 +5,8 @@
 
 #include "greatest/greatest.h"
 
-#define ASSERT_SCORE_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%f")
+#define SCORE_TOLERANCE 0.000001
+#define ASSERT_SCORE_EQ(a,b) ASSERT_IN_RANGE((a), (b), SCORE_TOLERANCE)
 #define ASSERT_INT_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%d")
 
 /* has_match(char *needle, char *haystack) */
