@@ -9,6 +9,13 @@ Performance:
   - Use threads to parallelize sorting
   - Improve parallelism of searching and scoring
 
+Internal:
+
+  - Fix test suite on i386
+  - Replace test suite with greatest
+  - Add property tests
+  - Add acceptance tests
+
 ## 0.8 (2017-01-01)
 
 Bugfixes:
