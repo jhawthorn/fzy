@@ -5,6 +5,9 @@
 
 #include "greatest/greatest.h"
 
+#define ASSERT_SCORE_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%f")
+#define ASSERT_INT_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%d")
+
 /* has_match(char *needle, char *haystack) */
 TEST exact_match_should_return_true() {
 	ASSERT(has_match("a", "a"));
@@ -76,63 +79,63 @@ TEST should_prefer_start_of_candidate() {
 
 TEST score_exact_match() {
 	/* Exact match is SCORE_MAX */
-	ASSERT_EQ(SCORE_MAX, match("abc", "abc"));
-	ASSERT_EQ(SCORE_MAX, match("aBc", "abC"));
+	ASSERT_SCORE_EQ(SCORE_MAX, match("abc", "abc"));
+	ASSERT_SCORE_EQ(SCORE_MAX, match("aBc", "abC"));
 	PASS();
 }
 
 TEST score_empty_query() {
 	/* Empty query always results in SCORE_MIN */
-	ASSERT_EQ(SCORE_MIN, match("", ""));
-	ASSERT_EQ(SCORE_MIN, match("", "a"));
-	ASSERT_EQ(SCORE_MIN, match("", "bb"));
+	ASSERT_SCORE_EQ(SCORE_MIN, match("", ""));
+	ASSERT_SCORE_EQ(SCORE_MIN, match("", "a"));
+	ASSERT_SCORE_EQ(SCORE_MIN, match("", "bb"));
 	PASS();
 }
 
 TEST score_gaps() {
-	ASSERT_EQ(SCORE_GAP_LEADING, match("a", "*a"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2, match("a", "*ba"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING, match("a", "**a*"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2, match("a", "**a**"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2, match("aa", "**aa**"));
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_GAP_TRAILING + SCORE_GAP_TRAILING, match("aa", "**a*a**"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING, match("a", "*a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2, match("a", "*ba"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING, match("a", "**a*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2, match("a", "**a**"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2, match("aa", "**aa**"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_GAP_TRAILING + SCORE_GAP_TRAILING, match("aa", "**a*a**"));
 	PASS();
 }
 
 TEST score_consecutive() {
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, match("aa", "*aa"));
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2, match("aaa", "*aaa"));
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE, match("aaa", "*a*aa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, match("aa", "*aa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2, match("aaa", "*aaa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE, match("aaa", "*a*aa"));
 	PASS();
 }
 
 TEST score_slash() {
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_SLASH, match("a", "/a"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH, match("a", "*/a"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE, match("aa", "a/aa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_SLASH, match("a", "/a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH, match("a", "*/a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE, match("aa", "a/aa"));
 	PASS();
 }
 
 TEST score_capital() {
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL, match("a", "bA"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL, match("a", "baA"));
-	ASSERT_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE, match("aa", "baAa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL, match("a", "bA"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL, match("a", "baA"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE, match("aa", "baAa"));
 	PASS();
 }
 
 TEST score_dot() {
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_MATCH_DOT, match("a", ".a"));
-	ASSERT_EQ(SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT, match("a", "*a.a"));
-	ASSERT_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT, match("a", "*a.a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_DOT, match("a", ".a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT, match("a", "*a.a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT, match("a", "*a.a"));
 	PASS();
 }
 
 TEST positions_consecutive() {
 	size_t positions[3];
 	match_positions("amo", "app/models/foo", positions);
-	ASSERT_EQ(0, positions[0]);
-	ASSERT_EQ(4, positions[1]);
-	ASSERT_EQ(5, positions[2]);
+	ASSERT_INT_EQ(0, positions[0]);
+	ASSERT_INT_EQ(4, positions[1]);
+	ASSERT_INT_EQ(5, positions[2]);
 
 	PASS();
 }
@@ -144,10 +147,10 @@ TEST positions_start_of_word() {
 	 */
 	size_t positions[4];
 	match_positions("amor", "app/models/order", positions);
-	ASSERT_EQ(0, positions[0]);
-	ASSERT_EQ(4, positions[1]);
-	ASSERT_EQ(11, positions[2]);
-	ASSERT_EQ(12, positions[3]);
+	ASSERT_INT_EQ(0, positions[0]);
+	ASSERT_INT_EQ(4, positions[1]);
+	ASSERT_INT_EQ(11, positions[2]);
+	ASSERT_INT_EQ(12, positions[3]);
 
 	PASS();
 }
@@ -155,12 +158,12 @@ TEST positions_start_of_word() {
 TEST positions_no_bonuses() {
 	size_t positions[2];
 	match_positions("as", "tags", positions);
-	ASSERT_EQ(1, positions[0]);
-	ASSERT_EQ(3, positions[1]);
+	ASSERT_INT_EQ(1, positions[0]);
+	ASSERT_INT_EQ(3, positions[1]);
 
 	match_positions("as", "examples.txt", positions);
-	ASSERT_EQ(2, positions[0]);
-	ASSERT_EQ(7, positions[1]);
+	ASSERT_INT_EQ(2, positions[0]);
+	ASSERT_INT_EQ(7, positions[1]);
 
 	PASS();
 }
@@ -168,9 +171,9 @@ TEST positions_no_bonuses() {
 TEST positions_multiple_candidates_start_of_words() {
 	size_t positions[3];
 	match_positions("abc", "a/a/b/c/c", positions);
-	ASSERT_EQ(2, positions[0]);
-	ASSERT_EQ(4, positions[1]);
-	ASSERT_EQ(6, positions[2]);
+	ASSERT_INT_EQ(2, positions[0]);
+	ASSERT_INT_EQ(4, positions[1]);
+	ASSERT_INT_EQ(6, positions[2]);
 
 	PASS();
 }
@@ -178,9 +181,9 @@ TEST positions_multiple_candidates_start_of_words() {
 TEST positions_exact_match() {
 	size_t positions[3];
 	match_positions("foo", "foo", positions);
-	ASSERT_EQ(0, positions[0]);
-	ASSERT_EQ(1, positions[1]);
-	ASSERT_EQ(2, positions[2]);
+	ASSERT_INT_EQ(0, positions[0]);
+	ASSERT_INT_EQ(1, positions[1]);
+	ASSERT_INT_EQ(2, positions[2]);
 
 	PASS();
 }

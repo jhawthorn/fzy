@@ -8,7 +8,7 @@
 
 #include "greatest/greatest.h"
 
-#define ASSERT_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%d")
+#define ASSERT_INT_EQ(a,b) ASSERT_EQ_FMT((a), (b), "%d")
 
 static options_t default_options;
 static choices_t choices;
@@ -26,15 +26,15 @@ static void teardown(void *udata) {
 }
 
 TEST test_choices_empty() {
-	ASSERT_EQ(0, choices.size);
-	ASSERT_EQ(0, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.size);
+	ASSERT_INT_EQ(0, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_next(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	PASS();
 }
@@ -43,21 +43,21 @@ TEST test_choices_1() {
 	choices_add(&choices, "tags");
 
 	choices_search(&choices, "");
-	ASSERT_EQ(1, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(1, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_search(&choices, "t");
-	ASSERT_EQ(1, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(1, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_next(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	ASSERT(!strcmp(choices_get(&choices, 0), "tags"));
-	ASSERT_EQ(NULL, choices_get(&choices, 1));
+	ASSERT_INT_EQ(NULL, choices_get(&choices, 1));
 
 	PASS();
 }
@@ -68,40 +68,40 @@ TEST test_choices_2() {
 
 	/* Empty search */
 	choices_search(&choices, "");
-	ASSERT_EQ(0, choices.selection);
-	ASSERT_EQ(2, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(2, choices.available);
 
 	choices_next(&choices);
-	ASSERT_EQ(1, choices.selection);
+	ASSERT_INT_EQ(1, choices.selection);
 	choices_next(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT_EQ(1, choices.selection);
+	ASSERT_INT_EQ(1, choices.selection);
 	choices_prev(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	/* Filtered search */
 	choices_search(&choices, "te");
-	ASSERT_EQ(1, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(1, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 
 	choices_next(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	choices_prev(&choices);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	/* No results */
 	choices_search(&choices, "foobar");
-	ASSERT_EQ(0, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 
 	/* Different order due to scoring */
 	choices_search(&choices, "ts");
-	ASSERT_EQ(2, choices.available);
-	ASSERT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(2, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
 	ASSERT_STR_EQ("test", choices_get(&choices, 0));
 	ASSERT_STR_EQ("tags", choices_get(&choices, 1));
 
@@ -111,17 +111,17 @@ TEST test_choices_2() {
 TEST test_choices_without_search() {
 	/* Before a search is run, it should return no results */
 
-	ASSERT_EQ(0, choices.available);
-	ASSERT_EQ(0, choices.selection);
-	ASSERT_EQ(0, choices.size);
-	ASSERT_EQ(NULL, choices_get(&choices, 0));
+	ASSERT_INT_EQ(0, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(0, choices.size);
+	ASSERT_INT_EQ(NULL, choices_get(&choices, 0));
 
 	choices_add(&choices, "test");
 
-	ASSERT_EQ(0, choices.available);
-	ASSERT_EQ(0, choices.selection);
-	ASSERT_EQ(1, choices.size);
-	ASSERT_EQ(NULL, choices_get(&choices, 0));
+	ASSERT_INT_EQ(0, choices.available);
+	ASSERT_INT_EQ(0, choices.selection);
+	ASSERT_INT_EQ(1, choices.size);
+	ASSERT_INT_EQ(NULL, choices_get(&choices, 0));
 
 	PASS();
 }
@@ -146,7 +146,7 @@ TEST test_choices_large_input() {
 	choices_search(&choices, "12");
 
 	/* Must match `seq 0 99999 | grep '.*1.*2.*' | wc -l` */
-	ASSERT_EQ(8146, choices.available);
+	ASSERT_INT_EQ(8146, choices.available);
 
 	ASSERT_STR_EQ("12", choices_get(&choices, 0));
 
