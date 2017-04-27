@@ -21,10 +21,10 @@
 extern "C" {
 #endif
 
-/* 1.2.1 */
+/* 1.2.2 */
 #define GREATEST_VERSION_MAJOR 1
 #define GREATEST_VERSION_MINOR 2
-#define GREATEST_VERSION_PATCH 1
+#define GREATEST_VERSION_PATCH 2
 
 /* A unit testing system for C, contained in 1 file.
  * It doesn't use dynamic allocation or depend on anything
@@ -205,7 +205,12 @@ typedef enum {
 typedef struct greatest_run_info {
     unsigned char flags;
     unsigned char verbosity;
+    unsigned char pad_0[2];
+
     unsigned int tests_run;     /* total test count */
+
+    /* currently running test suite */
+    greatest_suite_info suite;
 
     /* overall pass/fail/skip counts */
     unsigned int passed;
@@ -213,12 +218,10 @@ typedef struct greatest_run_info {
     unsigned int skipped;
     unsigned int assertions;
 
-    /* currently running test suite */
-    greatest_suite_info suite;
-
     /* info to print about the most recent failure */
-    const char *fail_file;
     unsigned int fail_line;
+    unsigned int pad_1;
+    const char *fail_file;
     const char *msg;
 
     /* current setup/teardown hooks and userdata */
@@ -242,6 +245,7 @@ typedef struct greatest_run_info {
 #endif
 
 #if GREATEST_USE_LONGJMP
+    int pad_jmp_buf;
     jmp_buf jump_dest;
 #endif
 } greatest_run_info;
@@ -432,16 +436,16 @@ typedef enum greatest_test_res {
     } while (0)
 
 /* Fail if EXP != GOT (equality comparison by ==).
- * Warning: EXP and GOT will be evaluated more than once on failure. */
+ * Warning: FMT, EXP, and GOT will be evaluated more
+ * than once on failure. */
 #define GREATEST_ASSERT_EQ_FMTm(MSG, EXP, GOT, FMT)                     \
     do {                                                                \
-        const char *greatest_FMT = ( FMT );                             \
         greatest_info.assertions++;                                     \
         if ((EXP) != (GOT)) {                                           \
             fprintf(GREATEST_STDOUT, "\nExpected: ");                   \
-            fprintf(GREATEST_STDOUT, greatest_FMT, EXP);                \
+            fprintf(GREATEST_STDOUT, FMT, EXP);                         \
             fprintf(GREATEST_STDOUT, "\n     Got: ");                   \
-            fprintf(GREATEST_STDOUT, greatest_FMT, GOT);                \
+            fprintf(GREATEST_STDOUT, FMT, GOT);                         \
             fprintf(GREATEST_STDOUT, "\n");                             \
             GREATEST_FAILm(MSG);                                        \
         }                                                               \
@@ -658,7 +662,7 @@ void greatest_post_test(const char *name, int res) {                    \
         fprintf(GREATEST_STDOUT, "\n");                                 \
         greatest_info.col = 0;                                          \
     }                                                                   \
-    if (GREATEST_STDOUT == stdout) fflush(stdout);                      \
+    fflush(GREATEST_STDOUT);                                            \
 }                                                                       \
                                                                         \
 static void report_suite(void) {                                        \
@@ -890,7 +894,8 @@ static int greatest_memory_equal_cb(const void *exp, const void *got,   \
                                                                         \
 static int greatest_memory_printf_cb(const void *t, void *udata) {      \
     greatest_memory_cmp_env *env = (greatest_memory_cmp_env *)udata;    \
-    unsigned char *buf = (unsigned char *)t, diff_mark = ' ';           \
+    const unsigned char *buf = (const unsigned char *)t;                \
+    unsigned char diff_mark = ' ';                                      \
     FILE *out = GREATEST_STDOUT;                                        \
     size_t i, line_i, line_len = 0;                                     \
     int len = 0;   /* format hexdump with differences highlighted */    \
