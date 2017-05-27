@@ -90,9 +90,9 @@ nnoremap <leader>s :call FzyCommand("find -type f", ":sp")<cr>
 Any program can be used to filter files presented through fzy. [ag (the silver searcher)](https://github.com/ggreer/the_silver_searcher) can be used to ignore files specified by `.gitignore`.
 
 ``` vim
-nnoremap <leader>e :call FzyCommand("ag . -l -g ''", ":e")<cr>
-nnoremap <leader>v :call FzyCommand("ag . -l -g ''", ":vs")<cr>
-nnoremap <leader>s :call FzyCommand("ag . -l -g ''", ":sp")<cr>
+nnoremap <leader>e :call FzyCommand("ag . --silent -l -g ''", ":e")<cr>
+nnoremap <leader>v :call FzyCommand("ag . --silent -l -g ''", ":vs")<cr>
+nnoremap <leader>s :call FzyCommand("ag . --silent -l -g ''", ":sp")<cr>
 ```
 
 ## Sorting
