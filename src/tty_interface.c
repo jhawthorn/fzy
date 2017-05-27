@@ -5,6 +5,7 @@
 
 #include "match.h"
 #include "tty_interface.h"
+#include "configuration.h"
 #include "../config.h"
 
 static void clear(tty_interface_t *state) {
@@ -109,7 +110,7 @@ static void update_state(tty_interface_t *state) {
 	}
 }
 
-static void action_emit(tty_interface_t *state) {
+void action_emit(tty_interface_t *state) {
 	update_state(state);
 
 	/* Reset the tty as close as possible to the previous state */
@@ -130,12 +131,36 @@ static void action_emit(tty_interface_t *state) {
 	state->exit = EXIT_SUCCESS;
 }
 
-static void action_del_char(tty_interface_t *state) {
+void action_emit_all(tty_interface_t *state) {
+	update_state(state);
+
+	/* Reset the tty as close as possible to the previous state */
+	clear(state);
+
+	/* ttyout should be flushed before outputting on stdout */
+	tty_close(state->tty);
+
+	int end = choices_available(state->choices);
+	for (int i = 0; i < end; ++i) {
+		const char *selection = choices_get(state->choices, i);
+		if (selection) {
+			/* output the selected result */
+			printf("%s\n", selection);
+		} else {
+			/* No match, output the query instead */
+			printf("%s\n", state->search);
+		}
+	}
+
+	state->exit = EXIT_SUCCESS;
+}
+
+void action_del_char(tty_interface_t *state) {
 	if (*state->search)
 		state->search[strlen(state->search) - 1] = '\0';
 }
 
-static void action_del_word(tty_interface_t *state) {
+void action_del_word(tty_interface_t *state) {
 	size_t search_size = strlen(state->search);
 	if (search_size)
 		state->search[--search_size] = '\0';
@@ -143,33 +168,33 @@ static void action_del_word(tty_interface_t *state) {
 		state->search[search_size] = '\0';
 }
 
-static void action_del_all(tty_interface_t *state) {
+void action_del_all(tty_interface_t *state) {
 	strcpy(state->search, "");
 }
 
-static void action_prev(tty_interface_t *state) {
+void action_prev(tty_interface_t *state) {
 	update_state(state);
 	choices_prev(state->choices);
 }
 
-static void action_next(tty_interface_t *state) {
+void action_next(tty_interface_t *state) {
 	update_state(state);
 	choices_next(state->choices);
 }
 
-static void action_pageup(tty_interface_t *state) {
+void action_pageup(tty_interface_t *state) {
 	update_state(state);
 	for(size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
 		choices_prev(state->choices);
 }
 
-static void action_pagedown(tty_interface_t *state) {
+void action_pagedown(tty_interface_t *state) {
 	update_state(state);
 	for(size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available-1; i++)
 		choices_next(state->choices);
 }
 
-static void action_autocomplete(tty_interface_t *state) {
+void action_autocomplete(tty_interface_t *state) {
 	update_state(state);
 	const char *current_selection = choices_get(state->choices, state->choices->selection);
 	if (current_selection) {
@@ -177,7 +202,7 @@ static void action_autocomplete(tty_interface_t *state) {
 	}
 }
 
-static void action_exit(tty_interface_t *state) {
+void action_exit(tty_interface_t *state) {
 	clear(state);
 	tty_close(state->tty);
 
@@ -193,7 +218,10 @@ static void append_search(tty_interface_t *state, char ch) {
 	}
 }
 
+static configuration_t configuration;
+
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
+	configuration_init(&configuration);
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
@@ -210,52 +238,22 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	update_search(state);
 }
 
-typedef struct {
-	const char *key;
-	void (*action)(tty_interface_t *);
-} keybinding_t;
-
-#define KEY_CTRL(key) ((const char[]){((key) - ('@')), '\0'})
-
-static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
-					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */
-					   {KEY_CTRL('W'), action_del_word}, /* C-W */
-					   {KEY_CTRL('U'), action_del_all},  /* C-U */
-					   {KEY_CTRL('I'), action_autocomplete}, /* TAB (C-I ) */
-					   {KEY_CTRL('C'), action_exit},	 /* C-C */
-					   {KEY_CTRL('D'), action_exit},	 /* C-D */
-					   {KEY_CTRL('M'), action_emit},	 /* CR */
-					   {KEY_CTRL('P'), action_prev},	 /* C-P */
-					   {KEY_CTRL('N'), action_next},	 /* C-N */
-					   {KEY_CTRL('K'), action_prev},	 /* C-J */
-					   {KEY_CTRL('J'), action_next},	 /* C-K */
-
-					   {"\x1b[A", action_prev}, /* UP */
-					   {"\x1bOA", action_prev}, /* UP */
-					   {"\x1b[B", action_next}, /* DOWN */
-					   {"\x1bOB", action_next}, /* DOWN */
-					   {"\x1b[5~", action_pageup},
-					   {"\x1b[6~", action_pagedown},
-					   {NULL, NULL}};
-
-#undef KEY_CTRL
-
 static void handle_input(tty_interface_t *state, const char *s) {
 	char *input = state->input;
 	strcat(state->input, s);
 
 	/* See if we have matched a keybinding */
-	for (int i = 0; keybindings[i].key; i++) {
-		if (!strcmp(input, keybindings[i].key)) {
-			keybindings[i].action(state);
+	for (int i = 0; configuration.keybindings[i].key; i++) {
+		if (!strcmp(input, configuration.keybindings[i].key)) {
+			configuration.keybindings[i].action(state);
 			strcpy(input, "");
 			return;
 		}
 	}
 
 	/* Check if we are in the middle of a keybinding */
-	for (int i = 0; keybindings[i].key; i++)
-		if (!strncmp(input, keybindings[i].key, strlen(input)))
+	for (int i = 0; configuration.keybindings[i].key; i++)
+		if (!strncmp(input, configuration.keybindings[i].key, strlen(input)))
 			return;
 
 	/* No matching keybinding, add to search */
@@ -284,5 +282,6 @@ int tty_interface_run(tty_interface_t *state) {
 		update_state(state);
 	}
 
+	configuration_free(&configuration);
 	return state->exit;
 }

@@ -23,4 +23,16 @@ typedef struct {
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options);
 int tty_interface_run(tty_interface_t *state);
 
+void action_emit(tty_interface_t *state);
+void action_emit_all(tty_interface_t *state);
+void action_del_char(tty_interface_t *state);
+void action_del_word(tty_interface_t *state);
+void action_del_all(tty_interface_t *state);
+void action_prev(tty_interface_t *state);
+void action_next(tty_interface_t *state);
+void action_pageup(tty_interface_t *state);
+void action_pagedown(tty_interface_t *state);
+void action_autocomplete(tty_interface_t *state);
+void action_exit(tty_interface_t *state);
+
 #endif

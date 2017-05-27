@@ -8,6 +8,7 @@
 #include "options.h"
 #include "choices.h"
 #include "match.h"
+#include "memory.h"
 
 /* Initial size of buffer for storing input in memory */
 #define INITIAL_BUFFER_CAPACITY 4096
@@ -34,16 +35,6 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 	} else {
 		return -1;
 	}
-}
-
-static void *safe_realloc(void *buffer, size_t size) {
-	buffer = realloc(buffer, size);
-	if (!buffer) {
-		fprintf(stderr, "Error: Can't allocate memory (%zu bytes)\n", size);
-		abort();
-	}
-
-	return buffer;
 }
 
 void choices_fread(choices_t *c, FILE *file) {
