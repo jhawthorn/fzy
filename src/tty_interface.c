@@ -152,6 +152,8 @@ static void action_prev(tty_interface_t *state) {
 	choices_prev(state->choices);
 }
 
+static void action_ignore(__unused tty_interface_t *state) {}
+
 static void action_next(tty_interface_t *state) {
 	update_state(state);
 	choices_next(state->choices);
@@ -236,6 +238,8 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {"\x1bOB", action_next}, /* DOWN */
 					   {"\x1b[5~", action_pageup},
 					   {"\x1b[6~", action_pagedown},
+					   {"\e[200~", action_ignore},
+					   {"\e[201~", action_ignore},
 					   {NULL, NULL}};
 
 #undef KEY_CTRL
