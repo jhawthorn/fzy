@@ -57,9 +57,10 @@ fzy is available
 with a very simple
 [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=fzy)
 
-### OS X via Homebrew
+### MacOS
 
-    brew install fzy
+    brew install fzy  # Homebrew
+    sudo port install fzy  # MacPorts
 
 ## Usage
 
