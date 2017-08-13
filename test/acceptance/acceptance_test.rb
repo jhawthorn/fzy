@@ -288,6 +288,16 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "before\nfoo\nafter"
   end
 
+  # More info;
+  # https://github.com/jhawthorn/fzy/issues/42
+  # https://cirw.in/blog/bracketed-paste
+  def test_bracketed_paste_characters
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty.assert_matches ">\nfoo\nbar"
+    @tty.send_keys("\e[200~foo\e[201~")
+    @tty.assert_matches "> foo\nfoo"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
