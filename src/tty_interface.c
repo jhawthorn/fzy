@@ -242,6 +242,7 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {"\x1b[6~", action_pagedown},
 					   {"\x1b[200~", action_ignore},
 					   {"\x1b[201~", action_ignore},
+					   {"\x1b", action_exit},
 					   {NULL, NULL}};
 
 #undef KEY_CTRL
