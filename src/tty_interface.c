@@ -42,6 +42,7 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		} else {
 			tty_printf(tty, "(%5.2f) ", score);
 		}
+		maxwidth -= 8;
 	}
 
 	if (selected)
