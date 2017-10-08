@@ -5,12 +5,6 @@ require 'ttytest'
 class FzyTest < Minitest::Test
   FZY_PATH = File.expand_path('../../../fzy', __FILE__)
 
-  def setup
-    # fzy is fast.
-    # This is never hit in a (passing) test suite, but helps speed up development
-    TTYtest.default_max_wait_time = 0.2
-  end
-
   def test_empty_list
     @tty = TTYtest.new_terminal(%{echo placeholder;echo -n "" | #{FZY_PATH}})
     @tty.assert_cursor_position(y: 1, x: 2)
@@ -286,6 +280,34 @@ class FzyTest < Minitest::Test
   def test_non_interactive
     @tty = TTYtest.new_terminal(%{echo before; echo -n "foo\nbar" | #{FZY_PATH} -e foo; echo after})
     @tty.assert_matches "before\nfoo\nafter"
+  end
+
+  def test_moving_text_cursor
+    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}; echo after})
+    @tty.send_keys("br")
+    @tty.assert_matches "> br\nbar"
+    @tty.assert_cursor_position(y: 0, x: 4)
+
+    @tty.send_keys("\e[D") # left
+    @tty.assert_cursor_position(y: 0, x: 3)
+    @tty.assert_matches "> br\nbar"
+    @tty.send_keys("a")
+    @tty.assert_cursor_position(y: 0, x: 4)
+    @tty.assert_matches "> bar\nbar"
+
+    @tty.send_keys(ctrl("A")) # Ctrl-A
+    @tty.assert_cursor_position(y: 0, x: 2)
+    @tty.assert_matches "> bar\nbar"
+    @tty.send_keys("foo")
+    @tty.assert_cursor_position(y: 0, x: 5)
+    @tty.assert_matches "> foobar"
+
+    @tty.send_keys(ctrl("E")) # Ctrl-E
+    @tty.assert_cursor_position(y: 0, x: 8)
+    @tty.assert_matches "> foobar"
+    @tty.send_keys("baz") # Ctrl-E
+    @tty.assert_cursor_position(y: 0, x: 11)
+    @tty.assert_matches "> foobarbaz"
   end
 
   # More info;
