@@ -94,7 +94,9 @@ static void draw(tty_interface_t *state) {
 	if (num_lines > 0) {
 		tty_moveup(tty, num_lines);
 	}
-	tty_setcol(tty, strlen(options->prompt) + strlen(state->search));
+
+	int length = strlen(options->prompt) + strlen(state->search);
+	tty_setcol(tty, length + state->offset);
 	tty_flush(tty);
 }
 
@@ -132,8 +134,15 @@ static void action_emit(tty_interface_t *state) {
 }
 
 static void action_del_char(tty_interface_t *state) {
-	if (*state->search)
-		state->search[strlen(state->search) - 1] = '\0';
+	if (*state->search) {
+		int length = strlen(state->search);
+		int index = length + state->offset - 1;
+		if (index < 0) {
+			return;
+		}
+
+		memmove(&state->search[index], &state->search[index + 1], length - index);
+	}
 }
 
 static void action_del_word(tty_interface_t *state) {
@@ -160,6 +169,24 @@ static void action_ignore(tty_interface_t *state) {
 static void action_next(tty_interface_t *state) {
 	update_state(state);
 	choices_next(state->choices);
+}
+
+static void action_left(tty_interface_t *state) {
+	if ((unsigned long)abs(state->offset) < strlen(state->search))
+		state->offset--;
+}
+
+static void action_right(tty_interface_t *state) {
+	if (state->offset < 0)
+		state->offset++;
+}
+
+static void action_beginning(tty_interface_t *state) {
+	state->offset = -strlen(state->search);
+}
+
+static void action_end(tty_interface_t *state) {
+	state->offset = 0;
 }
 
 static void action_pageup(tty_interface_t *state) {
@@ -193,8 +220,14 @@ static void append_search(tty_interface_t *state, char ch) {
 	char *search = state->search;
 	size_t search_size = strlen(search);
 	if (search_size < SEARCH_SIZE_MAX) {
-		search[search_size++] = ch;
-		search[search_size] = '\0';
+		int location = state->offset + search_size;
+		for (int i = search_size; i >= 0; i--) {
+			if (i >= location) {
+				search[i + 1] = search[i];
+			}
+		}
+
+		search[location] = ch;
 	}
 }
 
@@ -202,6 +235,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
+	state->offset = 0;
 
 	strcpy(state->input, "");
 	strcpy(state->search, "");
@@ -234,7 +268,13 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
 					   {KEY_CTRL('K'), action_prev},	 /* C-J */
 					   {KEY_CTRL('J'), action_next},	 /* C-K */
+					   {KEY_CTRL('A'), action_beginning},    /* C-A */
+					   {KEY_CTRL('E'), action_end},		 /* C-E */
 
+					   {"\x1bOD", action_left}, /* LEFT */
+					   {"\x1b[D", action_left}, /* LEFT */
+					   {"\x1bOC", action_right}, /* RIGHT */
+					   {"\x1b[C", action_right}, /* RIGHT */
 					   {"\x1b[A", action_prev}, /* UP */
 					   {"\x1bOA", action_prev}, /* UP */
 					   {"\x1b[B", action_next}, /* DOWN */
