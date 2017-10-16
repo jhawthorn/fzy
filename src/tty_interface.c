@@ -95,8 +95,7 @@ static void draw(tty_interface_t *state) {
 		tty_moveup(tty, num_lines);
 	}
 
-	int length = strlen(options->prompt) + strlen(state->search);
-	tty_setcol(tty, length + state->offset);
+	tty_setcol(tty, strlen(options->prompt) + state->cursor);
 	tty_flush(tty);
 }
 
@@ -135,26 +134,33 @@ static void action_emit(tty_interface_t *state) {
 
 static void action_del_char(tty_interface_t *state) {
 	if (*state->search) {
-		int length = strlen(state->search);
-		int index = length + state->offset - 1;
-		if (index < 0) {
+		size_t length = strlen(state->search);
+		if(state->cursor == 0) {
 			return;
 		}
 
-		memmove(&state->search[index], &state->search[index + 1], length - index);
+		state->cursor--;
+		memmove(&state->search[state->cursor], &state->search[state->cursor + 1], length - state->cursor);
 	}
 }
 
 static void action_del_word(tty_interface_t *state) {
-	size_t search_size = strlen(state->search);
-	if (search_size)
-		state->search[--search_size] = '\0';
-	while (search_size && !isspace(state->search[--search_size]))
-		state->search[search_size] = '\0';
+	size_t original_cursor = state->cursor;
+	size_t cursor = state->cursor;
+
+	while (cursor && isspace(state->search[cursor - 1]))
+		cursor--;
+
+	while (cursor && !isspace(state->search[cursor - 1]))
+		cursor--;
+
+	memmove(&state->search[cursor], &state->search[original_cursor], strlen(state->search) - original_cursor + 1);
+	state->cursor = cursor;
 }
 
 static void action_del_all(tty_interface_t *state) {
-	strcpy(state->search, "");
+	memmove(state->search, &state->search[state->cursor], strlen(state->search) - state->cursor + 1);
+	state->cursor = 0;
 }
 
 static void action_prev(tty_interface_t *state) {
@@ -172,21 +178,21 @@ static void action_next(tty_interface_t *state) {
 }
 
 static void action_left(tty_interface_t *state) {
-	if ((unsigned long)abs(state->offset) < strlen(state->search))
-		state->offset--;
+	if (state->cursor > 0)
+		state->cursor--;
 }
 
 static void action_right(tty_interface_t *state) {
-	if (state->offset < 0)
-		state->offset++;
+	if (state->cursor < strlen(state->search))
+		state->cursor++;
 }
 
 static void action_beginning(tty_interface_t *state) {
-	state->offset = -strlen(state->search);
+	state->cursor = 0;
 }
 
 static void action_end(tty_interface_t *state) {
-	state->offset = 0;
+	state->cursor = strlen(state->search);
 }
 
 static void action_pageup(tty_interface_t *state) {
@@ -206,6 +212,7 @@ static void action_autocomplete(tty_interface_t *state) {
 	const char *current_selection = choices_get(state->choices, state->choices->selection);
 	if (current_selection) {
 		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
+		state->cursor = strlen(state->search);
 	}
 }
 
@@ -220,14 +227,10 @@ static void append_search(tty_interface_t *state, char ch) {
 	char *search = state->search;
 	size_t search_size = strlen(search);
 	if (search_size < SEARCH_SIZE_MAX) {
-		int location = state->offset + search_size;
-		for (int i = search_size; i >= 0; i--) {
-			if (i >= location) {
-				search[i + 1] = search[i];
-			}
-		}
+		memmove(&search[state->cursor+1], &search[state->cursor], search_size - state->cursor + 1);
+		search[state->cursor] = ch;
 
-		search[location] = ch;
+		state->cursor++;
 	}
 }
 
@@ -235,7 +238,6 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
-	state->offset = 0;
 
 	strcpy(state->input, "");
 	strcpy(state->search, "");
@@ -245,6 +247,8 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 
 	if (options->init_search)
 		strncpy(state->search, options->init_search, SEARCH_SIZE_MAX);
+
+	state->cursor = strlen(state->search);
 
 	update_search(state);
 }
