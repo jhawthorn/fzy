@@ -62,10 +62,9 @@ Using MacPorts
 
 ### Arch Linux
 
-fzy is available
-[in the AUR](https://aur.archlinux.org/packages/fzy/)
-with a very simple
-[PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=fzy)
+fzy is available in the `community` repo.
+
+    sudo pacman -S fzy
 
 ## Usage
 
