@@ -41,6 +41,16 @@ Rather than clearing the screen, fzy displays its interface directly below the c
 The `PREFIX` environment variable can be used to specify the install location,
 the default is `/usr/local`.
 
+### MacOS
+
+Using Homebrew
+
+    sudo brew install fzy
+
+Using MacPorts
+
+    sudo port install fzy
+
 ### Ubuntu/Debian 64-bit
 
     wget https://github.com/jhawthorn/fzy/releases/download/0.9/fzy_0.9-1_amd64.deb
@@ -56,11 +66,6 @@ fzy is available
 [in the AUR](https://aur.archlinux.org/packages/fzy/)
 with a very simple
 [PKGBUILD](https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=fzy)
-
-### MacOS
-
-    brew install fzy  # Homebrew
-    sudo port install fzy  # MacPorts
 
 ## Usage
 
