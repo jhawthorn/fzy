@@ -45,7 +45,7 @@ the default is `/usr/local`.
 
 Using Homebrew
 
-    sudo brew install fzy
+    brew install fzy
 
 Using MacPorts
 
