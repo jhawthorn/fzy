@@ -66,6 +66,10 @@ fzy is available in the `community` repo.
 
     sudo pacman -S fzy
 
+### pkgsrc (NetBSD and others)
+
+    sudo pkgin install fzy
+
 ## Usage
 
 fzy is a drop in replacement for [selecta](https://github.com/garybernhardt/selecta), and can be used with its [usage examples](https://github.com/garybernhardt/selecta#usage-examples).
