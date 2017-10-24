@@ -104,6 +104,11 @@ nnoremap <leader>v :call FzyCommand("ag . --silent -l -g ''", ":vs")<cr>
 nnoremap <leader>s :call FzyCommand("ag . --silent -l -g ''", ":sp")<cr>
 ```
 
+### Use with zsh
+
+[zsh-fzy](https://github.com/aperezdc/zsh-fzy) supplies some simple fzy bindings for use in 
+[zsh](http://www.zsh.org/), allowing fzy history, cd, and file navigation. 
+
 ## Sorting
 
 fzy attempts to present the best matches first. The following considerations are weighted when sorting:
