@@ -60,7 +60,7 @@ Using MacPorts
 
     sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.9/fzy-0.9-1.x86_64.rpm
 
-### Arch Linux
+### Arch Linux/MSYS2
 
 fzy is available in the `community` repo.
 
