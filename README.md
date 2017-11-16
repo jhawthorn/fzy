@@ -66,6 +66,10 @@ fzy is available in the `community` repo.
 
     sudo pacman -S fzy
 
+### MSYS2
+
+    pacman -S fzy
+
 ### pkgsrc (NetBSD and others)
 
     sudo pkgin install fzy
