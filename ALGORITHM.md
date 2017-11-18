@@ -150,11 +150,6 @@ lower scoring but shorter match is what is measured.
 
 # Possible fzy Algorithm Improvements
 
-## Multithreading
-
-Currently a single thread is used for finding matches. Using multiple threads
-would likely be faster, but require some additional complexity.
-
 ## Case sensitivity
 
 fzy currently treats all searches as case-insensitive. However, scoring prefers
