@@ -36,7 +36,7 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 
 	size_t maxwidth = tty_getwidth(tty);
 
-	if (options->show_scores) {
+	if (options->show_scores && maxwidth >= 9) {
 		if (score == SCORE_MIN) {
 			tty_printf(tty, "(     ) ");
 		} else {
