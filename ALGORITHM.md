@@ -80,7 +80,7 @@ is able to score based on the optimal match.
 ## TextMate
 
 TextMate deserves immense credit for popularizing fuzzy finding from inside
-text editors. It's influence can be found in the commant-t project, various
+text editors. It's influence can be found in the command-t project, various
 other editors use command-t for file finding, and the 't' command in the github
 web interface.
 
@@ -101,7 +101,7 @@ The wy `last_idx` is suspicious.
 ## Length of shortest first match: fzf
 https://github.com/junegunn/fzf/blob/master/src/algo/algo.go
 
-Fzy scores based on the size of the greedy shortest match. fzf finds it's match
+Fzy scores based on the size of the greedy shortest match. fzf finds its match
 by the first match appearing in the candidate string. It has some cleverness to
 find if there is a shorter match contained in that search, but it isn't
 guaranteed to find the shortest match in the string.
@@ -137,7 +137,7 @@ Example results for the search "abc"
 * <tt>x**ABXC**x</tt>
 * <tt>x**ABXC**xbc</tt>
 
-The third result here shoud have been scored the same as the first, but the
+The third result here should have been scored the same as the first, but the
 lower scoring but shorter match is what is measured.
 
 
