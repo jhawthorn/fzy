@@ -66,6 +66,12 @@ fzy is available in the `community` repo.
 
     sudo pacman -S fzy
 
+### Gentoo Linux
+
+fzy is available in the main repo.
+
+    emerge -av app-shells/fzy
+
 ### pkgsrc (NetBSD and others)
 
     sudo pkgin install fzy
