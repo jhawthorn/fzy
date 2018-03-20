@@ -280,7 +280,9 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {"\x1bOC", action_right}, /* RIGHT */
 					   {"\x1b[C", action_right}, /* RIGHT */
 					   {"\x1b[1~", action_beginning}, /* HOME */
+					   {"\x1b[H", action_beginning}, /* HOME */
 					   {"\x1b[4~", action_end}, /* END */
+					   {"\x1b[F", action_end}, /* END */
 					   {"\x1b[A", action_prev}, /* UP */
 					   {"\x1bOA", action_prev}, /* UP */
 					   {"\x1b[B", action_next}, /* DOWN */
