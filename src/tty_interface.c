@@ -238,6 +238,7 @@ void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, 
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
+	state->ambiguous_key_pending = 0;
 
 	strcpy(state->input, "");
 	strcpy(state->search, "");
@@ -260,7 +261,9 @@ typedef struct {
 
 #define KEY_CTRL(key) ((const char[]){((key) - ('@')), '\0'})
 
-static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
+static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC */
+					   {"\x7f", action_del_char},	/* DEL */
+
 					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */
 					   {KEY_CTRL('W'), action_del_word}, /* C-W */
 					   {KEY_CTRL('U'), action_del_all},  /* C-U */
@@ -295,23 +298,40 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 
 #undef KEY_CTRL
 
-static void handle_input(tty_interface_t *state, const char *s) {
+static void handle_input(tty_interface_t *state, const char *s, int handle_ambiguous_key) {
+	state->ambiguous_key_pending = 0;
+
 	char *input = state->input;
 	strcat(state->input, s);
 
-	/* See if we have matched a keybinding */
+	/* Figure out if we have completed a keybinding and whether we're in the
+	 * middle of one (both can happen, because of Esc). */
+	int found_keybinding = -1;
+	int in_middle = 0;
 	for (int i = 0; keybindings[i].key; i++) {
-		if (!strcmp(input, keybindings[i].key)) {
-			keybindings[i].action(state);
-			strcpy(input, "");
-			return;
-		}
+		if (!strcmp(input, keybindings[i].key))
+			found_keybinding = i;
+		else if (!strncmp(input, keybindings[i].key, strlen(state->input)))
+			in_middle = 1;
 	}
 
-	/* Check if we are in the middle of a keybinding */
-	for (int i = 0; keybindings[i].key; i++)
-		if (!strncmp(input, keybindings[i].key, strlen(input)))
-			return;
+	/* If we have an unambiguous keybinding, run it.  */
+	if (found_keybinding != -1 && (!in_middle || handle_ambiguous_key)) {
+		keybindings[found_keybinding].action(state);
+		strcpy(input, "");
+		return;
+	}
+
+	/* We could have a complete keybinding, or could be in the middle of one.
+	 * We'll need to wait a few milliseconds to find out. */
+	if (found_keybinding != -1 && in_middle) {
+		state->ambiguous_key_pending = 1;
+		return;
+	}
+
+	/* Wait for more if we are in the middle of a keybinding */
+	if (in_middle)
+		return;
 
 	/* No matching keybinding, add to search */
 	for (int i = 0; input[i]; i++)
@@ -328,13 +348,21 @@ int tty_interface_run(tty_interface_t *state) {
 	for (;;) {
 		do {
 			char s[2] = {tty_getchar(state->tty), '\0'};
-			handle_input(state, s);
+			handle_input(state, s, 0);
 
 			if (state->exit >= 0)
 				return state->exit;
 
 			draw(state);
-		} while (tty_input_ready(state->tty));
+		} while (tty_input_ready(state->tty, state->ambiguous_key_pending));
+
+		if (state->ambiguous_key_pending) {
+			char s[1] = "";
+			handle_input(state, s, 1);
+
+			if (state->exit >= 0)
+				return state->exit;
+		}
 
 		update_state(state);
 	}
