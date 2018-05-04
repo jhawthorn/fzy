@@ -90,6 +90,7 @@ char tty_getchar(tty_t *tty) {
 int tty_input_ready(tty_t *tty) {
 	fd_set readfs;
 	struct timeval tv = {0, 0};
+	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
 	select(tty->fdin + 1, &readfs, NULL, NULL, &tv);
 	return FD_ISSET(tty->fdin, &readfs);
