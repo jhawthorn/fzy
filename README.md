@@ -41,7 +41,27 @@ Rather than clearing the screen, fzy displays its interface directly below the c
 The `PREFIX` environment variable can be used to specify the install location,
 the default is `/usr/local`.
 
-### MacOS
+### Arch Linux/MSYS2
+
+fzy is available in the `community` repo.
+
+    sudo pacman -S fzy
+
+### Fedora/Redhat/CentOS
+
+    sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.9/fzy-0.9-1.x86_64.rpm
+
+### FreeBSD
+
+    pkg install fzy
+
+### Gentoo Linux
+
+fzy is available in the main repo.
+
+    emerge -av app-shells/fzy
+
+### macOS
 
 Using Homebrew
 
@@ -55,22 +75,6 @@ Using MacPorts
 
     wget https://github.com/jhawthorn/fzy/releases/download/0.9/fzy_0.9-1_amd64.deb
     sudo dpkg -i fzy_0.9-1_amd64.deb
-
-### Fedora/Redhat/CentOS
-
-    sudo yum install https://github.com/jhawthorn/fzy/releases/download/0.9/fzy-0.9-1.x86_64.rpm
-
-### Arch Linux/MSYS2
-
-fzy is available in the `community` repo.
-
-    sudo pacman -S fzy
-
-### Gentoo Linux
-
-fzy is available in the main repo.
-
-    emerge -av app-shells/fzy
 
 ### pkgsrc (NetBSD and others)
 
