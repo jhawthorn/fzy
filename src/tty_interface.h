@@ -23,5 +23,6 @@ typedef struct {
 
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options);
 int tty_interface_run(tty_interface_t *state);
+int tty_interface_run_early(tty_interface_t *state);
 
 #endif
