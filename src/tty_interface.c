@@ -270,8 +270,8 @@ static const keybinding_t keybindings[] = {{"\x7f", action_del_char},	/* DEL */
 					   {KEY_CTRL('M'), action_emit},	 /* CR */
 					   {KEY_CTRL('P'), action_prev},	 /* C-P */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
-					   {KEY_CTRL('K'), action_prev},	 /* C-J */
-					   {KEY_CTRL('J'), action_next},	 /* C-K */
+					   {KEY_CTRL('K'), action_prev},	 /* C-K */
+					   {KEY_CTRL('J'), action_next},	 /* C-J */
 					   {KEY_CTRL('A'), action_beginning},    /* C-A */
 					   {KEY_CTRL('E'), action_end},		 /* C-E */
 
