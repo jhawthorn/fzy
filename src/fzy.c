@@ -20,16 +20,17 @@ int main(int argc, char *argv[]) {
 
 	choices_t choices;
 	choices_init(&choices, &options);
-	choices_fread(&choices, stdin);
 
 	if (options.benchmark) {
 		if (!options.filter) {
 			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
 			exit(EXIT_FAILURE);
 		}
+		choices_fread(&choices, stdin);
 		for (int i = 0; i < options.benchmark; i++)
 			choices_search(&choices, options.filter);
 	} else if (options.filter) {
+		choices_fread(&choices, stdin);
 		choices_search(&choices, options.filter);
 		for (size_t i = 0; i < choices_available(&choices); i++) {
 			if (options.show_scores)
@@ -40,6 +41,8 @@ int main(int argc, char *argv[]) {
 		/* interactive */
 		tty_t tty;
 		tty_init(&tty, options.tty_filename);
+
+		choices_fread(&choices, stdin);
 
 		if (options.num_lines > choices.size)
 			options.num_lines = choices.size;
