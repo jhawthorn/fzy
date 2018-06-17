@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "match.h"
 #include "tty.h"
@@ -41,15 +42,20 @@ int main(int argc, char *argv[]) {
 		tty_t tty;
 		tty_init(&tty, options.tty_filename);
 
+		tty_interface_t tty_interface;
+		tty_interface_init(&tty_interface, &tty, &choices, &options);
+		ret = tty_interface_run_early(&tty_interface);
+
 		if (options.num_lines > choices.size)
 			options.num_lines = choices.size;
 
 		if (options.num_lines + 1 > tty_getheight(&tty))
 			options.num_lines = tty_getheight(&tty) - 1;
 
-		tty_interface_t tty_interface;
-		tty_interface_init(&tty_interface, &tty, &choices, &options);
-		ret = tty_interface_run(&tty_interface);
+		if (ret < 0) {
+			tty_init_termios(&tty);
+			ret = tty_interface_run(&tty_interface);
+		}
 	}
 
 	choices_destroy(&choices);

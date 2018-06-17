@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "match.h"
 #include "tty_interface.h"
@@ -9,6 +10,9 @@
 
 static void clear(tty_interface_t *state) {
 	tty_t *tty = state->tty;
+
+	if (!tty->ready)
+		return;
 
 	tty_setcol(tty, 0);
 	size_t line = 0;
@@ -69,6 +73,9 @@ static void draw(tty_interface_t *state) {
 	tty_t *tty = state->tty;
 	choices_t *choices = state->choices;
 	options_t *options = state->options;
+
+	if (!tty->ready)
+		return;
 
 	unsigned int num_lines = options->num_lines;
 	size_t start = 0;
@@ -337,6 +344,23 @@ int tty_interface_run(tty_interface_t *state) {
 		} while (tty_input_ready(state->tty));
 
 		update_state(state);
+	}
+
+	return state->exit;
+}
+
+/*
+ * Drain the terminal input once, converting linefeeds ('\n') back to carriage
+ * returns ('\r'); This function is called before the conversion from CR to LF
+ * is disabled in the terminal.
+ */
+int tty_interface_run_early(tty_interface_t *state) {
+	while (state->exit < 0 && tty_input_ready(state->tty)) {
+		char s[2] = {tty_getchar(state->tty), '\0'};
+
+		if (s[0] == '\n')
+			s[0] = '\r';
+		handle_input(state, s);
 	}
 
 	return state->exit;

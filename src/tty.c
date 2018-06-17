@@ -21,6 +21,7 @@ void tty_close(tty_t *tty) {
 
 void tty_init(tty_t *tty, const char *tty_filename) {
 	tty->fdin = open(tty_filename, O_RDONLY);
+	tty->ready = false;
 	if (tty->fdin < 0) {
 		perror("Failed to open tty");
 		exit(EXIT_FAILURE);
@@ -42,6 +43,12 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 		exit(EXIT_FAILURE);
 	}
 
+	tty_getwinsz(tty);
+
+	tty_setnormal(tty);
+}
+
+void tty_init_termios(tty_t *tty) {
 	struct termios new_termios = tty->original_termios;
 
 	/*
@@ -57,9 +64,7 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 	if (tcsetattr(tty->fdin, TCSANOW, &new_termios))
 		perror("tcsetattr");
 
-	tty_getwinsz(tty);
-
-	tty_setnormal(tty);
+	tty->ready = true;
 }
 
 void tty_getwinsz(tty_t *tty) {
