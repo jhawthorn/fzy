@@ -21,7 +21,7 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 
 	if (a->score == b->score) {
 		/* To ensure a stable sort, we must also sort by the string
-		 * pointers. We can do this since we know all the stings are
+		 * pointers. We can do this since we know all the strings are
 		 * from a contiguous memory segment (buffer in choices_t).
 		 */
 		if (a->str < b->str) {
