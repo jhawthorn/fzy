@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <limits.h>
+#include <unistd.h>
 
 #include "match.h"
 #include "tty.h"
@@ -39,10 +40,15 @@ int main(int argc, char *argv[]) {
 		}
 	} else {
 		/* interactive */
+
+		if (isatty(STDIN_FILENO))
+			choices_fread(&choices, stdin);
+
 		tty_t tty;
 		tty_init(&tty, options.tty_filename);
 
-		choices_fread(&choices, stdin);
+		if (!isatty(STDIN_FILENO))
+			choices_fread(&choices, stdin);
 
 		if (options.num_lines > choices.size)
 			options.num_lines = choices.size;
