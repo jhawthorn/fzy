@@ -320,6 +320,13 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "> foo\nfoo"
   end
 
+  # https://github.com/jhawthorn/fzy/issues/81
+  def test_slow_stdin_fast_user
+    @tty = TTYtest.new_terminal(%{(echo aa; echo bc; echo bd; sleep 0.5) | #{FZY_PATH}})
+    @tty.send_keys("b\r")
+    @tty.assert_matches "bc"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
