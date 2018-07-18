@@ -46,7 +46,11 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 	}
 
 	if (selected)
+#ifdef TTY_SELECTION_UNDERLINE
+		tty_setunderline(tty);
+#else
 		tty_setinvert(tty);
+#endif
 
 	for (size_t i = 0, p = 0; choice[i] != '\0'; i++) {
 		if (i + 1 < maxwidth) {

@@ -110,6 +110,10 @@ void tty_setinvert(tty_t *tty) {
 	tty_sgr(tty, 7);
 }
 
+void tty_setunderline(tty_t *tty) {
+	tty_sgr(tty, 4);
+}
+
 void tty_setnormal(tty_t *tty) {
 	tty_sgr(tty, 0);
 	tty->fgcolor = 9;
