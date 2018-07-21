@@ -21,6 +21,7 @@ int tty_input_ready(tty_t *tty);
 
 void tty_setfg(tty_t *tty, int fg);
 void tty_setinvert(tty_t *tty);
+void tty_setunderline(tty_t *tty);
 void tty_setnormal(tty_t *tty);
 
 #define TTY_COLOR_BLACK 0
