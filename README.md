@@ -3,7 +3,7 @@
 **fzy** is a fast, simple fuzzy text selector for the terminal with an advanced [scoring
 algorithm](#sorting).
 
-![](http://i.hawth.ca/u/fzy2.gif)
+![](http://i.hawth.ca/u/fzy_animated_demo.svg)
 
 <blockquote>
 It's been kind of life-changing.
