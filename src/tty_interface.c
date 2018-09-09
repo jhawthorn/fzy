@@ -7,6 +7,14 @@
 #include "tty_interface.h"
 #include "../config.h"
 
+static int isprint_unicode(char c){
+	return isprint(c) || c & (1<<7);
+}
+
+static int is_boundary(char c) {
+	return ~c & (1<<7) || c & (1<<6);
+}
+
 static void clear(tty_interface_t *state) {
 	tty_t *tty = state->tty;
 
@@ -99,7 +107,10 @@ static void draw(tty_interface_t *state) {
 		tty_moveup(tty, num_lines);
 	}
 
-	tty_setcol(tty, strlen(options->prompt) + state->cursor);
+	tty_setcol(tty, 0);
+	fputs(options->prompt, tty->fout);
+	for(size_t i=0; i<state->cursor; i++)
+		fputc(state->search[i], tty->fout);
 	tty_flush(tty);
 }
 
@@ -142,9 +153,13 @@ static void action_del_char(tty_interface_t *state) {
 		if(state->cursor == 0) {
 			return;
 		}
+		size_t original_cursor = state->cursor;
 
 		state->cursor--;
-		memmove(&state->search[state->cursor], &state->search[state->cursor + 1], length - state->cursor);
+		while(!is_boundary(state->search[state->cursor]) && state->cursor)
+			state->cursor--;
+
+		memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
 	}
 }
 
@@ -182,13 +197,19 @@ static void action_next(tty_interface_t *state) {
 }
 
 static void action_left(tty_interface_t *state) {
-	if (state->cursor > 0)
+	if (state->cursor > 0){
 		state->cursor--;
+		while(!is_boundary(state->search[state->cursor]) && state->cursor)
+			state->cursor--;
+	}
 }
 
 static void action_right(tty_interface_t *state) {
-	if (state->cursor < strlen(state->search))
+	if (state->cursor < strlen(state->search)){
 		state->cursor++;
+		while(!is_boundary(state->search[state->cursor]))
+			state->cursor++;
+	}
 }
 
 static void action_beginning(tty_interface_t *state) {
@@ -319,7 +340,7 @@ static void handle_input(tty_interface_t *state, const char *s) {
 
 	/* No matching keybinding, add to search */
 	for (int i = 0; input[i]; i++)
-		if (isprint(input[i]))
+		if (isprint_unicode(input[i]))
 			append_search(state, input[i]);
 
 	/* We have processed the input, so clear it */
