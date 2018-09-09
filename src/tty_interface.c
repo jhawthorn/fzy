@@ -136,6 +136,13 @@ static void action_emit(tty_interface_t *state) {
 	state->exit = EXIT_SUCCESS;
 }
 
+static void action_exit(tty_interface_t *state) {
+	clear(state);
+	tty_close(state->tty);
+
+	state->exit = EXIT_FAILURE;
+}
+
 static void action_del_char(tty_interface_t *state) {
 	if (*state->search) {
 		size_t length = strlen(state->search);
@@ -145,6 +152,8 @@ static void action_del_char(tty_interface_t *state) {
 
 		state->cursor--;
 		memmove(&state->search[state->cursor], &state->search[state->cursor + 1], length - state->cursor);
+	} else {
+		action_exit(state);
 	}
 }
 
@@ -218,13 +227,6 @@ static void action_autocomplete(tty_interface_t *state) {
 		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
 		state->cursor = strlen(state->search);
 	}
-}
-
-static void action_exit(tty_interface_t *state) {
-	clear(state);
-	tty_close(state->tty);
-
-	state->exit = EXIT_FAILURE;
 }
 
 static void append_search(tty_interface_t *state, char ch) {
