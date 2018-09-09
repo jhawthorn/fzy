@@ -7,12 +7,12 @@
 #include "tty_interface.h"
 #include "../config.h"
 
-static int isprint_unicode(char c){
-	return isprint(c) || c & (1<<7);
+static int isprint_unicode(char c) {
+	return isprint(c) || c & (1 << 7);
 }
 
 static int is_boundary(char c) {
-	return ~c & (1<<7) || c & (1<<6);
+	return ~c & (1 << 7) || c & (1 << 6);
 }
 
 static void clear(tty_interface_t *state) {
@@ -103,7 +103,7 @@ static void draw(tty_interface_t *state) {
 
 	tty_setcol(tty, 0);
 	fputs(options->prompt, tty->fout);
-	for(size_t i=0; i<state->cursor; i++)
+	for (size_t i = 0; i < state->cursor; i++)
 		fputc(state->search[i], tty->fout);
 	tty_flush(tty);
 }
@@ -144,13 +144,13 @@ static void action_emit(tty_interface_t *state) {
 static void action_del_char(tty_interface_t *state) {
 	if (*state->search) {
 		size_t length = strlen(state->search);
-		if(state->cursor == 0) {
+		if (state->cursor == 0) {
 			return;
 		}
 		size_t original_cursor = state->cursor;
 
 		state->cursor--;
-		while(!is_boundary(state->search[state->cursor]) && state->cursor)
+		while (!is_boundary(state->search[state->cursor]) && state->cursor)
 			state->cursor--;
 
 		memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
@@ -182,7 +182,7 @@ static void action_prev(tty_interface_t *state) {
 }
 
 static void action_ignore(tty_interface_t *state) {
-	(void) state;
+	(void)state;
 }
 
 static void action_next(tty_interface_t *state) {
@@ -191,17 +191,17 @@ static void action_next(tty_interface_t *state) {
 }
 
 static void action_left(tty_interface_t *state) {
-	if (state->cursor > 0){
+	if (state->cursor > 0) {
 		state->cursor--;
-		while(!is_boundary(state->search[state->cursor]) && state->cursor)
+		while (!is_boundary(state->search[state->cursor]) && state->cursor)
 			state->cursor--;
 	}
 }
 
 static void action_right(tty_interface_t *state) {
-	if (state->cursor < strlen(state->search)){
+	if (state->cursor < strlen(state->search)) {
 		state->cursor++;
-		while(!is_boundary(state->search[state->cursor]))
+		while (!is_boundary(state->search[state->cursor]))
 			state->cursor++;
 	}
 }
@@ -216,13 +216,13 @@ static void action_end(tty_interface_t *state) {
 
 static void action_pageup(tty_interface_t *state) {
 	update_state(state);
-	for(size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
+	for (size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
 		choices_prev(state->choices);
 }
 
 static void action_pagedown(tty_interface_t *state) {
 	update_state(state);
-	for(size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available-1; i++)
+	for (size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available - 1; i++)
 		choices_next(state->choices);
 }
 
