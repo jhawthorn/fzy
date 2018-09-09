@@ -119,6 +119,14 @@ void tty_setnormal(tty_t *tty) {
 	tty->fgcolor = 9;
 }
 
+void tty_setnowrap(tty_t *tty) {
+	tty_printf(tty, "%c%c?7l", 0x1b, '[');
+}
+
+void tty_setwrap(tty_t *tty) {
+	tty_printf(tty, "%c%c?7h", 0x1b, '[');
+}
+
 void tty_newline(tty_t *tty) {
 	tty_printf(tty, "%c%cK\n", 0x1b, '[');
 }
