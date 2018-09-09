@@ -6,7 +6,7 @@ class FzyTest < Minitest::Test
   FZY_PATH = File.expand_path('../../../fzy', __FILE__)
 
   def test_empty_list
-    @tty = TTYtest.new_terminal(%{echo placeholder;echo -n "" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[], before: "placeholder")
     @tty.assert_cursor_position(y: 1, x: 2)
     @tty.assert_matches <<~TTY
       placeholder
@@ -36,7 +36,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_one_item
-    @tty = TTYtest.new_terminal(%{echo placeholder;echo -n "test" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[test], before: "placeholder")
     @tty.assert_matches <<~TTY
       placeholder
       >
@@ -68,7 +68,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_two_items
-    @tty = TTYtest.new_terminal(%{echo placeholder;echo -n "test\nfoo" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[test foo], before: "placeholder")
     @tty.assert_cursor_position(y: 1, x: 2)
     @tty.assert_matches <<~TTY
       placeholder
@@ -105,7 +105,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_editing
-    @tty = TTYtest.new_terminal(%{echo placeholder;echo -n "test\nfoo" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[test foo], before: "placeholder")
     @tty.assert_cursor_position(y: 1, x: 2)
     @tty.assert_matches <<~TTY
       placeholder
@@ -146,7 +146,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_ctrl_d
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
 
     @tty.send_keys('foo')
@@ -158,7 +158,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_ctrl_c
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
 
     @tty.send_keys('foo')
@@ -170,25 +170,25 @@ class FzyTest < Minitest::Test
   end
 
   def test_down_arrow
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
     @tty.send_keys("\e[A\r")
     @tty.assert_matches "bar"
 
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
     @tty.send_keys("\eOA\r")
     @tty.assert_matches "bar"
   end
 
   def test_up_arrow
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
     @tty.send_keys("\e[A")   # first down
     @tty.send_keys("\e[B\r") # and back up
     @tty.assert_matches "foo"
 
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
     @tty.send_keys("\eOA")   # first down
     @tty.send_keys("\e[B\r") # and back up
@@ -196,45 +196,48 @@ class FzyTest < Minitest::Test
   end
 
   def test_lines
-    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH}})
+    input10 = (1..10).map(&:to_s)
+    input20 = (1..20).map(&:to_s)
+
+    @tty = interactive_fzy(input: input10)
     @tty.assert_matches ">\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
 
-    @tty = TTYtest.new_terminal(%{seq 20 | #{FZY_PATH}})
+    @tty = interactive_fzy(input: input20)
     @tty.assert_matches ">\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
 
-    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH} -l 5})
+    @tty = interactive_fzy(input: input10, args: "-l 5")
     @tty.assert_matches ">\n1\n2\n3\n4\n5"
 
-    @tty = TTYtest.new_terminal(%{seq 10 | #{FZY_PATH} --lines=5})
+    @tty = interactive_fzy(input: input10, args: "--lines=5")
     @tty.assert_matches ">\n1\n2\n3\n4\n5"
   end
 
   def test_prompt
-    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH}})
+    @tty = interactive_fzy
     @tty.send_keys("foo")
     @tty.assert_matches '> foo'
 
-    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH} -p 'C:\\'})
+    @tty = interactive_fzy(args: "-p 'C:\\'")
     @tty.send_keys("foo")
     @tty.assert_matches 'C:\foo'
 
-    @tty = TTYtest.new_terminal(%{echo -n "" | #{FZY_PATH} --prompt="foo bar "})
+    @tty = interactive_fzy(args: "--prompt=\"foo bar \"")
     @tty.send_keys("baz")
     @tty.assert_matches "foo bar baz"
   end
 
   def test_show_scores
     expected_score = '(  inf)'
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -s})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-s")
     @tty.send_keys('foo')
     @tty.assert_matches "> foo\n#{expected_score} foo"
 
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} --show-scores})
+    @tty = interactive_fzy(input: %w[foo bar], args: "--show-scores")
     @tty.send_keys('foo')
     @tty.assert_matches "> foo\n#{expected_score} foo"
 
     expected_score = '( 0.89)'
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -s})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-s")
     @tty.send_keys('f')
     @tty.assert_matches "> f\n#{expected_score} foo"
   end
@@ -252,7 +255,7 @@ class FzyTest < Minitest::Test
   end
 
   def test_worker_count
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -j1})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-j1")
     @tty.send_keys('foo')
     @tty.assert_matches "> foo\nfoo"
 
@@ -266,24 +269,24 @@ class FzyTest < Minitest::Test
   end
 
   def test_initial_query
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -q fo})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-q fo")
     @tty.assert_matches "> fo\nfoo"
     @tty.send_keys("o")
     @tty.assert_matches "> foo\nfoo"
     @tty.send_keys("o")
     @tty.assert_matches "> fooo"
 
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH} -q asdf})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-q asdf")
     @tty.assert_matches "> asdf"
   end
 
   def test_non_interactive
-    @tty = TTYtest.new_terminal(%{echo before; echo -n "foo\nbar" | #{FZY_PATH} -e foo; echo after})
+    @tty = interactive_fzy(input: %w[foo bar], args: "-e foo", before: "before", after: "after")
     @tty.assert_matches "before\nfoo\nafter"
   end
 
   def test_moving_text_cursor
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}; echo after})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.send_keys("br")
     @tty.assert_matches "> br\nbar"
     @tty.assert_cursor_position(y: 0, x: 4)
@@ -314,7 +317,7 @@ class FzyTest < Minitest::Test
   # https://github.com/jhawthorn/fzy/issues/42
   # https://cirw.in/blog/bracketed-paste
   def test_bracketed_paste_characters
-    @tty = TTYtest.new_terminal(%{echo -n "foo\nbar" | #{FZY_PATH}})
+    @tty = interactive_fzy(input: %w[foo bar])
     @tty.assert_matches ">\nfoo\nbar"
     @tty.send_keys("\e[200~foo\e[201~")
     @tty.assert_matches "> foo\nfoo"
@@ -341,5 +344,16 @@ Usage: fzy [OPTION]...
  -h, --help     Display this help and exit
  -v, --version  Output version information and exit
 TTY
+  end
+
+  private
+
+  def interactive_fzy(input: [], before: nil, after: nil, args: "")
+    cmd = []
+    cmd << %{echo "#{before}"} if before
+    cmd << %{echo -n "#{input.join("\\n")}" | #{FZY_PATH} #{args}}
+    cmd << %{echo "#{after}"} if after
+    cmd = cmd.join("; ")
+    TTYtest.new_terminal(cmd)
   end
 end
