@@ -22,7 +22,7 @@ test/fzytest: $(TESTOBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -Isrc -o $@ $(TESTOBJECTS) $(LIBS)
 
 acceptance: fzy
-	cd test/acceptance && bundle && bundle exec ruby acceptance_test.rb
+	cd test/acceptance && bundle --quiet && bundle exec ruby acceptance_test.rb
 
 test: check
 check: test/fzytest
