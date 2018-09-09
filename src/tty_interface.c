@@ -42,15 +42,12 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 
 	score_t score = match_positions(search, choice, &positions[0]);
 
-	size_t maxwidth = tty_getwidth(tty);
-
-	if (options->show_scores && maxwidth >= 9) {
+	if (options->show_scores) {
 		if (score == SCORE_MIN) {
 			tty_printf(tty, "(     ) ");
 		} else {
 			tty_printf(tty, "(%5.2f) ", score);
 		}
-		maxwidth -= 8;
 	}
 
 	if (selected)
@@ -60,20 +57,17 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		tty_setinvert(tty);
 #endif
 
+	tty_setnowrap(tty);
 	for (size_t i = 0, p = 0; choice[i] != '\0'; i++) {
-		if (i + 1 < maxwidth) {
-			if (positions[p] == i) {
-				tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
-				p++;
-			} else {
-				tty_setfg(tty, TTY_COLOR_NORMAL);
-			}
-			tty_printf(tty, "%c", choice[i]);
+		if (positions[p] == i) {
+			tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
+			p++;
 		} else {
-			tty_printf(tty, "$");
-			break;
+			tty_setfg(tty, TTY_COLOR_NORMAL);
 		}
+		tty_printf(tty, "%c", choice[i]);
 	}
+	tty_setwrap(tty);
 	tty_setnormal(tty);
 }
 

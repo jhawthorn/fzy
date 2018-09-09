@@ -430,6 +430,18 @@ class FzyTest < Minitest::Test
     @tty.assert_cursor_position(y: 0, x: 8)
   end
 
+  def test_long_strings
+    ascii = "LongStringOfText" * 6
+    unicode = "ＬｏｎｇＳｔｒｉｎｇＯｆＴｅｘｔ" * 3
+
+    @tty = interactive_fzy(input: [ascii, unicode])
+    @tty.assert_matches <<~TTY
+      >
+      LongStringOfTextLongStringOfTextLongStringOfTextLongStringOfTextLongStringOfText
+      ＬｏｎｇＳｔｒｉｎｇＯｆＴｅｘｔＬｏｎｇＳｔｒｉｎｇＯｆＴｅｘｔＬｏｎｇＳｔｒｉ
+    TTY
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
