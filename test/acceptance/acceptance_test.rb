@@ -328,7 +328,11 @@ class FzyTest < Minitest::Test
 
   # https://github.com/jhawthorn/fzy/issues/81
   def test_slow_stdin_fast_user
-    @tty = TTYtest.new_terminal(%{(echo aa; echo bc; echo bd; sleep 0.5) | #{FZY_PATH}})
+    @tty = TTYtest.new_terminal(%{(sleep 0.5; echo aa; echo bc; echo bd) | #{FZY_PATH}})
+
+    # Before input has all come in, but wait for fzy to at least start
+    sleep 0.1
+
     @tty.send_keys("b\r")
     @tty.assert_matches "bc"
   end
@@ -463,7 +467,7 @@ TTY
   def interactive_fzy(input: [], before: nil, after: nil, args: "")
     cmd = []
     cmd << %{echo "#{before}"} if before
-    cmd << %{echo -n "#{input.join("\\n")}" | #{FZY_PATH} #{args}}
+    cmd << %{printf "#{input.join("\\n")}" | #{FZY_PATH} #{args}}
     cmd << %{echo "#{after}"} if after
     cmd = cmd.join("; ")
     TTYtest.new_terminal(cmd)
