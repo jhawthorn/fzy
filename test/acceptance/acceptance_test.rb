@@ -5,6 +5,9 @@ require 'ttytest'
 class FzyTest < Minitest::Test
   FZY_PATH = File.expand_path('../../../fzy', __FILE__)
 
+  LEFT =  "\e[D"
+  RIGHT = "\e[C"
+
   def test_empty_list
     @tty = interactive_fzy(input: %w[], before: "placeholder")
     @tty.assert_cursor_position(y: 1, x: 2)
@@ -291,7 +294,7 @@ class FzyTest < Minitest::Test
     @tty.assert_matches "> br\nbar"
     @tty.assert_cursor_position(y: 0, x: 4)
 
-    @tty.send_keys("\e[D") # left
+    @tty.send_keys(LEFT)
     @tty.assert_cursor_position(y: 0, x: 3)
     @tty.assert_matches "> br\nbar"
     @tty.send_keys("a")
@@ -328,6 +331,103 @@ class FzyTest < Minitest::Test
     @tty = TTYtest.new_terminal(%{(echo aa; echo bc; echo bd; sleep 0.5) | #{FZY_PATH}})
     @tty.send_keys("b\r")
     @tty.assert_matches "bc"
+  end
+
+  def test_unicode
+    @tty = interactive_fzy(input: %w[English Français 日本語])
+    @tty.assert_matches <<~TTY
+      >
+      English
+      Français
+      日本語
+    TTY
+    @tty.assert_cursor_position(y: 0, x: 2)
+
+    @tty.send_keys("ç")
+    @tty.assert_matches <<~TTY
+      > ç
+      Français
+    TTY
+    @tty.assert_cursor_position(y: 0, x: 3)
+
+    @tty.send_keys("\r")
+    @tty.assert_matches "Français"
+  end
+
+  def test_unicode_backspace
+    @tty = interactive_fzy
+    @tty.send_keys "Français"
+    @tty.assert_matches "> Français"
+    @tty.assert_cursor_position(y: 0, x: 10)
+
+    @tty.send_keys(ctrl('H') * 3)
+    @tty.assert_matches "> Franç"
+    @tty.assert_cursor_position(y: 0, x: 7)
+
+    @tty.send_keys(ctrl('H'))
+    @tty.assert_matches "> Fran"
+    @tty.assert_cursor_position(y: 0, x: 6)
+
+    @tty.send_keys('ce')
+    @tty.assert_matches "> France"
+
+    @tty = interactive_fzy
+    @tty.send_keys "日本語"
+    @tty.assert_matches "> 日本語"
+    @tty.send_keys(ctrl('H'))
+    @tty.assert_matches "> 日本"
+    @tty.send_keys(ctrl('H'))
+    @tty.assert_matches "> 日"
+    @tty.send_keys(ctrl('H'))
+    @tty.assert_matches "> "
+    @tty.assert_cursor_position(y: 0, x: 2)
+  end
+
+  def test_unicode_delete_word
+    @tty = interactive_fzy
+    @tty.send_keys "Je parle Français"
+    @tty.assert_matches "> Je parle Français"
+    @tty.assert_cursor_position(y: 0, x: 19)
+
+    @tty.send_keys(ctrl('W'))
+    @tty.assert_matches "> Je parle"
+    @tty.assert_cursor_position(y: 0, x: 11)
+
+    @tty = interactive_fzy
+    @tty.send_keys "日本語"
+    @tty.assert_matches "> 日本語"
+    @tty.send_keys(ctrl('W'))
+    @tty.assert_matches "> "
+    @tty.assert_cursor_position(y: 0, x: 2)
+  end
+
+  def test_unicode_cursor_movement
+    @tty = interactive_fzy
+    @tty.send_keys "Français"
+    @tty.assert_cursor_position(y: 0, x: 10)
+
+    @tty.send_keys(LEFT*5)
+    @tty.assert_cursor_position(y: 0, x: 5)
+
+    @tty.send_keys(RIGHT*3)
+    @tty.assert_cursor_position(y: 0, x: 8)
+
+    @tty = interactive_fzy
+    @tty.send_keys "日本語"
+    @tty.assert_matches "> 日本語"
+    @tty.assert_cursor_position(y: 0, x: 8)
+    @tty.send_keys(LEFT)
+    @tty.assert_cursor_position(y: 0, x: 6)
+    @tty.send_keys(LEFT)
+    @tty.assert_cursor_position(y: 0, x: 4)
+    @tty.send_keys(LEFT)
+    @tty.assert_cursor_position(y: 0, x: 2)
+    @tty.send_keys(LEFT)
+    @tty.assert_cursor_position(y: 0, x: 2)
+    @tty.send_keys(RIGHT*3)
+    @tty.assert_cursor_position(y: 0, x: 8)
+    @tty.send_keys(RIGHT)
+    @tty.assert_cursor_position(y: 0, x: 8)
   end
 
   def test_help
