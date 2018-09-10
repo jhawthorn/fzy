@@ -9,6 +9,8 @@
 
 #include "tty.h"
 
+#include "../config.h"
+
 void tty_reset(tty_t *tty) {
 	tcsetattr(tty->fdin, TCSANOW, &tty->original_termios);
 }
@@ -89,7 +91,7 @@ char tty_getchar(tty_t *tty) {
 
 int tty_input_ready(tty_t *tty, int pending) {
 	fd_set readfs;
-	struct timeval tv = {0, pending ? 500000 : 0};
+	struct timeval tv = {0, pending ? (KEYTIMEOUT * 1000) : 0};
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
 	select(tty->fdin + 1, &readfs, NULL, NULL, &tv);

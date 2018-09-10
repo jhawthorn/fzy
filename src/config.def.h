@@ -8,3 +8,6 @@
 #define SCORE_MATCH_WORD 0.8
 #define SCORE_MATCH_CAPITAL 0.7
 #define SCORE_MATCH_DOT 0.6
+
+/* Time (in ms) to wait for additional bytes of an escape sequence */
+#define KEYTIMEOUT 25
