@@ -91,10 +91,12 @@ char tty_getchar(tty_t *tty) {
 
 int tty_input_ready(tty_t *tty, unsigned long timeout) {
 	fd_set readfs;
-	struct timeval tv = {timeout / 1000, (timeout % 1000) * 1000};
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
-	select(tty->fdin + 1, &readfs, NULL, NULL, &tv);
+
+	struct timespec ts = {timeout / 1000, (timeout % 1000) * 1000000};
+
+	pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, NULL);
 	return FD_ISSET(tty->fdin, &readfs);
 }
 
