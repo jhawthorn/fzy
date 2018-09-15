@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <sys/select.h>
+#include <signal.h>
 
 #include "tty.h"
 
@@ -19,6 +20,10 @@ void tty_close(tty_t *tty) {
 	tty_reset(tty);
 	fclose(tty->fout);
 	close(tty->fdin);
+}
+
+static void handle_sigwinch(int sig){
+	(void)sig;
 }
 
 void tty_init(tty_t *tty, const char *tty_filename) {
@@ -62,6 +67,8 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 	tty_getwinsz(tty);
 
 	tty_setnormal(tty);
+
+	signal(SIGWINCH, handle_sigwinch);
 }
 
 void tty_getwinsz(tty_t *tty) {
@@ -89,14 +96,19 @@ char tty_getchar(tty_t *tty) {
 	}
 }
 
-int tty_input_ready(tty_t *tty, unsigned long timeout) {
+int tty_input_ready(tty_t *tty, unsigned long timeout, int return_on_signal) {
 	fd_set readfs;
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
 
 	struct timespec ts = {timeout / 1000, (timeout % 1000) * 1000000};
 
-	int err = pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, NULL);
+	sigset_t mask;
+	sigemptyset(&mask);
+	if (!return_on_signal)
+		sigaddset(&mask, SIGWINCH);
+
+	int err = pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, &mask);
 
 	if (err < 0) {
 		return 0;
