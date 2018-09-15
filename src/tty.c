@@ -96,8 +96,13 @@ int tty_input_ready(tty_t *tty, unsigned long timeout) {
 
 	struct timespec ts = {timeout / 1000, (timeout % 1000) * 1000000};
 
-	pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, NULL);
-	return FD_ISSET(tty->fdin, &readfs);
+	int err = pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, NULL);
+
+	if (err < 0) {
+		return 0;
+	} else {
+		return FD_ISSET(tty->fdin, &readfs);
+	}
 }
 
 static void tty_sgr(tty_t *tty, int code) {
