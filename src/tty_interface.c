@@ -366,6 +366,11 @@ int tty_interface_run(tty_interface_t *state) {
 
 	for (;;) {
 		do {
+			while(!tty_input_ready(state->tty, -1, 1)) {
+				/* We received a signal (probably WINCH) */
+				draw(state);
+			}
+
 			char s[2] = {tty_getchar(state->tty), '\0'};
 			handle_input(state, s, 0);
 
