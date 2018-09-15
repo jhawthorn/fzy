@@ -373,7 +373,7 @@ int tty_interface_run(tty_interface_t *state) {
 				return state->exit;
 
 			draw(state);
-		} while (tty_input_ready(state->tty, state->ambiguous_key_pending));
+		} while (tty_input_ready(state->tty, state->ambiguous_key_pending ? KEYTIMEOUT : 0));
 
 		if (state->ambiguous_key_pending) {
 			char s[1] = "";

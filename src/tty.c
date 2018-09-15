@@ -89,9 +89,9 @@ char tty_getchar(tty_t *tty) {
 	}
 }
 
-int tty_input_ready(tty_t *tty, int pending) {
+int tty_input_ready(tty_t *tty, unsigned long timeout) {
 	fd_set readfs;
-	struct timeval tv = {0, pending ? (KEYTIMEOUT * 1000) : 0};
+	struct timeval tv = {timeout / 1000, (timeout % 1000) * 1000};
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
 	select(tty->fdin + 1, &readfs, NULL, NULL, &tv);
