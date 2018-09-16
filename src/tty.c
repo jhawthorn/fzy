@@ -7,6 +7,7 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <signal.h>
+#include <errno.h>
 
 #include "tty.h"
 
@@ -117,7 +118,12 @@ int tty_input_ready(tty_t *tty, long int timeout, int return_on_signal) {
 			return_on_signal ? NULL : &mask);
 
 	if (err < 0) {
-		return 0;
+		if (errno == EINTR) {
+			return 0;
+		} else {
+			perror("select");
+			exit(EXIT_FAILURE);
+		}
 	} else {
 		return FD_ISSET(tty->fdin, &readfs);
 	}
