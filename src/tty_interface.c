@@ -142,19 +142,17 @@ static void action_emit(tty_interface_t *state) {
 }
 
 static void action_del_char(tty_interface_t *state) {
-	if (*state->search) {
-		size_t length = strlen(state->search);
-		if (state->cursor == 0) {
-			return;
-		}
-		size_t original_cursor = state->cursor;
-
-		state->cursor--;
-		while (!is_boundary(state->search[state->cursor]) && state->cursor)
-			state->cursor--;
-
-		memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
+	size_t length = strlen(state->search);
+	if (state->cursor == 0) {
+		return;
 	}
+	size_t original_cursor = state->cursor;
+
+	state->cursor--;
+	while (!is_boundary(state->search[state->cursor]) && state->cursor)
+		state->cursor--;
+
+	memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
 }
 
 static void action_del_word(tty_interface_t *state) {
