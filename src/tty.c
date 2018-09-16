@@ -96,7 +96,7 @@ char tty_getchar(tty_t *tty) {
 	}
 }
 
-int tty_input_ready(tty_t *tty, unsigned long timeout, int return_on_signal) {
+int tty_input_ready(tty_t *tty, long int timeout, int return_on_signal) {
 	fd_set readfs;
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
@@ -108,7 +108,13 @@ int tty_input_ready(tty_t *tty, unsigned long timeout, int return_on_signal) {
 	if (!return_on_signal)
 		sigaddset(&mask, SIGWINCH);
 
-	int err = pselect(tty->fdin + 1, &readfs, NULL, NULL, &ts, &mask);
+	int err = pselect(
+			tty->fdin + 1,
+			&readfs,
+			NULL,
+			NULL,
+			timeout < 0 ? NULL : &ts,
+			return_on_signal ? NULL : &mask);
 
 	if (err < 0) {
 		return 0;

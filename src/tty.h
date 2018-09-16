@@ -17,7 +17,7 @@ void tty_close(tty_t *tty);
 void tty_init(tty_t *tty, const char *tty_filename);
 void tty_getwinsz(tty_t *tty);
 char tty_getchar(tty_t *tty);
-int tty_input_ready(tty_t *tty, int timeout, int return_on_signal);
+int tty_input_ready(tty_t *tty, long int timeout, int return_on_signal);
 
 void tty_setfg(tty_t *tty, int fg);
 void tty_setinvert(tty_t *tty);
