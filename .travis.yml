@@ -1,20 +1,19 @@
+dist: trusty
+sudo: false
 language: c
-script: make && make check
 compiler:
   - clang
   - gcc
 os:
   - linux
   - osx
-sudo: false
-matrix:
+script: make && make check
+jobs:
   include:
-    - language: ruby
-      rvm: 2.3.3
+    - stage: Acceptance Test
+      language: ruby
+      rvm: 2.5.1
       script: make acceptance
-      env: NAME="Acceptance Tests"
-      dist: trusty
-      compiler:
       addons:
         apt:
           packages:
