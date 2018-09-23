@@ -71,6 +71,10 @@ Using MacPorts
 
     sudo port install fzy
 
+### openSUSE
+
+    zypper in fzy
+
 ### Ubuntu/Debian 64-bit
 
     wget https://github.com/jhawthorn/fzy/releases/download/0.9/fzy_0.9-1_amd64.deb
