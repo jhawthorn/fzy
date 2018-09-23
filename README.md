@@ -43,17 +43,17 @@ Using MacPorts
 
     sudo port install fzy
 
-**Arch Linux/MSYS2**: `pacman -S fzy`
+**[Arch Linux](https://www.archlinux.org/packages/?sort=&q=fzy&maintainer=&flagged=)/MSYS2**: `pacman -S fzy`
 
-**FreeBSD**: `pkg install fzy`
+**[FreeBSD](https://www.freebsd.org/cgi/ports.cgi?query=fzy&stype=all)**: `pkg install fzy`
 
-**Gentoo Linux**: `emerge -av app-shells/fzy`
+**[Gentoo Linux](https://packages.gentoo.org/packages/app-shells/fzy)**: `emerge -av app-shells/fzy`
 
-**Ubuntu/Debian 64-bit**: `apt-get install fzy`
+**[Ubuntu](https://packages.ubuntu.com/search?keywords=fzy&searchon=names&suite=bionic&section=all)/[Debian](https://packages.debian.org/search?keywords=fzy&searchon=names&suite=all&section=all)**: `apt-get install fzy`
 
-**pkgsrc (NetBSD and others)**: `pkgin install fzy`
+**[pkgsrc](http://pkgsrc.se/misc/fzy) (NetBSD and others)**: `pkgin install fzy`
 
-**openSUSE**: `zypper in fzy`
+**[openSUSE](https://software.opensuse.org/package/fzy)**: `zypper in fzy`
 
 ### From source
 
