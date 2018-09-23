@@ -148,9 +148,9 @@ static void action_del_char(tty_interface_t *state) {
 	}
 	size_t original_cursor = state->cursor;
 
-	state->cursor--;
-	while (!is_boundary(state->search[state->cursor]) && state->cursor)
+	do {
 		state->cursor--;
+	} while (!is_boundary(state->search[state->cursor]) && state->cursor);
 
 	memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
 }
