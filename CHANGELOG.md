@@ -1,4 +1,4 @@
-## 1.0 (Unreleased)
+## 1.0 (2018-09-23)
 
 Features:
 
