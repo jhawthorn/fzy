@@ -89,12 +89,12 @@ nnoremap <leader>v :call FzyCommand("find -type f", ":vs")<cr>
 nnoremap <leader>s :call FzyCommand("find -type f", ":sp")<cr>
 ```
 
-Any program can be used to filter files presented through fzy. [ag (the silver searcher)](https://github.com/ggreer/the_silver_searcher) can be used to ignore files specified by `.gitignore`.
+Any program can be used to filter files presented through fzy. [fd](https://github.com/sharkdp/fd) can be used to ignore files specified by `.gitignore`.
 
 ``` vim
-nnoremap <leader>e :call FzyCommand("ag . --silent -l -g ''", ":e")<cr>
-nnoremap <leader>v :call FzyCommand("ag . --silent -l -g ''", ":vs")<cr>
-nnoremap <leader>s :call FzyCommand("ag . --silent -l -g ''", ":sp")<cr>
+nnoremap <leader>e :call FzyCommand("fd --type f", ":e")<cr>
+nnoremap <leader>v :call FzyCommand("fd --type f", ":vs")<cr>
+nnoremap <leader>s :call FzyCommand("fd --type f", ":sp")<cr>
 ```
 
 ## Sorting
