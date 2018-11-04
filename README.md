@@ -1,7 +1,8 @@
 ![fzy](http://i.hawth.ca/u/fzy-github.svg)
 
-**fzy** is a fast, simple fuzzy text selector for the terminal with an advanced [scoring
-algorithm](#sorting).
+**fzy** is a fast, simple fuzzy text selector for the terminal with an advanced scoring algorithm.
+
+[Try it out online!](http://jhawthorn.github.io/fzy-demo)
 
 ![](http://i.hawth.ca/u/fzy_animated_demo.svg)
 
