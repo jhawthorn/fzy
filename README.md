@@ -110,3 +110,7 @@ It prefers shorter matches: `abce` matches <tt><b>abc</b>d<b>e</b>f</tt> over <t
 
 It prefers shorter candidates: `test` matches <tt><b>test</b>s</tt> over <tt><b>test</b>ing</b></tt>.
 
+## See Also
+
+* [fzy.js](https://github.com/jhawthorn/fzy.js) Javascript port
+
