@@ -129,13 +129,18 @@ static void action_emit(tty_interface_t *state) {
 	/* ttyout should be flushed before outputting on stdout */
 	tty_close(state->tty);
 
-	const char *selection = choices_get(state->choices, state->choices->selection);
-	if (selection) {
-		/* output the selected result */
-		printf("%s\n", selection);
-	} else {
-		/* No match, output the query instead */
-		printf("%s\n", state->search);
+	unsigned int all = state->options->output_all;
+	size_t start     = all ? 0 : state->choices->selection;
+	size_t end       = all ? choices_available(state->choices) : start + 1;
+	for (size_t i = start; i < end; i++) {
+		const char *selection = choices_get(state->choices, i);
+		if (selection) {
+			/* output the selected result */
+			printf("%s\n", selection);
+		} else {
+			/* No match, output the query instead */
+			printf("%s\n", state->search);
+		}
 	}
 
 	state->exit = EXIT_SUCCESS;
