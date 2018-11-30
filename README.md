@@ -85,9 +85,9 @@ function! FzyCommand(choice_command, vim_command)
   endif
 endfunction
 
-nnoremap <leader>e :call FzyCommand("find -type f", ":e")<cr>
-nnoremap <leader>v :call FzyCommand("find -type f", ":vs")<cr>
-nnoremap <leader>s :call FzyCommand("find -type f", ":sp")<cr>
+nnoremap <leader>e :call FzyCommand("find . -type f", ":e")<cr>
+nnoremap <leader>v :call FzyCommand("find . -type f", ":vs")<cr>
+nnoremap <leader>s :call FzyCommand("find . -type f", ":sp")<cr>
 ```
 
 Any program can be used to filter files presented through fzy. [ag (the silver searcher)](https://github.com/ggreer/the_silver_searcher) can be used to ignore files specified by `.gitignore`.
@@ -113,4 +113,5 @@ It prefers shorter candidates: `test` matches <tt><b>test</b>s</tt> over <tt><b>
 ## See Also
 
 * [fzy.js](https://github.com/jhawthorn/fzy.js) Javascript port
+
 
