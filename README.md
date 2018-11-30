@@ -90,6 +90,9 @@ nnoremap <leader>v :call FzyCommand("find -type f", ":vs")<cr>
 nnoremap <leader>s :call FzyCommand("find -type f", ":sp")<cr>
 ```
 
+Note: OS X users may need to use ```find . -type f` instead of `find -type f`.
+
+
 Any program can be used to filter files presented through fzy. [ag (the silver searcher)](https://github.com/ggreer/the_silver_searcher) can be used to ignore files specified by `.gitignore`.
 
 ``` vim
@@ -114,3 +117,4 @@ It prefers shorter candidates: `test` matches <tt><b>test</b>s</tt> over <tt><b>
 
 * [fzy.js](https://github.com/jhawthorn/fzy.js) Javascript port
 
+    
