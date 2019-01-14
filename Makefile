@@ -34,7 +34,7 @@ fzy: $(OBJECTS)
 %.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-config.h:
+config.h: src/config.def.h
 	cp src/config.def.h config.h
 
 install: fzy
