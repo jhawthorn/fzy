@@ -18,6 +18,7 @@ static const char *usage_str =
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
+    " -i, --show-info          Show selection info line\n"
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
@@ -34,6 +35,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"version", no_argument, NULL, 'v'},
 				   {"benchmark", optional_argument, NULL, 'b'},
 				   {"workers", required_argument, NULL, 'j'},
+				   {"show-info", no_argument, NULL, 'i'},
 				   {"help", no_argument, NULL, 'h'},
 				   {NULL, 0, NULL, 0}};
 
@@ -48,13 +50,14 @@ void options_init(options_t *options) {
 	options->num_lines    = DEFAULT_NUM_LINES;
 	options->prompt       = DEFAULT_PROMPT;
 	options->workers      = DEFAULT_WORKERS;
+	options->show_info    = DEFAULT_SHOW_INFO;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:j:", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:j:i", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
@@ -102,6 +105,9 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				}
 				options->num_lines = l;
 			} break;
+			case 'i':
+				options->show_info = 1;
+				break;
 			case 'h':
 			default:
 				usage(argv[0]);

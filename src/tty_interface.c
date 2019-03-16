@@ -20,7 +20,7 @@ static void clear(tty_interface_t *state) {
 
 	tty_setcol(tty, 0);
 	size_t line = 0;
-	while (line++ < state->options->num_lines) {
+	while (line++ < state->options->num_lines + (state->options->show_info ? 1 : 0)) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
@@ -86,9 +86,16 @@ static void draw(tty_interface_t *state) {
 			start = available - num_lines;
 		}
 	}
+
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", options->prompt, state->search);
 	tty_clearline(tty);
+
+	if (options->show_info) {
+		tty_printf(tty, "\n[%lu/%lu]", choices->available, choices->size);
+		tty_clearline(tty);
+	}
+
 	for (size_t i = start; i < start + num_lines; i++) {
 		tty_printf(tty, "\n");
 		tty_clearline(tty);
@@ -97,14 +104,9 @@ static void draw(tty_interface_t *state) {
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
-	if (num_lines > 0) {
-		tty_moveup(tty, num_lines);
-	}
 
-	tty_setcol(tty, 0);
-	fputs(options->prompt, tty->fout);
-	for (size_t i = 0; i < state->cursor; i++)
-		fputc(state->search[i], tty->fout);
+	tty_moveup(tty, num_lines + (options->show_info ? 1 : 0));
+	tty_setcol(tty, strlen(options->prompt) + state->cursor);
 	tty_flush(tty);
 }
 
