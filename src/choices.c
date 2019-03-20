@@ -88,6 +88,7 @@ void choices_fread(choices_t *c, FILE *file) {
 
 static void choices_resize(choices_t *c, size_t new_capacity) {
 	c->strings = safe_realloc(c->strings, new_capacity * sizeof(const char *));
+	c->strings_param = safe_realloc(c->strings_param, new_capacity * sizeof(const char *));
 	c->capacity = new_capacity;
 }
 
@@ -113,6 +114,8 @@ void choices_init(choices_t *c, options_t *options) {
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	}
 
+	c->separator = options->separator;
+
 	choices_reset_search(c);
 }
 
@@ -122,7 +125,9 @@ void choices_destroy(choices_t *c) {
 	c->buffer_size = 0;
 
 	free(c->strings);
+	free(c->strings_param);
 	c->strings = NULL;
+	c->strings_param = NULL;
 	c->capacity = c->size = 0;
 
 	free(c->results);
@@ -130,14 +135,21 @@ void choices_destroy(choices_t *c) {
 	c->available = c->selection = 0;
 }
 
-void choices_add(choices_t *c, const char *choice) {
+void choices_add(choices_t *c, char *line) {
 	/* Previous search is now invalid */
 	choices_reset_search(c);
+
+	char *choice = line;
+	char *sep = (c->separator ? strchr(line, c->separator) : NULL);
+	if (sep)
+		*sep = '\0';
 
 	if (c->size == c->capacity) {
 		choices_resize(c, c->capacity * 2);
 	}
-	c->strings[c->size++] = choice;
+	c->strings[c->size] = choice;
+	c->strings_param[c->size] = (sep ? sep + 1 : NULL);
+	++c->size;
 }
 
 size_t choices_available(choices_t *c) {
@@ -230,7 +242,7 @@ static void *choices_search_worker(void *data) {
 
 		for(size_t i = start; i < end; i++) {
 			if (has_match(job->search, c->strings[i])) {
-				result->list[result->size].str = c->strings[i];
+				result->list[result->size].str = i;
 				result->list[result->size].score = match(job->search, c->strings[i]);
 				result->size++;
 			}
@@ -301,7 +313,15 @@ void choices_search(choices_t *c, const char *search) {
 
 const char *choices_get(choices_t *c, size_t n) {
 	if (n < c->available) {
-		return c->results[n].str;
+		return c->strings[c->results[n].str];
+	} else {
+		return NULL;
+	}
+}
+
+const char *choices_get_param(choices_t *c, size_t n) {
+	if (n < c->available) {
+		return c->strings_param[c->results[n].str];
 	} else {
 		return NULL;
 	}
