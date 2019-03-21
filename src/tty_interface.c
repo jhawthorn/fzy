@@ -105,8 +105,13 @@ static void draw(tty_interface_t *state) {
 		}
 	}
 
-	tty_moveup(tty, num_lines + (options->show_info ? 1 : 0));
-	tty_setcol(tty, strlen(options->prompt) + state->cursor);
+	if (num_lines + options->show_info)
+		tty_moveup(tty, num_lines + options->show_info);
+
+	tty_setcol(tty, 0);
+	fputs(options->prompt, tty->fout);
+	for (size_t i = 0; i < state->cursor; i++)
+		fputc(state->search[i], tty->fout);
 	tty_flush(tty);
 }
 

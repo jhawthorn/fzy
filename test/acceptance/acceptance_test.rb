@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'minitest'
 require 'minitest/autorun'
 require 'ttytest'
@@ -457,6 +458,7 @@ Usage: fzy [OPTION]...
  -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
  -s, --show-scores        Show the scores of each match
  -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)
+ -i, --show-info          Show selection info line
  -h, --help     Display this help and exit
  -v, --version  Output version information and exit
 TTY
