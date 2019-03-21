@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'minitest'
 require 'minitest/autorun'
 require 'ttytest'
@@ -456,7 +457,9 @@ Usage: fzy [OPTION]...
  -e, --show-matches=QUERY Output the sorted matches of QUERY
  -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
  -s, --show-scores        Show the scores of each match
- -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)
+ -j, --workers=NUM        Use NUM workers for searching (default is # of CPUs)
+ -d, --separator=SEP      Use SEP to split the line to the searchable part and t
+he rest
  -h, --help     Display this help and exit
  -v, --version  Output version information and exit
 TTY
