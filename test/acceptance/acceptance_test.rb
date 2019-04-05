@@ -447,6 +447,15 @@ class FzyTest < Minitest::Test
     TTY
   end
 
+  def test_show_info
+    @tty = interactive_fzy(input: %w[foo bar baz], args: "-i")
+    @tty.assert_matches ">\n[3/3]\nfoo\nbar\nbaz"
+    @tty.send_keys("ba")
+    @tty.assert_matches "> ba\n[2/3]\nbar\nbaz"
+    @tty.send_keys("q")
+    @tty.assert_matches "> baq\n[0/3]"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
