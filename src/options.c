@@ -18,7 +18,9 @@ static const char *usage_str =
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
     " -j, --workers=NUM        Use NUM workers for searching (default is # of CPUs)\n"
-    " -d, --separator=SEP      Use SEP to split the line to the searchable part and the rest\n"
+    " -d, --separator=SEP      Use SEP to split the line to fields (default ':')\n"
+    " -f, --field=NUM          Use field NUM for searching (default is the whole line)\n"
+    " -F, --output-field=NUM   Use field NUM for output (default is the whole line)\n"
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
@@ -36,6 +38,8 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"benchmark", optional_argument, NULL, 'b'},
 				   {"workers", required_argument, NULL, 'j'},
 				   {"separator", required_argument, NULL, 'd'},
+				   {"field", required_argument, NULL, 'f'},
+				   {"output-field", required_argument, NULL, 'F'},
 				   {"help", no_argument, NULL, 'h'},
 				   {NULL, 0, NULL, 0}};
 
@@ -50,14 +54,16 @@ void options_init(options_t *options) {
 	options->num_lines    = DEFAULT_NUM_LINES;
 	options->prompt       = DEFAULT_PROMPT;
 	options->workers      = DEFAULT_WORKERS;
-	options->separator    = 0;
+	options->separator    = DEFAULT_SEPARATOR;
+	options->field        = 0;
+	options->output_field = 0;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:j:d:", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhse:q:l:t:p:j:d:f:F:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
@@ -99,6 +105,26 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 					exit(EXIT_FAILURE);
 				}
 				break;
+			case 'f': {
+				unsigned int f;
+				if (sscanf(optarg, "%u", &f) != 1 || f < 1) {
+					fprintf(stderr, "Invalid format for --field: %s\n", optarg);
+					fprintf(stderr, "Must be integer in range 1..\n");
+					usage(argv[0]);
+					exit(EXIT_FAILURE);
+				}
+				options->field = f;
+			} break;
+			case 'F': {
+				unsigned int f;
+				if (sscanf(optarg, "%u", &f) != 1 || f < 1) {
+					fprintf(stderr, "Invalid format for --field: %s\n", optarg);
+					fprintf(stderr, "Must be integer in range 1..\n");
+					usage(argv[0]);
+					exit(EXIT_FAILURE);
+				}
+				options->output_field = f;
+			} break;
 			case 'l': {
 				int l;
 				if (!strcmp(optarg, "max")) {
@@ -117,6 +143,13 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				exit(EXIT_SUCCESS);
 		}
 	}
+
+	if (options->output_field && !options->field) {
+		fprintf(stderr, "Must specify --field with --output-field too.\n");
+		usage(argv[0]);
+		exit(EXIT_FAILURE);
+	}
+
 	if (optind != argc) {
 		usage(argv[0]);
 		exit(EXIT_FAILURE);

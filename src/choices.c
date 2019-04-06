@@ -88,7 +88,8 @@ void choices_fread(choices_t *c, FILE *file) {
 
 static void choices_resize(choices_t *c, size_t new_capacity) {
 	c->strings = safe_realloc(c->strings, new_capacity * sizeof(const char *));
-	c->strings_param = safe_realloc(c->strings_param, new_capacity * sizeof(const char *));
+	if (c->field)
+		c->nfields = safe_realloc(c->nfields, new_capacity * sizeof(unsigned int));
 	c->capacity = new_capacity;
 }
 
@@ -100,13 +101,13 @@ static void choices_reset_search(choices_t *c) {
 
 void choices_init(choices_t *c, options_t *options) {
 	c->strings = NULL;
+	c->nfields = NULL;
 	c->results = NULL;
 
 	c->buffer_size = 0;
 	c->buffer = NULL;
 
 	c->capacity = c->size = 0;
-	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
 	if (options->workers) {
 		c->worker_count = options->workers;
@@ -115,7 +116,10 @@ void choices_init(choices_t *c, options_t *options) {
 	}
 
 	c->separator = options->separator;
+	c->field = options->field;
+	c->output_field = options->output_field;
 
+	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 	choices_reset_search(c);
 }
 
@@ -125,10 +129,13 @@ void choices_destroy(choices_t *c) {
 	c->buffer_size = 0;
 
 	free(c->strings);
-	free(c->strings_param);
 	c->strings = NULL;
-	c->strings_param = NULL;
 	c->capacity = c->size = 0;
+
+	if (c->field) {
+		free(c->nfields);
+		c->nfields = NULL;
+	}
 
 	free(c->results);
 	c->results = NULL;
@@ -136,19 +143,30 @@ void choices_destroy(choices_t *c) {
 }
 
 void choices_add(choices_t *c, char *line) {
+	char *choice = line;
+	unsigned int fields = 1;
+
+	if (c->field) {
+		char *field = line;
+
+		while ((field = strchr(field, c->separator)) != NULL) {
+			*field++ = '\0';
+			if (++fields == c->field)
+				choice = field;
+		}
+
+		if (fields < c->field || fields < c->output_field)
+			return;
+	}
+
 	/* Previous search is now invalid */
 	choices_reset_search(c);
 
-	char *choice = line;
-	char *sep = (c->separator ? strchr(line, c->separator) : NULL);
-	if (sep)
-		*sep = '\0';
-
-	if (c->size == c->capacity) {
+	if (c->size == c->capacity)
 		choices_resize(c, c->capacity * 2);
-	}
 	c->strings[c->size] = choice;
-	c->strings_param[c->size] = (sep ? sep + 1 : NULL);
+	if (c->field)
+		c->nfields[c->size] = fields;
 	++c->size;
 }
 
@@ -312,18 +330,41 @@ void choices_search(choices_t *c, const char *search) {
 }
 
 const char *choices_get(choices_t *c, size_t n) {
-	if (n < c->available) {
-		return c->strings[c->results[n].str];
-	} else {
+	if (n >= c->available)
 		return NULL;
-	}
+
+	return c->strings[c->results[n].str];
 }
 
-const char *choices_get_param(choices_t *c, size_t n) {
-	if (n < c->available) {
-		return c->strings_param[c->results[n].str];
+const char *choices_get_result(choices_t *c, size_t n) {
+	char *ptr = (char *)choices_get(c, n);
+	if (!ptr || !c->field)
+		return ptr;
+
+	/* Find the first field */
+	for (unsigned int i = c->field; i; --i) {
+		do {
+			--ptr;
+		} while (*ptr && ptr != c->buffer);
+	}
+
+	char *line = (!*ptr ? ptr + 1 : ptr);
+	ptr = line;
+
+	if (c->output_field) {
+		/* Find the output field */
+		for (unsigned int i = 1; i != c->output_field; ++i) {
+			while (*ptr++);
+		}
+		return ptr;
 	} else {
-		return NULL;
+		/* Put back all separators */
+		unsigned int nfields = c->nfields[c->results[n].str];
+		for (unsigned int i = 1; i != nfields; ++i) {
+			for (;*ptr; ++ptr);
+			*ptr = c->separator;
+		}
+		return line;
 	}
 }
 

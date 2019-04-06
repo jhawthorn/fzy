@@ -19,7 +19,7 @@ typedef struct {
 	size_t size;
 
 	const char **strings;
-	const char **strings_param;
+	unsigned int *nfields;
 	struct scored_result *results;
 
 	size_t available;
@@ -27,6 +27,8 @@ typedef struct {
 
 	unsigned int worker_count;
 	char separator;
+	unsigned int field;
+	unsigned int output_field;
 } choices_t;
 
 void choices_init(choices_t *c, options_t *options);
@@ -36,7 +38,7 @@ void choices_add(choices_t *c, char *line);
 size_t choices_available(choices_t *c);
 void choices_search(choices_t *c, const char *search);
 const char *choices_get(choices_t *c, size_t n);
-const char *choices_get_param(choices_t *c, size_t n);
+const char *choices_get_result(choices_t *c, size_t n);
 score_t choices_getscore(choices_t *c, size_t n);
 void choices_prev(choices_t *c);
 void choices_next(choices_t *c);
