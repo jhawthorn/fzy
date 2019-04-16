@@ -26,7 +26,7 @@ typedef struct {
 	size_t selection;
 
 	unsigned int worker_count;
-	char separator;
+	char delimiter;
 	unsigned int field;
 	unsigned int output_field;
 } choices_t;

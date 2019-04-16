@@ -115,7 +115,7 @@ void choices_init(choices_t *c, options_t *options) {
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	}
 
-	c->separator = options->separator;
+	c->delimiter = options->delimiter;
 	c->field = options->field;
 	c->output_field = options->output_field;
 
@@ -149,7 +149,7 @@ void choices_add(choices_t *c, char *line) {
 	if (c->field) {
 		char *field = line;
 
-		while ((field = strchr(field, c->separator)) != NULL) {
+		while ((field = strchr(field, c->delimiter)) != NULL) {
 			*field++ = '\0';
 			if (++fields == c->field)
 				choice = field;
@@ -358,11 +358,11 @@ const char *choices_get_result(choices_t *c, size_t n) {
 		}
 		return ptr;
 	} else {
-		/* Put back all separators */
+		/* Put back all delimiters */
 		unsigned int nfields = c->nfields[c->results[n].str];
 		for (unsigned int i = 1; i != nfields; ++i) {
 			for (;*ptr; ++ptr);
-			*ptr = c->separator;
+			*ptr = c->delimiter;
 		}
 		return line;
 	}

@@ -18,7 +18,7 @@ static const char *usage_str =
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
     " -s, --show-scores        Show the scores of each match\n"
     " -j, --workers=NUM        Use NUM workers for searching (default is # of CPUs)\n"
-    " -d, --separator=SEP      Use SEP to split the line to fields (default ':')\n"
+    " -d, --delimiter=DELIM    Use DELIM to split the line to fields (default ':')\n"
     " -f, --field=NUM          Use field NUM for searching (default is the whole line)\n"
     " -F, --output-field=NUM   Use field NUM for output (default is the whole line)\n"
     " -h, --help     Display this help and exit\n"
@@ -37,7 +37,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"version", no_argument, NULL, 'v'},
 				   {"benchmark", optional_argument, NULL, 'b'},
 				   {"workers", required_argument, NULL, 'j'},
-				   {"separator", required_argument, NULL, 'd'},
+				   {"delimiter", required_argument, NULL, 'd'},
 				   {"field", required_argument, NULL, 'f'},
 				   {"output-field", required_argument, NULL, 'F'},
 				   {"help", no_argument, NULL, 'h'},
@@ -54,7 +54,7 @@ void options_init(options_t *options) {
 	options->num_lines    = DEFAULT_NUM_LINES;
 	options->prompt       = DEFAULT_PROMPT;
 	options->workers      = DEFAULT_WORKERS;
-	options->separator    = DEFAULT_SEPARATOR;
+	options->delimiter    = DEFAULT_DELIMITER;
 	options->field        = 0;
 	options->output_field = 0;
 }
@@ -100,7 +100,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				}
 				break;
 			case 'd':
-				if (sscanf(optarg, "%c", &options->separator) != 1) {
+				if (sscanf(optarg, "%c", &options->delimiter) != 1) {
 					usage(argv[0]);
 					exit(EXIT_FAILURE);
 				}

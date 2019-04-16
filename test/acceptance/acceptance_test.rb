@@ -449,26 +449,25 @@ class FzyTest < Minitest::Test
 
   def test_field
     @tty = interactive_fzy(input: %w[1/foo 2/bar], args: "-d/ -f2 -F1")
+    @tty.assert_matches(">\nfoo\nbar")
+
     @tty.send_keys("foo\r")
-    @tty.assert_matches "1\n"
+    @tty.assert_matches "1" # the first field
   end
 
   def test_field_input_only
     @tty = interactive_fzy(input: %w[1:foo 2:bar], args: "-f2")
+    @tty.assert_matches ">\nfoo\nbar"
+
     @tty.send_keys("bar\r")
-    @tty.assert_matches "2:bar\n"
+    @tty.assert_matches "2:bar" # the whole line
+
   end
 
   def test_field_ignored_line
-    # not enough fields for -f
-    @tty = interactive_fzy(input: %w[fubar 1:foo], args: "-f2")
-    @tty.send_keys("bar\r")
-    @tty.assert_matches "bar\n" # no match
-
-    # not enough fields for -F
-    @tty = interactive_fzy(input: %w[foo:1:baz bar:10], args: "-f1 -F3")
-    @tty.send_keys("bar\r")
-    @tty.assert_matches "bar\n" # no match
+    # not enough fields for -f or -F
+    @tty = interactive_fzy(input: %w[1:foo:x 2:baz 3 4:bar:y], args: "-f2 -F3")
+    @tty.assert_matches ">\nfoo\nbar"
   end
 
   def test_help
@@ -482,7 +481,7 @@ Usage: fzy [OPTION]...
  -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
  -s, --show-scores        Show the scores of each match
  -j, --workers=NUM        Use NUM workers for searching (default is # of CPUs)
- -d, --separator=SEP      Use SEP to split the line to fields (default ':')
+ -d, --delimiter=DELIM    Use DELIM to split the line to fields (default ':')
  -f, --field=NUM          Use field NUM for searching (default is the whole line
 )
  -F, --output-field=NUM   Use field NUM for output (default is the whole line)
