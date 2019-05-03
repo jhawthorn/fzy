@@ -25,6 +25,7 @@ typedef struct {
 	size_t selection;
 
 	unsigned int worker_count;
+	char input_delimiter;
 } choices_t;
 
 void choices_init(choices_t *c, options_t *options);
