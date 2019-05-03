@@ -456,6 +456,7 @@ Usage: fzy [OPTION]...
  -e, --show-matches=QUERY Output the sorted matches of QUERY
  -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
  -s, --show-scores        Show the scores of each match
+ -0, --read-null          Read input delimited by ASCII NUL characters
  -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)
  -h, --help     Display this help and exit
  -v, --version  Output version information and exit

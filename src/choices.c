@@ -72,9 +72,10 @@ void choices_fread(choices_t *c, FILE *file) {
 	 */
 
 	/* Tokenize input and add to choices */
+	const char *line_end = c->buffer + c->buffer_size;
 	char *line = c->buffer + buffer_start;
 	do {
-		char *nl = strchr(line, '\n');
+		char *nl = strchr(line, c->input_delimiter);
 		if (nl)
 			*nl++ = '\0';
 
@@ -83,7 +84,7 @@ void choices_fread(choices_t *c, FILE *file) {
 			choices_add(c, line);
 
 		line = nl;
-	} while (line);
+	} while (line && line < line_end);
 }
 
 static void choices_resize(choices_t *c, size_t new_capacity) {
@@ -111,6 +112,12 @@ void choices_init(choices_t *c, options_t *options) {
 		c->worker_count = options->workers;
 	} else {
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
+	}
+
+	if (options->read_null) {
+		c->input_delimiter = '\0';
+	} else {
+		c->input_delimiter = '\n';
 	}
 
 	choices_reset_search(c);
