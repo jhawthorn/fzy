@@ -20,12 +20,12 @@ static void clear(tty_interface_t *state) {
 
 	tty_setcol(tty, 0);
 	size_t line = 0;
-	while (line++ < state->options->num_lines) {
+	while (line++ < (size_t)state->options->num_lines) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
 	if (state->options->num_lines > 0) {
-		tty_moveup(tty, line - 1);
+		tty_moveup(tty, (int)line - 1);
 	}
 	tty_flush(tty);
 }
@@ -35,10 +35,10 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 	options_t *options = state->options;
 	char *search = state->last_search;
 
-	int n = strlen(search);
+	size_t n = strlen(search);
 	size_t positions[n + 1];
-	for (int i = 0; i < n + 1; i++)
-		positions[i] = -1;
+	for (size_t i = 0; i < n + 1; i++)
+		positions[i] = (unsigned int)-1;
 
 	score_t score = match_positions(search, choice, &positions[0]);
 
@@ -98,7 +98,7 @@ static void draw(tty_interface_t *state) {
 		}
 	}
 	if (num_lines > 0) {
-		tty_moveup(tty, num_lines);
+		tty_moveup(tty, (int)num_lines);
 	}
 
 	tty_setcol(tty, 0);

@@ -50,11 +50,11 @@ int main(int argc, char *argv[]) {
 		if (!isatty(STDIN_FILENO))
 			choices_fread(&choices, stdin);
 
-		if (options.num_lines > choices.size)
-			options.num_lines = choices.size;
+		if (options.num_lines > (unsigned int)choices.size)
+			options.num_lines = (unsigned int)choices.size;
 
 		if (options.num_lines + 1 > tty_getheight(&tty))
-			options.num_lines = tty_getheight(&tty) - 1;
+			options.num_lines = (unsigned int)tty_getheight(&tty) - 1;
 
 		tty_interface_t tty_interface;
 		tty_interface_init(&tty_interface, &tty, &choices, &options);

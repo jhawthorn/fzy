@@ -59,8 +59,8 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 	 * ISIG    Signals from control characters
 	 * ICRNL   Conversion of CR characters into NL
 	 */
-	new_termios.c_iflag &= ~(ICRNL);
-	new_termios.c_lflag &= ~(ICANON | ECHO | ISIG);
+	new_termios.c_iflag &= ~((tcflag_t)ICRNL);
+	new_termios.c_lflag &= ~((tcflag_t)(ICANON | ECHO | ISIG));
 
 	if (tcsetattr(tty->fdin, TCSANOW, &new_termios))
 		perror("tcsetattr");
@@ -85,7 +85,7 @@ void tty_getwinsz(tty_t *tty) {
 
 char tty_getchar(tty_t *tty) {
 	char ch;
-	int size = read(tty->fdin, &ch, 1);
+	ssize_t size = read(tty->fdin, &ch, 1);
 	if (size < 0) {
 		perror("error reading from tty");
 		exit(EXIT_FAILURE);

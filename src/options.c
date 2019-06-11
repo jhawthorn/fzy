@@ -91,10 +91,10 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				}
 				break;
 			case 'l': {
-				int l;
+				unsigned int l;
 				if (!strcmp(optarg, "max")) {
 					l = INT_MAX;
-				} else if (sscanf(optarg, "%d", &l) != 1 || l < 3) {
+				} else if (sscanf(optarg, "%u", &l) != 1 || l < 3u) {
 					fprintf(stderr, "Invalid format for --lines: %s\n", optarg);
 					fprintf(stderr, "Must be integer in range 3..\n");
 					usage(argv[0]);

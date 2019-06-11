@@ -110,7 +110,7 @@ void choices_init(choices_t *c, options_t *options) {
 	if (options->workers) {
 		c->worker_count = options->workers;
 	} else {
-		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
+		c->worker_count = (unsigned int)sysconf(_SC_NPROCESSORS_ONLN);
 	}
 
 	choices_reset_search(c);
@@ -242,7 +242,7 @@ static void *choices_search_worker(void *data) {
 
 	/* Fan-in, merging results */
 	for(unsigned int step = 0;; step++) {
-		if (w->worker_num % (2 << step))
+		if (w->worker_num % (2u << step))
 			break;
 
 		unsigned int next_worker = w->worker_num | (1 << step);
@@ -273,7 +273,7 @@ void choices_search(choices_t *c, const char *search) {
 	job->workers = calloc(c->worker_count, sizeof(struct worker));
 
 	struct worker *workers = job->workers;
-	for (int i = c->worker_count - 1; i >= 0; i--) {
+	for (unsigned int i = c->worker_count - 1u; i >= 0u; i--) {
 		workers[i].job = job;
 		workers[i].worker_num = i;
 		workers[i].result.size = 0;

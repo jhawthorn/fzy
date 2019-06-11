@@ -11,7 +11,7 @@
 #include "../config.h"
 
 char *strcasechr(const char *s, char c) {
-	const char accept[3] = {c, toupper(c), 0};
+	const char accept[3] = {c, (char)toupper(c), 0};
 	return strpbrk(s, accept);
 }
 
@@ -58,9 +58,9 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
-	int m = strlen(haystack);
+	size_t m = strlen(haystack);
 	char last_ch = '/';
-	for (int i = 0; i < m; i++) {
+	for (size_t i = 0; i < m; i++) {
 		char ch = haystack[i];
 		match_bonus[i] = COMPUTE_BONUS(last_ch, ch);
 		last_ch = ch;
@@ -71,8 +71,8 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	if (!*needle)
 		return SCORE_MIN;
 
-	int n = strlen(needle);
-	int m = strlen(haystack);
+	size_t n = strlen(needle);
+	size_t m = strlen(haystack);
 
 	if (n == m) {
 		/* Since this method can only be called with a haystack which
@@ -80,12 +80,12 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		 * strings themselves must also be equal (ignoring case).
 		 */
 		if (positions)
-			for (int i = 0; i < n; i++)
+			for (size_t i = 0; i < n; i++)
 				positions[i] = i;
 		return SCORE_MAX;
 	}
 
-	if (m > 1024) {
+	if (m > (size_t)1024) {
 		/*
 		 * Unreasonably large candidate: return no score
 		 * If it is a valid match it will still be returned, it will
@@ -97,11 +97,11 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	char lower_needle[n];
 	char lower_haystack[m];
 
-	for (int i = 0; i < n; i++)
-		lower_needle[i] = tolower(needle[i]);
+	for (size_t i = 0; i < n; i++)
+		lower_needle[i] = (char)tolower(needle[i]);
 
-	for (int i = 0; i < m; i++)
-		lower_haystack[i] = tolower(haystack[i]);
+	for (size_t i = 0; i < m; i++)
+		lower_haystack[i] = (char)tolower(haystack[i]);
 
 	score_t match_bonus[m];
 	score_t D[n][m], M[n][m];
@@ -112,11 +112,11 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	 */
 	precompute_bonus(haystack, match_bonus);
 
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		score_t prev_score = SCORE_MIN;
 		score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
-		for (int j = 0; j < m; j++) {
+		for (size_t j = 0; j < m; j++) {
 			if (lower_needle[i] == lower_haystack[j]) {
 				score_t score = SCORE_MIN;
 				if (!i) {
@@ -147,7 +147,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	/* backtrace to find the positions of optimal matching */
 	if (positions) {
 		int match_required = 0;
-		for (int i = n - 1, j = m - 1; i >= 0; i--) {
+		for (size_t i = n - 1, j = m - 1; i >= 0; i--) {
 			for (; j >= 0; j--) {
 				/*
 				 * There may be multiple paths which result in

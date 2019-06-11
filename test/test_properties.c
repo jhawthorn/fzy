@@ -8,9 +8,9 @@
 
 static void *string_alloc_cb(struct theft *t, theft_hash seed, void *env) {
 	(void)env;
-	int limit = 128;
+	theft_hash limit = 128;
 
-	size_t sz = (size_t)(seed % limit) + 1;
+	size_t sz = (seed % limit) + 1;
 	char *str = malloc(sz + 1);
 	if (str == NULL) {
 		return THEFT_ERROR;
@@ -22,7 +22,7 @@ static void *string_alloc_cb(struct theft *t, theft_hash seed, void *env) {
 			if (i + b >= sz) {
 				break;
 			}
-			str[i + b] = (uint8_t)(s >> (8 * b)) & 0xff;
+			str[i + b] = (char)(s >> (8 * b)) & (char)0xff;
 		}
 	}
 	str[sz] = 0;
@@ -55,14 +55,14 @@ static void string_print_cb(FILE *f, void *instance, void *env) {
 static uint64_t string_hash_cb(void *instance, void *env) {
 	(void)env;
 	char *str = (char *)instance;
-	int size = strlen(str);
+	size_t size = strlen(str);
 	return theft_hash_onepass((uint8_t *)str, size);
 }
 
 static void *string_shrink_cb(void *instance, uint32_t tactic, void *env) {
 	(void)env;
 	char *str = (char *)instance;
-	int n = strlen(str);
+	size_t n = strlen(str);
 
 	if (tactic == 0) { /* first half */
 		return strndup(str, n / 2);
@@ -119,7 +119,7 @@ static theft_trial_res prop_positions_should_match_characters_in_string(char *ne
 	if (!match_exists)
 		return THEFT_TRIAL_SKIP;
 
-	int n = strlen(needle);
+	size_t n = strlen(needle);
 	size_t *positions = calloc(n, sizeof(size_t));
 	if (!positions)
 		return THEFT_TRIAL_ERROR;
@@ -127,14 +127,14 @@ static theft_trial_res prop_positions_should_match_characters_in_string(char *ne
 	match_positions(needle, haystack, positions);
 
 	/* Must be increasing */
-	for (int i = 1; i < n; i++) {
+	for (size_t i = 1; i < n; i++) {
 		if (positions[i] <= positions[i - 1]) {
 			return THEFT_TRIAL_FAIL;
 		}
 	}
 
 	/* Matching characters must be in returned positions */
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		if (toupper(needle[i]) != toupper(haystack[positions[i]])) {
 			return THEFT_TRIAL_FAIL;
 		}
