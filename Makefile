@@ -31,15 +31,15 @@ check: test/fzytest
 fzy: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-%.o: %.c config.h
+%.o: %.c 
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-src/fzy.o: src/tty_interface.h src/match.h src/tty.h src/options.h src/choices.h
-src/match.o: src/bonus.h src/match.h
-src/tty.o: src/tty.h
+src/fzy.o: src/tty_interface.h src/match.h src/tty.h src/options.h src/choices.h config.h
+src/match.o: src/bonus.h src/match.h config.h
+src/tty.o: src/tty.h config.h
 src/choices.o: src/options.h src/match.h src/choices.h
-src/options.o: src/options.h
-src/tty_interface.o: src/options.h src/tty_interface.h src/match.h src/tty.h src/choices.h
+src/options.o: src/options.h config.h
+src/tty_interface.o: src/options.h src/tty_interface.h src/match.h src/tty.h src/choices.h config.h
 
 config.h: src/config.def.h
 	cp src/config.def.h config.h
