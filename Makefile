@@ -34,6 +34,13 @@ fzy: $(OBJECTS)
 %.o: %.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
+src/fzy.o: src/tty_interface.h src/match.h src/tty.h src/options.h src/choices.h
+src/match.o: src/bonus.h src/match.h
+src/tty.o: src/tty.h
+src/choices.o: src/options.h src/match.h src/choices.h
+src/options.o: src/options.h
+src/tty_interface.o: src/options.h src/tty_interface.h src/match.h src/tty.h src/choices.h
+
 config.h: src/config.def.h
 	cp src/config.def.h config.h
 
