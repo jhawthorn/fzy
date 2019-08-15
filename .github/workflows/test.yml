@@ -34,7 +34,7 @@ jobs:
     - name: Install dependencies and compile
       run: |
         gem install bundler
-        bundle install --jobs 4 --retry 3
         make
+        cd test/acceptance && bundle install --jobs 4 --retry 3
     - name: Run acceptance tests
       run: make acceptance
