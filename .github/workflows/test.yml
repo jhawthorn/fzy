@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  test:
+    name: Test ${{ matrix.compiler }} on ${{ matrix.os }}
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        os: [ubuntu-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v1
+    - name: Compile and run tests
+      run: make && make test
+      env:
+        CC: ${{ matrix.compiler }}
+  acceptance_test:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Ruby 2.6
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6.x
+    - name: Install dependencies and compile
+      run: |
+        gem install bundler
+        make
+        cd test/acceptance && bundle install --jobs 4 --retry 3
+    - name: Run acceptance tests
+      run: make acceptance
