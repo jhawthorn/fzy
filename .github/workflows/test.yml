@@ -22,3 +22,19 @@ jobs:
       run: make && make test
       env:
         CC: ${{ matrix.compiler }}
+  acceptance_test:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Ruby 2.6
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: 2.6.x
+    - name: Install dependencies and compile
+      run: |
+        gem install bundler
+        bundle install --jobs 4 --retry 3
+        make
+    - name: Run acceptance tests
+      run: make acceptance
