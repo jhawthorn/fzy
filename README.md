@@ -16,8 +16,6 @@ fzy works great btw
 -<a href="https://twitter.com/alexblackie/status/719297828892188672">@alexblackie</a>
 </blockquote>
 
-[![Build Status](https://travis-ci.org/jhawthorn/fzy.svg?branch=master)](https://travis-ci.org/jhawthorn/fzy)
-
 ## Why use this over fzf, pick, selecta, ctrlp, ...?
 
 fzy is faster and shows better results than other fuzzy finders.
