@@ -10,10 +10,15 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    name: Test ${{ matrix.compiler }} on ${{ matrix.os }}
+    strategy:
+      matrix:
+        compiler: [gcc, clang]
+        os: [ubuntu-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v1
-    - name: make
-      run: make
-    - name: make test
-      run: make test
+    - name: Compile and run tests
+      run: make && make test
+      env:
+        CC: ${{ matrix.compiler }}
