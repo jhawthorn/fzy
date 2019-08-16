@@ -11,6 +11,7 @@ typedef struct {
 	unsigned int scrolloff;
 	const char *prompt;
 	unsigned int workers;
+	char input_delimiter;
 } options_t;
 
 void options_init(options_t *options);

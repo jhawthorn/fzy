@@ -28,7 +28,7 @@ typedef struct {
 } choices_t;
 
 void choices_init(choices_t *c, options_t *options);
-void choices_fread(choices_t *c, FILE *file);
+void choices_fread(choices_t *c, FILE *file, char input_delimiter);
 void choices_destroy(choices_t *c);
 void choices_add(choices_t *c, const char *choice);
 size_t choices_available(choices_t *c);

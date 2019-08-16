@@ -65,7 +65,11 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		} else {
 			tty_setfg(tty, TTY_COLOR_NORMAL);
 		}
-		tty_printf(tty, "%c", choice[i]);
+		if (choice[i] == '\n') {
+			tty_putc(tty, ' ');
+		} else {
+			tty_printf(tty, "%c", choice[i]);
+		}
 	}
 	tty_setwrap(tty);
 	tty_setnormal(tty);
