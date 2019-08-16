@@ -46,7 +46,7 @@ static void *safe_realloc(void *buffer, size_t size) {
 	return buffer;
 }
 
-void choices_fread(choices_t *c, FILE *file) {
+void choices_fread(choices_t *c, FILE *file, char input_delimiter) {
 	/* Save current position for parsing later */
 	size_t buffer_start = c->buffer_size;
 
@@ -75,7 +75,7 @@ void choices_fread(choices_t *c, FILE *file) {
 	const char *line_end = c->buffer + c->buffer_size;
 	char *line = c->buffer + buffer_start;
 	do {
-		char *nl = strchr(line, c->input_delimiter);
+		char *nl = strchr(line, input_delimiter);
 		if (nl)
 			*nl++ = '\0';
 
@@ -112,12 +112,6 @@ void choices_init(choices_t *c, options_t *options) {
 		c->worker_count = options->workers;
 	} else {
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
-	}
-
-	if (options->read_null) {
-		c->input_delimiter = '\0';
-	} else {
-		c->input_delimiter = '\n';
 	}
 
 	choices_reset_search(c);

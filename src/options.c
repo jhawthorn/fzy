@@ -41,16 +41,16 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 
 void options_init(options_t *options) {
 	/* set defaults */
-	options->benchmark    = 0;
-	options->filter       = NULL;
-	options->init_search  = NULL;
-	options->show_scores  = 0;
-	options->scrolloff    = 1;
-	options->tty_filename = DEFAULT_TTY;
-	options->num_lines    = DEFAULT_NUM_LINES;
-	options->prompt       = DEFAULT_PROMPT;
-	options->workers      = DEFAULT_WORKERS;
-	options->read_null    = 0;
+	options->benchmark       = 0;
+	options->filter          = NULL;
+	options->init_search     = NULL;
+	options->show_scores     = 0;
+	options->scrolloff       = 1;
+	options->tty_filename    = DEFAULT_TTY;
+	options->num_lines       = DEFAULT_NUM_LINES;
+	options->prompt          = DEFAULT_PROMPT;
+	options->workers         = DEFAULT_WORKERS;
+	options->input_delimiter = '\n';
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
@@ -66,7 +66,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				options->show_scores = 1;
 				break;
 			case '0':
-				options->read_null = 1;
+				options->input_delimiter = '\0';
 				break;
 			case 'q':
 				options->init_search = optarg;
