@@ -23,8 +23,9 @@ jobs:
       env:
         CC: ${{ matrix.compiler }}
   test_alpine:
+    name: Test on Alpine Linux
     runs-on: ubuntu-latest
-    container: alpine
+    container: docker://alpine
     steps:
     - uses: actions/checkout@v1
     - name: Install build dependencies
