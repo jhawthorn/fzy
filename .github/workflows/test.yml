@@ -22,6 +22,15 @@ jobs:
       run: make && make test
       env:
         CC: ${{ matrix.compiler }}
+  test_alpine:
+    name: Test on Alpine Linux
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Compile and run tests
+      uses: docker://alpine
+      with:
+        args: sh -c "apk add build-base && make && make test"
   acceptance_test:
     name: Acceptance Tests
     runs-on: ubuntu-latest
