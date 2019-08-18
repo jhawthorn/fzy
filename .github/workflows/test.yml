@@ -25,13 +25,11 @@ jobs:
   test_alpine:
     name: Test on Alpine Linux
     runs-on: ubuntu-latest
-    container: docker://alpine
     steps:
     - uses: actions/checkout@v1
-    - name: Install build dependencies
-      run: apk add build-base
-    - name: Compile and run tests
-      run: make && make test
+    - uses: docker://alpine
+      with:
+        args: apk add build-base && make && make test
   acceptance_test:
     name: Acceptance Tests
     runs-on: ubuntu-latest
