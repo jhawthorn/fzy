@@ -27,9 +27,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: docker://alpine
+    - name: Compile and run tests
+      uses: docker://alpine
       with:
-        args: ["sh", "-c", "apk add build-base && make && make test"]
+        args: sh -c "apk add build-base && make && make test"
   acceptance_test:
     name: Acceptance Tests
     runs-on: ubuntu-latest
