@@ -63,8 +63,8 @@ TEST test_choices_1() {
 }
 
 TEST test_choices_2() {
-	choices_add(&choices, "tags");
 	choices_add(&choices, "test");
+	choices_add(&choices, "tags");
 
 	/* Empty search */
 	choices_search(&choices, "");
@@ -102,8 +102,8 @@ TEST test_choices_2() {
 	choices_search(&choices, "ts");
 	ASSERT_SIZE_T_EQ(2, choices.available);
 	ASSERT_SIZE_T_EQ(0, choices.selection);
-	ASSERT_STR_EQ("test", choices_get(&choices, 0));
-	ASSERT_STR_EQ("tags", choices_get(&choices, 1));
+	ASSERT_STR_EQ("tags", choices_get(&choices, 0));
+	ASSERT_STR_EQ("test", choices_get(&choices, 1));
 
 	PASS();
 }

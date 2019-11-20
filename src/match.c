@@ -32,16 +32,20 @@ int has_match(const char *needle, const char *haystack) {
 #ifdef DEBUG_VERBOSE
 /* print one of the internal matrices */
 void mat_print(score_t *mat, char name, const char *needle, const char *haystack) {
-	int n = strlen(needle);
-	int m = strlen(haystack);
+	int n = strlen(needle) + 1;
+	int m = strlen(haystack) + 1;
 	int i, j;
 	fprintf(stderr, "%c   ", name);
-	for (j = 0; j < m; j++) {
+	for (j = 0; j < m - 1; j++) {
 		fprintf(stderr, "     %c", haystack[j]);
 	}
-	fprintf(stderr, "\n");
+	fprintf(stderr, "    \\0\n");
 	for (i = 0; i < n; i++) {
-		fprintf(stderr, " %c |", needle[i]);
+		if (needle[i]) {
+			fprintf(stderr, " %c |", needle[i]);
+		} else {
+			fprintf(stderr, "\\0 |");
+		}
 		for (j = 0; j < m; j++) {
 			score_t val = mat[i * m + j];
 			if (val == SCORE_MIN) {
@@ -58,9 +62,10 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
-	int m = strlen(haystack);
-	char last_ch = '/';
-	for (int i = 0; i < m; i++) {
+	int m = strlen(haystack) + 1;
+	char last_ch = haystack[0];
+	match_bonus[0] = SCORE_MATCH_CONSECUTIVE;
+	for (int i = 1; i < m; i++) {
 		char ch = haystack[i];
 		match_bonus[i] = COMPUTE_BONUS(last_ch, ch);
 		last_ch = ch;
@@ -71,8 +76,8 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	if (!*needle)
 		return SCORE_MIN;
 
-	int n = strlen(needle);
-	int m = strlen(haystack);
+	int n = strlen(needle) + 1;
+	int m = strlen(haystack) + 1;
 
 	if (n == m) {
 		/* Since this method can only be called with a haystack which
@@ -114,7 +119,8 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 
 	for (int i = 0; i < n; i++) {
 		score_t prev_score = SCORE_MIN;
-		score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
+		/* use different gap score for the last non-NULL needle character */
+		score_t gap_score = i == n - 2 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
 		for (int j = 0; j < m; j++) {
 			if (lower_needle[i] == lower_haystack[j]) {
@@ -147,7 +153,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	/* backtrace to find the positions of optimal matching */
 	if (positions) {
 		int match_required = 0;
-		for (int i = n - 1, j = m - 1; i >= 0; i--) {
+		for (int i = n - 2, j = m - 2; i >= 0; i--) {
 			for (; j >= 0; j--) {
 				/*
 				 * There may be multiple paths which result in

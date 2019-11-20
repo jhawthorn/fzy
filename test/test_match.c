@@ -43,14 +43,14 @@ TEST empty_query_should_always_match() {
 /* match(char *needle, char *haystack) */
 
 TEST should_prefer_starts_of_words() {
-	/* App/Models/Order is better than App/MOdels/zRder  */
-	ASSERT(match("amor", "app/models/order") > match("amor", "app/models/zrder"));
+	/* App/Models/ORder.py is better than App/MOdels/zrdeR.py  */
+	ASSERT(match("amor", "app/models/order.py") > match("amor", "app/models/zrder.py"));
 	PASS();
 }
 
 TEST should_prefer_consecutive_letters() {
-	/* App/MOdels/foo is better than App/M/fOo  */
-	ASSERT(match("amo", "app/m/foo") < match("amo", "app/models/foo"));
+	/* App/MOdels/foo.rb is better than App/M/fOo.rb  */
+	ASSERT(match("amo", "app/m/foo.rb") < match("amo", "app/models/foo.rb"));
 	PASS();
 }
 
@@ -61,7 +61,7 @@ TEST should_prefer_contiguous_over_letter_following_period() {
 }
 
 TEST should_prefer_shorter_matches() {
-	ASSERT(match("abce", "abcdef") > match("abce", "abc de"));
+	ASSERT(match("abce", "abcdefg") > match("abce", "abc def"));
 	ASSERT(match("abc", "    a b c ") > match("abc", " a  b  c "));
 	ASSERT(match("abc", " a b c    ") > match("abc", " a  b  c "));
 	PASS();
@@ -75,6 +75,11 @@ TEST should_prefer_shorter_candidates() {
 TEST should_prefer_start_of_candidate() {
 	/* Scores first letter highly */
 	ASSERT(match("test", "testing") > match("test", "/testing"));
+	PASS();
+}
+
+TEST should_prefer_trailing_matches() {
+	ASSERT(match("appc", "src/app.c") > match("appc", "build/app/contents/cache"));
 	PASS();
 }
 
@@ -94,8 +99,7 @@ TEST score_empty_query() {
 }
 
 TEST score_gaps() {
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING, match("a", "*a"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2, match("a", "*ba"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_TRAILING, match("a", "*a*"));
 	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING, match("a", "**a*"));
 	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_GAP_TRAILING*2, match("a", "**a**"));
 	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING*2, match("aa", "**aa**"));
@@ -104,30 +108,40 @@ TEST score_gaps() {
 }
 
 TEST score_consecutive() {
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, match("aa", "*aa"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2, match("aaa", "*aaa"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE, match("aaa", "*a*aa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING, match("aa", "*aa*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE*2 + SCORE_GAP_TRAILING, match("aaa", "*aaa*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING, match("aaa", "*a*aa*"));
 	PASS();
 }
 
 TEST score_slash() {
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_SLASH, match("a", "/a"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH, match("a", "*/a"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE, match("aa", "a/aa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_SLASH + SCORE_GAP_TRAILING, match("a", "/a*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_GAP_TRAILING, match("a", "*/a*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_SLASH + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING, match("aa", "b/aa*"));
 	PASS();
 }
 
 TEST score_capital() {
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL, match("a", "bA"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL, match("a", "baA"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE, match("aa", "baAa"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CAPITAL + SCORE_GAP_TRAILING, match("a", "bA*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_GAP_TRAILING, match("a", "baA*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*2 + SCORE_MATCH_CAPITAL + SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING, match("aa", "baAa*"));
 	PASS();
 }
 
 TEST score_dot() {
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_DOT, match("a", ".a"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT, match("a", "*a.a"));
-	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT, match("a", "*a.a"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_DOT + SCORE_GAP_TRAILING, match("a", ".a*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING*3 + SCORE_MATCH_DOT + SCORE_GAP_TRAILING, match("a", "*a.a*"));
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_GAP_INNER + SCORE_MATCH_DOT + SCORE_GAP_TRAILING, match("a", "*a.a*"));
+	PASS();
+}
+
+TEST score_beginning() {
+	ASSERT_SCORE_EQ(SCORE_MATCH_CONSECUTIVE + SCORE_GAP_TRAILING, match("a", "a*"));
+	PASS();
+}
+
+TEST score_end() {
+	ASSERT_SCORE_EQ(SCORE_GAP_LEADING + SCORE_MATCH_CONSECUTIVE, match("a", "*a"));
 	PASS();
 }
 
@@ -171,10 +185,10 @@ TEST positions_no_bonuses() {
 
 TEST positions_multiple_candidates_start_of_words() {
 	size_t positions[3];
-	match_positions("abc", "a/a/b/c/c", positions);
-	ASSERT_SIZE_T_EQ(2, positions[0]);
-	ASSERT_SIZE_T_EQ(4, positions[1]);
-	ASSERT_SIZE_T_EQ(6, positions[2]);
+	match_positions("abc", "/a/a/b/c/c/", positions);
+	ASSERT_SIZE_T_EQ(3, positions[0]);
+	ASSERT_SIZE_T_EQ(5, positions[1]);
+	ASSERT_SIZE_T_EQ(7, positions[2]);
 
 	PASS();
 }
@@ -202,6 +216,7 @@ SUITE(match_suite) {
 	RUN_TEST(should_prefer_shorter_matches);
 	RUN_TEST(should_prefer_shorter_candidates);
 	RUN_TEST(should_prefer_start_of_candidate);
+	RUN_TEST(should_prefer_trailing_matches);
 
 	RUN_TEST(score_exact_match);
 	RUN_TEST(score_empty_query);
@@ -210,6 +225,8 @@ SUITE(match_suite) {
 	RUN_TEST(score_slash);
 	RUN_TEST(score_capital);
 	RUN_TEST(score_dot);
+	RUN_TEST(score_beginning);
+	RUN_TEST(score_end);
 
 	RUN_TEST(positions_consecutive);
 	RUN_TEST(positions_start_of_word);

@@ -239,7 +239,7 @@ class FzyTest < Minitest::Test
     @tty.send_keys('foo')
     @tty.assert_matches "> foo\n#{expected_score} foo"
 
-    expected_score = '( 0.89)'
+    expected_score = '( 0.99)'
     @tty = interactive_fzy(input: %w[foo bar], args: "-s")
     @tty.send_keys('f')
     @tty.assert_matches "> f\n#{expected_score} foo"
@@ -248,10 +248,10 @@ class FzyTest < Minitest::Test
   def test_large_input
     @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -l 3})
     @tty.send_keys('34')
-    @tty.assert_matches "> 34\n34\n340\n341"
+    @tty.assert_matches "> 34\n34\n134\n234"
 
     @tty.send_keys('5')
-    @tty.assert_matches "> 345\n345\n3450\n3451"
+    @tty.assert_matches "> 345\n345\n1345\n2345"
 
     @tty.send_keys('z')
     @tty.assert_matches "> 345z"
@@ -264,11 +264,11 @@ class FzyTest < Minitest::Test
 
     @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -j1 -l3})
     @tty.send_keys('34')
-    @tty.assert_matches "> 34\n34\n340\n341"
+    @tty.assert_matches "> 34\n34\n134\n234"
 
     @tty = TTYtest.new_terminal(%{seq 100000 | #{FZY_PATH} -j200 -l3})
     @tty.send_keys('34')
-    @tty.assert_matches "> 34\n34\n340\n341"
+    @tty.assert_matches "> 34\n34\n134\n234"
   end
 
   def test_initial_query
