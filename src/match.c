@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "match.h"
 #include "bonus.h"
@@ -104,7 +105,11 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		lower_haystack[i] = tolower(haystack[i]);
 
 	score_t match_bonus[m];
-	score_t D[n][m], M[n][m];
+	score_t *_D = malloc(n * m * sizeof(score_t));
+	score_t *_M = malloc(n * m * sizeof(score_t));
+
+#define D(r, c) _D[(r) * m + (c)]
+#define M(r, c) _M[(r) * m + (c)]
 
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
@@ -123,24 +128,24 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				} else if (j) { /* i > 0 && j > 0*/
 					score = max(
-					    M[i - 1][j - 1] + match_bonus[j],
+					    M(i - 1, j - 1) + match_bonus[j],
 
 					    /* consecutive match, doesn't stack with match_bonus */
-					    D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
+					    D(i - 1, j - 1) + SCORE_MATCH_CONSECUTIVE);
 				}
-				D[i][j] = score;
-				M[i][j] = prev_score = max(score, prev_score + gap_score);
+				D(i, j) = score;
+				M(i, j) = prev_score = max(score, prev_score + gap_score);
 			} else {
-				D[i][j] = SCORE_MIN;
-				M[i][j] = prev_score = prev_score + gap_score;
+				D(i, j) = SCORE_MIN;
+				M(i, j) = prev_score = prev_score + gap_score;
 			}
 		}
 	}
 
 #ifdef DEBUG_VERBOSE
 	fprintf(stderr, "\"%s\" =~ \"%s\"\n", needle, haystack);
-	mat_print(&D[0][0], 'D', needle, haystack);
-	mat_print(&M[0][0], 'M', needle, haystack);
+	mat_print(*_D, 'D', needle, haystack);
+	mat_print(*_M, 'M', needle, haystack);
 	fprintf(stderr, "\n");
 #endif
 
@@ -157,15 +162,15 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 				 * we encounter, the latest in the candidate
 				 * string.
 				 */
-				if (D[i][j] != SCORE_MIN &&
-				    (match_required || D[i][j] == M[i][j])) {
+				if (D(i, j) != SCORE_MIN &&
+				    (match_required || D(i, j) == M(i, j))) {
 					/* If this score was determined using
 					 * SCORE_MATCH_CONSECUTIVE, the
 					 * previous character MUST be a match
 					 */
 					match_required =
 					    i && j &&
-					    M[i][j] == D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE;
+					    M(i, j) == D(i - 1, j - 1) + SCORE_MATCH_CONSECUTIVE;
 					positions[i] = j--;
 					break;
 				}
@@ -173,7 +178,15 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		}
 	}
 
-	return M[n - 1][m - 1];
+	score_t result = M(n - 1, m - 1);
+
+#undef D
+#undef M
+
+	free(_D);
+	free(_M);
+
+	return result;
 }
 
 score_t match(const char *needle, const char *haystack) {
