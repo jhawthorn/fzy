@@ -36,8 +36,8 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 	char *search = state->last_search;
 
 	int n = strlen(search);
-	size_t positions[n + 1];
-	for (int i = 0; i < n + 1; i++)
+	size_t positions[MATCH_MAX_LEN];
+	for (int i = 0; i < n + 1 && i < MATCH_MAX_LEN; i++)
 		positions[i] = -1;
 
 	score_t score = match_positions(search, choice, &positions[0]);

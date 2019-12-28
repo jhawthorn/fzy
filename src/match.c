@@ -32,8 +32,6 @@ int has_match(const char *needle, const char *haystack) {
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
-#define MATCH_MAX_LEN 1024
-
 struct match_struct {
 	int needle_len;
 	int haystack_len;
