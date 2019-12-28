@@ -96,6 +96,39 @@ static void setup_match_struct(struct match_struct *match, const char *needle, c
 	precompute_bonus(haystack, match->match_bonus);
 }
 
+static inline void match_row(const struct match_struct *match, int row, score_t *curr_D, score_t *curr_M, const score_t *last_D, const score_t *last_M) {
+	int n = match->needle_len;
+	int m = match->haystack_len;
+	int i = row;
+
+	const char *lower_needle = match->lower_needle;
+	const char *lower_haystack = match->lower_haystack;
+	const score_t *match_bonus = match->match_bonus;
+
+	score_t prev_score = SCORE_MIN;
+	score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
+
+	for (int j = 0; j < m; j++) {
+		if (lower_needle[i] == lower_haystack[j]) {
+			score_t score = SCORE_MIN;
+			if (!i) {
+				score = (j * SCORE_GAP_LEADING) + match_bonus[j];
+			} else if (j) { /* i > 0 && j > 0*/
+				score = max(
+						last_M[j - 1] + match_bonus[j],
+
+						/* consecutive match, doesn't stack with match_bonus */
+						last_D[j - 1] + SCORE_MATCH_CONSECUTIVE);
+			}
+			curr_D[j] = score;
+			curr_M[j] = prev_score = max(score, prev_score + gap_score);
+		} else {
+			curr_D[j] = SCORE_MIN;
+			curr_M[j] = prev_score = prev_score + gap_score;
+		}
+	}
+}
+
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
 	if (!*needle)
 		return SCORE_MIN;
@@ -124,10 +157,6 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		return SCORE_MAX;
 	}
 
-	const char *lower_needle = match.lower_needle;
-	const char *lower_haystack = match.lower_haystack;
-	const score_t *match_bonus = match.match_bonus;
-
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
@@ -138,31 +167,10 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	score_t *curr_D, *curr_M;
 
 	for (int i = 0; i < n; i++) {
-		score_t prev_score = SCORE_MIN;
-		score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
-
 		curr_D = &D[i][0];
 		curr_M = &M[i][0];
 
-		for (int j = 0; j < m; j++) {
-			if (lower_needle[i] == lower_haystack[j]) {
-				score_t score = SCORE_MIN;
-				if (!i) {
-					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
-				} else if (j) { /* i > 0 && j > 0*/
-					score = max(
-					    last_M[j - 1] + match_bonus[j],
-
-					    /* consecutive match, doesn't stack with match_bonus */
-					    last_D[j - 1] + SCORE_MATCH_CONSECUTIVE);
-				}
-				curr_D[j] = score;
-				curr_M[j] = prev_score = max(score, prev_score + gap_score);
-			} else {
-				curr_D[j] = SCORE_MIN;
-				curr_M[j] = prev_score = prev_score + gap_score;
-			}
-		}
+		match_row(&match, i, curr_D, curr_M, last_D, last_M);
 
 		last_D = curr_D;
 		last_M = curr_M;
