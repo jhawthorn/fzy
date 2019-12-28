@@ -108,6 +108,9 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	score_t match_bonus[MATCH_MAX_LEN];
 	score_t D[n][m], M[n][m];
 
+	score_t *last_D, *last_M;
+	score_t *curr_D, *curr_M;
+
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
@@ -118,6 +121,9 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		score_t prev_score = SCORE_MIN;
 		score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
+		curr_D = &D[i][0];
+		curr_M = &M[i][0];
+
 		for (int j = 0; j < m; j++) {
 			if (lower_needle[i] == lower_haystack[j]) {
 				score_t score = SCORE_MIN;
@@ -125,18 +131,21 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 					score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 				} else if (j) { /* i > 0 && j > 0*/
 					score = max(
-					    M[i - 1][j - 1] + match_bonus[j],
+					    last_M[j - 1] + match_bonus[j],
 
 					    /* consecutive match, doesn't stack with match_bonus */
-					    D[i - 1][j - 1] + SCORE_MATCH_CONSECUTIVE);
+					    last_D[j - 1] + SCORE_MATCH_CONSECUTIVE);
 				}
-				D[i][j] = score;
-				M[i][j] = prev_score = max(score, prev_score + gap_score);
+				curr_D[j] = score;
+				curr_M[j] = prev_score = max(score, prev_score + gap_score);
 			} else {
-				D[i][j] = SCORE_MIN;
-				M[i][j] = prev_score = prev_score + gap_score;
+				curr_D[j] = SCORE_MIN;
+				curr_M[j] = prev_score = prev_score + gap_score;
 			}
 		}
+
+		last_D = curr_D;
+		last_M = curr_M;
 	}
 
 #ifdef DEBUG_VERBOSE
