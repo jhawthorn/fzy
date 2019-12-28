@@ -76,7 +76,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	int n = strlen(needle);
 	int m = strlen(haystack);
 
-	if (m > MATCH_MAX_LEN || n > MATCH_MAX_LEN) {
+	if (m > MATCH_MAX_LEN || n > m) {
 		/*
 		 * Unreasonably large candidate: return no score
 		 * If it is a valid match it will still be returned, it will
