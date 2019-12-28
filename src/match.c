@@ -56,6 +56,8 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 }
 #endif
 
+#define MATCH_MAX_LEN 1024
+
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
 	int m = strlen(haystack);
@@ -74,6 +76,15 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	int n = strlen(needle);
 	int m = strlen(haystack);
 
+	if (m > MATCH_MAX_LEN || n > MATCH_MAX_LEN) {
+		/*
+		 * Unreasonably large candidate: return no score
+		 * If it is a valid match it will still be returned, it will
+		 * just be ranked below any reasonably sized candidates
+		 */
+		return SCORE_MIN;
+	}
+
 	if (n == m) {
 		/* Since this method can only be called with a haystack which
 		 * matches needle. If the lengths of the strings are equal the
@@ -85,17 +96,8 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		return SCORE_MAX;
 	}
 
-	if (m > 1024) {
-		/*
-		 * Unreasonably large candidate: return no score
-		 * If it is a valid match it will still be returned, it will
-		 * just be ranked below any reasonably sized candidates
-		 */
-		return SCORE_MIN;
-	}
-
-	char lower_needle[n];
-	char lower_haystack[m];
+	char lower_needle[MATCH_MAX_LEN];
+	char lower_haystack[MATCH_MAX_LEN];
 
 	for (int i = 0; i < n; i++)
 		lower_needle[i] = tolower(needle[i]);
