@@ -135,8 +135,8 @@ TEST test_choices_unicode() {
 }
 
 TEST test_choices_large_input() {
-	int N = 100000;
-	char *strings[N];
+	const int N = 100000;
+	char *strings[100000];
 
 	for(int i = 0; i < N; i++) {
 		asprintf(&strings[i], "%i", i);
