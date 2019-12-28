@@ -46,9 +46,8 @@ struct match_struct {
 
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
-	int m = strlen(haystack);
 	char last_ch = '/';
-	for (int i = 0; i < m; i++) {
+	for (int i = 0; haystack[i]; i++) {
 		char ch = haystack[i];
 		match_bonus[i] = COMPUTE_BONUS(last_ch, ch);
 		last_ch = ch;
