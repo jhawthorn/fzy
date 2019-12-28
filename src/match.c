@@ -32,33 +32,6 @@ int has_match(const char *needle, const char *haystack) {
 
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
-#ifdef DEBUG_VERBOSE
-/* print one of the internal matrices */
-void mat_print(score_t *mat, char name, const char *needle, const char *haystack) {
-	int n = strlen(needle);
-	int m = strlen(haystack);
-	int i, j;
-	fprintf(stderr, "%c   ", name);
-	for (j = 0; j < m; j++) {
-		fprintf(stderr, "     %c", haystack[j]);
-	}
-	fprintf(stderr, "\n");
-	for (i = 0; i < n; i++) {
-		fprintf(stderr, " %c |", needle[i]);
-		for (j = 0; j < m; j++) {
-			score_t val = mat[i * m + j];
-			if (val == SCORE_MIN) {
-				fprintf(stderr, "    -\u221E");
-			} else {
-				fprintf(stderr, " %.3f", val);
-			}
-		}
-		fprintf(stderr, "\n");
-	}
-	fprintf(stderr, "\n\n");
-}
-#endif
-
 #define MATCH_MAX_LEN 1024
 
 struct match_struct {
@@ -227,13 +200,6 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		last_D = curr_D;
 		last_M = curr_M;
 	}
-
-#ifdef DEBUG_VERBOSE
-	fprintf(stderr, "\"%s\" =~ \"%s\"\n", needle, haystack);
-	mat_print(&D[0][0], 'D', needle, haystack);
-	mat_print(&M[0][0], 'M', needle, haystack);
-	fprintf(stderr, "\n");
-#endif
 
 	/* backtrace to find the positions of optimal matching */
 	if (positions) {
