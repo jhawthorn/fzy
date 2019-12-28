@@ -58,6 +58,16 @@ void mat_print(score_t *mat, char name, const char *needle, const char *haystack
 
 #define MATCH_MAX_LEN 1024
 
+struct match_struct {
+	int needle_len;
+	int haystack_len;
+
+	char lower_needle[MATCH_MAX_LEN];
+	char lower_haystack[MATCH_MAX_LEN];
+
+	score_t match_bonus[MATCH_MAX_LEN];
+};
+
 static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	/* Which positions are beginning of words */
 	int m = strlen(haystack);
@@ -69,12 +79,32 @@ static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	}
 }
 
+static void setup_match_struct(struct match_struct *match, const char *needle, const char *haystack) {
+	match->needle_len = strlen(needle);
+	match->haystack_len = strlen(haystack);
+
+	if (match->needle_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len) {
+		return;
+	}
+
+	for (int i = 0; i < match->needle_len; i++)
+		match->lower_needle[i] = tolower(needle[i]);
+
+	for (int i = 0; i < match->haystack_len; i++)
+		match->lower_haystack[i] = tolower(haystack[i]);
+
+	precompute_bonus(haystack, match->match_bonus);
+}
+
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
 	if (!*needle)
 		return SCORE_MIN;
 
-	int n = strlen(needle);
-	int m = strlen(haystack);
+	struct match_struct match;
+	setup_match_struct(&match, needle, haystack);
+
+	int n = match.needle_len;
+	int m = match.haystack_len;
 
 	if (m > MATCH_MAX_LEN || n > m) {
 		/*
@@ -94,26 +124,18 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		return SCORE_MAX;
 	}
 
-	char lower_needle[MATCH_MAX_LEN];
-	char lower_haystack[MATCH_MAX_LEN];
-
-	for (int i = 0; i < n; i++)
-		lower_needle[i] = tolower(needle[i]);
-
-	for (int i = 0; i < m; i++)
-		lower_haystack[i] = tolower(haystack[i]);
-
-	score_t match_bonus[MATCH_MAX_LEN];
-	score_t D[n][m], M[n][m];
-
-	score_t *last_D, *last_M;
-	score_t *curr_D, *curr_M;
+	const char *lower_needle = match.lower_needle;
+	const char *lower_haystack = match.lower_haystack;
+	const score_t *match_bonus = match.match_bonus;
 
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
 	 */
-	precompute_bonus(haystack, match_bonus);
+	score_t D[n][m], M[n][m];
+
+	score_t *last_D, *last_M;
+	score_t *curr_D, *curr_M;
 
 	for (int i = 0; i < n; i++) {
 		score_t prev_score = SCORE_MIN;
