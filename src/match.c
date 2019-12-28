@@ -105,7 +105,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	for (int i = 0; i < m; i++)
 		lower_haystack[i] = tolower(haystack[i]);
 
-	score_t match_bonus[m];
+	score_t match_bonus[MATCH_MAX_LEN];
 	score_t D[n][m], M[n][m];
 
 	/*
