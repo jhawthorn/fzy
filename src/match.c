@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+#include <stdlib.h>
 
 #include "match.h"
 #include "bonus.h"
@@ -129,6 +130,53 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 	}
 }
 
+score_t match(const char *needle, const char *haystack) {
+	if (!*needle)
+		return SCORE_MIN;
+
+	struct match_struct match;
+	setup_match_struct(&match, needle, haystack);
+
+	int n = match.needle_len;
+	int m = match.haystack_len;
+
+	if (m > MATCH_MAX_LEN || n > m) {
+		/*
+		 * Unreasonably large candidate: return no score
+		 * If it is a valid match it will still be returned, it will
+		 * just be ranked below any reasonably sized candidates
+		 */
+		return SCORE_MIN;
+	} else if (n == m) {
+		/* Since this method can only be called with a haystack which
+		 * matches needle. If the lengths of the strings are equal the
+		 * strings themselves must also be equal (ignoring case).
+		 */
+		return SCORE_MAX;
+	}
+
+	/*
+	 * D[][] Stores the best score for this position ending with a match.
+	 * M[][] Stores the best possible score at this position.
+	 */
+	score_t D[n][m], M[n][m];
+
+	score_t *last_D, *last_M;
+	score_t *curr_D, *curr_M;
+
+	for (int i = 0; i < n; i++) {
+		curr_D = &D[i][0];
+		curr_M = &M[i][0];
+
+		match_row(&match, i, curr_D, curr_M, last_D, last_M);
+
+		last_D = curr_D;
+		last_M = curr_M;
+	}
+
+	return M[n - 1][m - 1];
+}
+
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
 	if (!*needle)
 		return SCORE_MIN;
@@ -213,8 +261,4 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	}
 
 	return M[n - 1][m - 1];
-}
-
-score_t match(const char *needle, const char *haystack) {
-	return match_positions(needle, haystack, NULL);
 }
