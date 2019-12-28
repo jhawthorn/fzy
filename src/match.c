@@ -83,9 +83,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		 * just be ranked below any reasonably sized candidates
 		 */
 		return SCORE_MIN;
-	}
-
-	if (n == m) {
+	} else if (n == m) {
 		/* Since this method can only be called with a haystack which
 		 * matches needle. If the lengths of the strings are equal the
 		 * strings themselves must also be equal (ignoring case).
