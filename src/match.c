@@ -28,6 +28,8 @@ int has_match(const char *needle, const char *haystack) {
 	return 1;
 }
 
+#define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
+
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 #ifdef DEBUG_VERBOSE
@@ -159,22 +161,24 @@ score_t match(const char *needle, const char *haystack) {
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
 	 */
-	score_t D[n][m], M[n][m];
+	score_t D[2][MATCH_MAX_LEN], M[2][MATCH_MAX_LEN];
 
 	score_t *last_D, *last_M;
 	score_t *curr_D, *curr_M;
 
-	for (int i = 0; i < n; i++) {
-		curr_D = &D[i][0];
-		curr_M = &M[i][0];
+	last_D = D[0];
+	last_M = M[0];
+	curr_D = D[1];
+	curr_M = M[1];
 
+	for (int i = 0; i < n; i++) {
 		match_row(&match, i, curr_D, curr_M, last_D, last_M);
 
-		last_D = curr_D;
-		last_M = curr_M;
+		SWAP(curr_D, last_D, score_t *);
+		SWAP(curr_M, last_M, score_t *);
 	}
 
-	return M[n - 1][m - 1];
+	return last_M[m - 1];
 }
 
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
