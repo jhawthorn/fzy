@@ -1,7 +1,7 @@
 VERSION=1.0
 
 CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
-CFLAGS+=-Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla
+CFLAGS+=-MD -Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
 BINDIR?=$(PREFIX)/bin
@@ -49,9 +49,11 @@ fmt:
 	clang-format -i src/*.c src/*.h
 
 clean:
-	rm -f fzy test/fzytest src/*.o deps/*/*.o
+	rm -f fzy test/fzytest src/*.o src/*.d deps/*/*.o
 
 veryclean: clean
 	rm -f config.h
 
 .PHONY: test check all clean veryclean install fmt acceptance
+
+-include $(OBJECTS:.o=.d)
