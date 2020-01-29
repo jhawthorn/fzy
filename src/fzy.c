@@ -53,8 +53,12 @@ int main(int argc, char *argv[]) {
 		if (options.num_lines > choices.size)
 			options.num_lines = choices.size;
 
-		if (options.num_lines + 1 > tty_getheight(&tty))
-			options.num_lines = tty_getheight(&tty) - 1;
+		int num_lines_adjustment = 1;
+		if (options.show_info)
+			num_lines_adjustment++;
+
+		if (options.num_lines + num_lines_adjustment > tty_getheight(&tty))
+			options.num_lines = tty_getheight(&tty) - num_lines_adjustment;
 
 		tty_interface_t tty_interface;
 		tty_interface_init(&tty_interface, &tty, &choices, &options);
