@@ -31,8 +31,11 @@ check: test/fzytest
 fzy: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-%.o: %.c config.h
+%.o: %.c config.h %.d
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+%.d: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MM -MT"$@ $(@:.d=.o)" -MP -MF $@ $<
 
 config.h: src/config.def.h
 	cp src/config.def.h config.h
@@ -50,8 +53,15 @@ fmt:
 
 clean:
 	rm -f fzy test/fzytest src/*.o deps/*/*.o
+	rm -f $(AUTODEPS)
 
 veryclean: clean
 	rm -f config.h
+
+# create a list of auto dependencies
+AUTODEPS:= $(patsubst %.o,%.d, $(OBJECTS)) $(patsubst %.o,%.d, $(THEFTDEPS))
+
+# include by auto dependencies
+-include $(AUTODEPS)
 
 .PHONY: test check all clean veryclean install fmt acceptance
