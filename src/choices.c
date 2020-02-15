@@ -46,7 +46,7 @@ static void *safe_realloc(void *buffer, size_t size) {
 	return buffer;
 }
 
-void choices_fread(choices_t *c, FILE *file) {
+void choices_fread(choices_t *c, FILE *file, char input_delimiter) {
 	/* Save current position for parsing later */
 	size_t buffer_start = c->buffer_size;
 
@@ -72,9 +72,10 @@ void choices_fread(choices_t *c, FILE *file) {
 	 */
 
 	/* Tokenize input and add to choices */
+	const char *line_end = c->buffer + c->buffer_size;
 	char *line = c->buffer + buffer_start;
 	do {
-		char *nl = strchr(line, '\n');
+		char *nl = strchr(line, input_delimiter);
 		if (nl)
 			*nl++ = '\0';
 
@@ -83,7 +84,7 @@ void choices_fread(choices_t *c, FILE *file) {
 			choices_add(c, line);
 
 		line = nl;
-	} while (line);
+	} while (line && line < line_end);
 }
 
 static void choices_resize(choices_t *c, size_t new_capacity) {

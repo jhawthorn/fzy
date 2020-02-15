@@ -470,6 +470,15 @@ class FzyTest < Minitest::Test
     @tty.assert_matches ">\nfoo\nbar"
   end
 
+  def test_show_info
+    @tty = interactive_fzy(input: %w[foo bar baz], args: "-i")
+    @tty.assert_matches ">\n[3/3]\nfoo\nbar\nbaz"
+    @tty.send_keys("ba")
+    @tty.assert_matches "> ba\n[2/3]\nbar\nbaz"
+    @tty.send_keys("q")
+    @tty.assert_matches "> baq\n[0/3]"
+  end
+
   def test_help
     @tty = TTYtest.new_terminal(%{#{FZY_PATH} --help})
     @tty.assert_matches <<TTY
@@ -480,7 +489,9 @@ Usage: fzy [OPTION]...
  -e, --show-matches=QUERY Output the sorted matches of QUERY
  -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)
  -s, --show-scores        Show the scores of each match
- -j, --workers=NUM        Use NUM workers for searching (default is # of CPUs)
+ -0, --read-null          Read input delimited by ASCII NUL characters
+ -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)
+ -i, --show-info          Show selection info line
  -d, --delimiter=DELIM    Use DELIM to split the line to fields (default ':')
  -f, --field=NUM          Use field NUM for searching (default is the whole line
 )

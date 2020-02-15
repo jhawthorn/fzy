@@ -11,6 +11,8 @@ typedef struct {
 	unsigned int scrolloff;
 	const char *prompt;
 	unsigned int workers;
+	char input_delimiter;
+	int show_info;
 	char delimiter;
 	unsigned int field;
 	unsigned int output_field;

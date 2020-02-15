@@ -27,11 +27,11 @@ int main(int argc, char *argv[]) {
 			fprintf(stderr, "Must specify -e/--show-matches with --benchmark\n");
 			exit(EXIT_FAILURE);
 		}
-		choices_fread(&choices, stdin);
+		choices_fread(&choices, stdin, options.input_delimiter);
 		for (int i = 0; i < options.benchmark; i++)
 			choices_search(&choices, options.filter);
 	} else if (options.filter) {
-		choices_fread(&choices, stdin);
+		choices_fread(&choices, stdin, options.input_delimiter);
 		choices_search(&choices, options.filter);
 		for (size_t i = 0; i < choices_available(&choices); i++) {
 			if (options.show_scores)
@@ -42,19 +42,23 @@ int main(int argc, char *argv[]) {
 		/* interactive */
 
 		if (isatty(STDIN_FILENO))
-			choices_fread(&choices, stdin);
+			choices_fread(&choices, stdin, options.input_delimiter);
 
 		tty_t tty;
 		tty_init(&tty, options.tty_filename);
 
 		if (!isatty(STDIN_FILENO))
-			choices_fread(&choices, stdin);
+			choices_fread(&choices, stdin, options.input_delimiter);
 
 		if (options.num_lines > choices.size)
 			options.num_lines = choices.size;
 
-		if (options.num_lines + 1 > tty_getheight(&tty))
-			options.num_lines = tty_getheight(&tty) - 1;
+		int num_lines_adjustment = 1;
+		if (options.show_info)
+			num_lines_adjustment++;
+
+		if (options.num_lines + num_lines_adjustment > tty_getheight(&tty))
+			options.num_lines = tty_getheight(&tty) - num_lines_adjustment;
 
 		tty_interface_t tty_interface;
 		tty_interface_init(&tty_interface, &tty, &choices, &options);

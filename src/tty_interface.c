@@ -20,7 +20,7 @@ static void clear(tty_interface_t *state) {
 
 	tty_setcol(tty, 0);
 	size_t line = 0;
-	while (line++ < state->options->num_lines) {
+	while (line++ < state->options->num_lines + (state->options->show_info ? 1 : 0)) {
 		tty_newline(tty);
 	}
 	tty_clearline(tty);
@@ -36,8 +36,8 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 	char *search = state->last_search;
 
 	int n = strlen(search);
-	size_t positions[n + 1];
-	for (int i = 0; i < n + 1; i++)
+	size_t positions[MATCH_MAX_LEN];
+	for (int i = 0; i < n + 1 && i < MATCH_MAX_LEN; i++)
 		positions[i] = -1;
 
 	score_t score = match_positions(search, choice, &positions[0]);
@@ -65,7 +65,11 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		} else {
 			tty_setfg(tty, TTY_COLOR_NORMAL);
 		}
-		tty_printf(tty, "%c", choice[i]);
+		if (choice[i] == '\n') {
+			tty_putc(tty, ' ');
+		} else {
+			tty_printf(tty, "%c", choice[i]);
+		}
 	}
 	tty_setwrap(tty);
 	tty_setnormal(tty);
@@ -86,9 +90,16 @@ static void draw(tty_interface_t *state) {
 			start = available - num_lines;
 		}
 	}
+
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", options->prompt, state->search);
 	tty_clearline(tty);
+
+	if (options->show_info) {
+		tty_printf(tty, "\n[%lu/%lu]", choices->available, choices->size);
+		tty_clearline(tty);
+	}
+
 	for (size_t i = start; i < start + num_lines; i++) {
 		tty_printf(tty, "\n");
 		tty_clearline(tty);
@@ -97,9 +108,9 @@ static void draw(tty_interface_t *state) {
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
-	if (num_lines > 0) {
-		tty_moveup(tty, num_lines);
-	}
+
+	if (num_lines + options->show_info)
+		tty_moveup(tty, num_lines + options->show_info);
 
 	tty_setcol(tty, 0);
 	fputs(options->prompt, tty->fout);
@@ -286,6 +297,7 @@ static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC *
 					   {KEY_CTRL('I'), action_autocomplete}, /* TAB (C-I ) */
 					   {KEY_CTRL('C'), action_exit},	 /* C-C */
 					   {KEY_CTRL('D'), action_exit},	 /* C-D */
+					   {KEY_CTRL('G'), action_exit},	 /* C-G */
 					   {KEY_CTRL('M'), action_emit},	 /* CR */
 					   {KEY_CTRL('P'), action_prev},	 /* C-P */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
