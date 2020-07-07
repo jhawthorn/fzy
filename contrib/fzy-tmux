@@ -23,7 +23,7 @@ main() {
         fatal "Unable to create a temporary directory"
     fi
 
-    mkfifo "${PATH_FIFO_IN}" "${PATH_FIFO_OUT}"
+    mkfifo "${PATH_FIFO_IN}" "${PATH_FIFO_OUT}" "${PATH_FIFO_RET}"
 
     export TMUX=$(_echo "${TMUX}" | cut -d , -f 1,2)
     eval "tmux \
