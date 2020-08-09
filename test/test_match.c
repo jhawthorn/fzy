@@ -131,6 +131,18 @@ TEST score_dot() {
 	PASS();
 }
 
+TEST score_long_string() {
+	char string[4096];
+	memset(string, 'a', sizeof(string) - 1);
+	string[sizeof(string) - 1] = '\0';
+
+	ASSERT_SCORE_EQ(SCORE_MIN, match("aa", string));
+	ASSERT_SCORE_EQ(SCORE_MIN, match(string, "aa"));
+	ASSERT_SCORE_EQ(SCORE_MIN, match(string, string));
+
+	PASS();
+}
+
 TEST positions_consecutive() {
 	size_t positions[3];
 	match_positions("amo", "app/models/foo", positions);
@@ -210,6 +222,7 @@ SUITE(match_suite) {
 	RUN_TEST(score_slash);
 	RUN_TEST(score_capital);
 	RUN_TEST(score_dot);
+	RUN_TEST(score_long_string);
 
 	RUN_TEST(positions_consecutive);
 	RUN_TEST(positions_start_of_word);
