@@ -56,6 +56,8 @@ Using MacPorts
 
 **[openSUSE](https://software.opensuse.org/package/fzy)**: `zypper in fzy`
 
+**[RHEL/CentOS/Fedora](https://copr.fedorainfracloud.org/coprs/filbranden/fzy/)**: `dnf copr enable filbranden/fzy && dnf install fzy`
+
 ### From source
 
     make
