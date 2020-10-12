@@ -1,12 +1,27 @@
 dist: trusty
 sudo: false
 language: c
-compiler:
-  - clang
-  - gcc
-os:
-  - linux
-  - osx
+
+matrix:
+   include:
+       - os: linux
+         arch: amd64
+         compiler: clang
+       - os: linux
+         arch: ppc64le
+         compiler: clang
+       - os: osx
+         arch: amd64
+         compiler: clang
+       - os: linux
+         arch: amd64
+         compiler: gcc 
+       - os: linux
+         arch: ppc64le
+         compiler: gcc 
+       - os: osx
+         arch: amd64
+         compiler: gcc 
 script: make && make check
 jobs:
   include:
