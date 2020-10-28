@@ -11,7 +11,7 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Compile and run tests
       run: make && make test
       env:
@@ -21,16 +21,36 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://alpine
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Install build dependencies
       run: apk add build-base
     - name: Compile and run tests
       run: make && make test
+  multiarch_test:
+    name: Test on ${{ matrix.arch }}
+    strategy:
+      matrix:
+        arch: [armv7, aarch64, s390x, ppc64le]
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: uraimo/run-on-arch-action@v2.0.5
+        name: Compile and run tests
+        id: test
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ubuntu20.04
+          githubToken: ${{ github.token }}
+          install: |
+            apt-get update -q -y
+            apt-get install -y gcc make
+            rm -rf /var/lib/apt/lists/*
+          run: make && make test
   acceptance_test:
     name: Acceptance Tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
     - name: Set up Ruby 2.6
       uses: actions/setup-ruby@v1
       with:

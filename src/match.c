@@ -56,7 +56,7 @@ static void setup_match_struct(struct match_struct *match, const char *needle, c
 	match->needle_len = strlen(needle);
 	match->haystack_len = strlen(haystack);
 
-	if (match->needle_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len) {
+	if (match->haystack_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len) {
 		return;
 	}
 
