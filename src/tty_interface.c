@@ -139,10 +139,12 @@ static void action_select(tty_interface_t *state) {
 	update_state(state);
 
 	const char *selection = choices_get(state->choices, state->choices->selection);
-	if (choices_selected(state->choices, selection)) {
-		choices_deselect(state->choices, selection);
-	} else {
-		choices_select(state->choices, selection);
+	if (selection) {
+		if (choices_selected(state->choices, selection)) {
+			choices_deselect(state->choices, selection);
+		} else {
+			choices_select(state->choices, selection);
+		}
 	}
 }
 
