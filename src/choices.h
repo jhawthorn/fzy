@@ -25,8 +25,12 @@ typedef struct {
 	size_t available;
 	size_t selection;
 
-        const char **selections;
-        size_t num_selections;
+	struct {
+		const char **strings;
+
+		size_t capacity;
+		size_t size;
+	} selections;
 
 	unsigned int worker_count;
 } choices_t;

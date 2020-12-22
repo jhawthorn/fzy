@@ -157,7 +157,7 @@ static void action_emit(tty_interface_t *state) {
 
 	/* If no choices were selected with multi-select, use the choice under
 	 * the cursor */
-	if (!state->choices->num_selections) {
+	if (!state->choices->selections.size) {
 		const char *selection = choices_get(state->choices, state->choices->selection);
 		if (selection) {
 			/* output the result */
@@ -167,8 +167,8 @@ static void action_emit(tty_interface_t *state) {
 			printf("%s\n", state->search);
 		}
 	} else {
-		for (size_t i = 0; i < state->choices->num_selections; i++) {
-			printf("%s\n", state->choices->selections[i]);
+		for (size_t i = 0; i < state->choices->selections.size; i++) {
+			printf("%s\n", state->choices->selections.strings[i]);
 		}
 	}
 

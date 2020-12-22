@@ -15,6 +15,9 @@
 /* Initial size of choices array */
 #define INITIAL_CHOICE_CAPACITY 128
 
+/* Initial size of multi-selection buffer */
+#define INITIAL_SELECTIONS_CAPACITY 8
+
 static int cmpchoice(const void *_idx1, const void *_idx2) {
 	const struct scored_result *a = _idx1;
 	const struct scored_result *b = _idx2;
@@ -92,6 +95,11 @@ static void choices_resize(choices_t *c, size_t new_capacity) {
 	c->capacity = new_capacity;
 }
 
+static void choices_resize_selections(choices_t *c, size_t new_capacity) {
+	c->selections.strings = safe_realloc(c->selections.strings, new_capacity * sizeof(const char *));
+	c->selections.capacity = new_capacity;
+}
+
 static void choices_reset_search(choices_t *c) {
 	free(c->results);
 	c->results = NULL;
@@ -101,8 +109,8 @@ static void choices_reset_search(choices_t *c) {
 void choices_init(choices_t *c, options_t *options) {
 	c->strings = NULL;
 	c->results = NULL;
-	c->selections = NULL;
-	c->num_selections = 0;
+	c->selections.strings = NULL;
+	c->selections.capacity = c->selections.size = 0;
 
 	c->buffer_size = 0;
 	c->buffer = NULL;
@@ -132,9 +140,9 @@ void choices_destroy(choices_t *c) {
 	c->results = NULL;
 	c->available = c->selection = 0;
 
-	free(c->selections);
-	c->selections = NULL;
-	c->num_selections = 0;
+	free(c->selections.strings);
+	c->selections.strings = NULL;
+	c->selections.capacity = c->selections.size = 0;
 }
 
 void choices_add(choices_t *c, const char *choice) {
@@ -148,30 +156,37 @@ void choices_add(choices_t *c, const char *choice) {
 }
 
 void choices_select(choices_t *c, const char *choice) {
-	if (!c->selections) {
-		c->num_selections = 1;
-		c->selections = malloc(sizeof(char *));
-		c->selections[0] = choice;
-	} else if (!choices_selected(c, choice)) {
-		c->num_selections++;
-		c->selections = realloc(c->selections, c->num_selections * sizeof(char *));
-		c->selections[c->num_selections - 1] = choice;
+	if (c->selections.size == c->selections.capacity) {
+		if (c->selections.capacity == 0) {
+			choices_resize_selections(c, INITIAL_SELECTIONS_CAPACITY);
+		} else {
+			choices_resize_selections(c, c->selections.capacity * 2);
+		}
+	}
+
+	if (!choices_selected(c, choice)) {
+		c->selections.strings[c->selections.size++] = choice;
 	}
 }
 
 void choices_deselect(choices_t *c, const char *choice) {
-	for (size_t i = 0; i < c->num_selections; i++) {
-		if (c->selections[i] == choice) {
-			c->selections[i] = NULL;
-			c->num_selections--;
+	size_t index = c->selections.size;
+	for (size_t i = 0; i < c->selections.size; i++) {
+		if (c->selections.strings[i] == choice) {
+			c->selections.size--;
+			index = i;
 			break;
 		}
+	}
+
+	for (size_t i = index; i < c->selections.size; i++) {
+		c->selections.strings[i] = c->selections.strings[i+1];
 	}
 }
 
 bool choices_selected(choices_t *c, const char *choice) {
-	for (size_t i = 0; i < c->num_selections; i++) {
-		if (c->selections[i] == choice) {
+	for (size_t i = 0; i < c->selections.size; i++) {
+		if (c->selections.strings[i] == choice) {
 			return true;
 		}
 	}
