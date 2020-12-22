@@ -145,6 +145,7 @@ static void action_select(tty_interface_t *state) {
 		} else {
 			choices_select(state->choices, selection);
 		}
+		choices_next(state->choices);
 	}
 }
 
