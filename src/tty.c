@@ -148,9 +148,13 @@ void tty_setunderline(tty_t *tty) {
 	tty_sgr(tty, 4);
 }
 
+void tty_setbold(tty_t *tty) {
+	tty_sgr(tty, 1);
+}
+
 void tty_setnormal(tty_t *tty) {
 	tty_sgr(tty, 0);
-	tty->fgcolor = 9;
+	tty->fgcolor = TTY_COLOR_NORMAL;
 }
 
 void tty_setnowrap(tty_t *tty) {

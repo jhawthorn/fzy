@@ -94,13 +94,15 @@ static void choices_resize(choices_t *c, size_t new_capacity) {
 
 static void choices_reset_search(choices_t *c) {
 	free(c->results);
-	c->selection = c->available = 0;
 	c->results = NULL;
+	c->selection = c->available = 0;
 }
 
 void choices_init(choices_t *c, options_t *options) {
 	c->strings = NULL;
 	c->results = NULL;
+	c->selections = NULL;
+	c->num_selections = 0;
 
 	c->buffer_size = 0;
 	c->buffer = NULL;
@@ -129,6 +131,10 @@ void choices_destroy(choices_t *c) {
 	free(c->results);
 	c->results = NULL;
 	c->available = c->selection = 0;
+
+	free(c->selections);
+	c->selections = NULL;
+	c->num_selections = 0;
 }
 
 void choices_add(choices_t *c, const char *choice) {
@@ -139,6 +145,37 @@ void choices_add(choices_t *c, const char *choice) {
 		choices_resize(c, c->capacity * 2);
 	}
 	c->strings[c->size++] = choice;
+}
+
+void choices_select(choices_t *c, const char *choice) {
+	if (!c->selections) {
+		c->num_selections = 1;
+		c->selections = malloc(sizeof(char *));
+		c->selections[0] = choice;
+	} else if (!choices_selected(c, choice)) {
+		c->num_selections++;
+		c->selections = realloc(c->selections, c->num_selections * sizeof(char *));
+		c->selections[c->num_selections - 1] = choice;
+	}
+}
+
+void choices_deselect(choices_t *c, const char *choice) {
+	for (size_t i = 0; i < c->num_selections; i++) {
+		if (c->selections[i] == choice) {
+			c->selections[i] = NULL;
+			c->num_selections--;
+			break;
+		}
+	}
+}
+
+bool choices_selected(choices_t *c, const char *choice) {
+	for (size_t i = 0; i < c->num_selections; i++) {
+		if (c->selections[i] == choice) {
+			return true;
+		}
+	}
+	return false;
 }
 
 size_t choices_available(choices_t *c) {

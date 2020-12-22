@@ -52,7 +52,7 @@ Usage help.
 .
 .TP
 .BR "ENTER"
-Print the selected item to stdout and exit
+Print the selected item (or all multi-selected items) to stdout and exit
 .TP
 .BR "Ctrl+c, Ctrl+g, Esc"
 Exit with status 1, without making a selection.
@@ -63,7 +63,7 @@ Select the previous item
 .BR "Down Arrow, Ctrl+n"
 Select the next item
 .TP
-Tab
+.BR Tab
 Replace the current search string with the selected item
 .TP
 .BR "Backspace, Ctrl+h"
@@ -74,6 +74,10 @@ Delete the word before the cursor
 .TP
 .BR Ctrl+u
 Delete the entire line
+.TP
+.BR Ctrl+s
+Multi-select the current item. Each multi-selected item will be printed on
+its own line.
 .
 .SH USAGE EXAMPLES
 .
