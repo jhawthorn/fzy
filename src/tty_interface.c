@@ -327,7 +327,7 @@ static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC *
 					   {KEY_CTRL('D'), action_exit},	 /* C-D */
 					   {KEY_CTRL('G'), action_exit},	 /* C-G */
 					   {KEY_CTRL('M'), action_emit},	 /* CR */
-					   {KEY_CTRL('S'), action_select},	 /* C-S */
+					   {KEY_CTRL('T'), action_select},	 /* C-T */
 					   {KEY_CTRL('P'), action_prev},	 /* C-P */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
 					   {KEY_CTRL('K'), action_prev},	 /* C-K */
