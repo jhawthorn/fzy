@@ -20,6 +20,7 @@ static const char *usage_str =
     " -0, --read-null          Read input delimited by ASCII NUL characters\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -i, --show-info          Show selection info line\n"
+		" -x, --exec=PROG          Execute prog on selection. Don't exit.\n"     
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
@@ -29,6 +30,7 @@ static void usage(const char *argv0) {
 
 static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'},
 				   {"query", required_argument, NULL, 'q'},
+				   {"exec", required_argument, NULL, 'x'},
 				   {"lines", required_argument, NULL, 'l'},
 				   {"tty", required_argument, NULL, 't'},
 				   {"prompt", required_argument, NULL, 'p'},
@@ -45,6 +47,7 @@ void options_init(options_t *options) {
 	/* set defaults */
 	options->benchmark       = 0;
 	options->filter          = NULL;
+	options->exec            = NULL;
 	options->init_search     = NULL;
 	options->show_scores     = 0;
 	options->scrolloff       = 1;
@@ -60,7 +63,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:ix:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
@@ -73,6 +76,12 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				break;
 			case 'q':
 				options->init_search = optarg;
+				break;
+			case 'x':
+				options->exec = malloc(MAXEXECLEN);
+				options->p_exec = stpcpy(options->exec,optarg);
+				*options->p_exec = ' ';
+				options->p_exec++;
 				break;
 			case 'e':
 				options->filter = optarg;

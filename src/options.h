@@ -1,6 +1,8 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H OPTIONS_H
 
+#define MAXEXECLEN 256
+
 typedef struct {
 	int benchmark;
 	const char *filter;
@@ -10,6 +12,8 @@ typedef struct {
 	unsigned int num_lines;
 	unsigned int scrolloff;
 	const char *prompt;
+	char *exec;
+	char* p_exec;
 	unsigned int workers;
 	char input_delimiter;
 	int show_info;
