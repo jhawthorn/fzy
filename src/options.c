@@ -20,7 +20,7 @@ static const char *usage_str =
     " -0, --read-null          Read input delimited by ASCII NUL characters\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -i, --show-info          Show selection info line\n"
-		" -x, --exec=PROG          Execute prog on selection. Don't exit.\n"     
+    " -x, --exec=PROG          Execute prog on selection. Don't exit.\n"     
     " -h, --help     Display this help and exit\n"
     " -v, --version  Output version information and exit\n";
 
