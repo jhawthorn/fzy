@@ -74,7 +74,9 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 
 void tty_getwinsz(tty_t *tty) {
 	struct winsize ws;
-	if (ioctl(fileno(tty->fout), TIOCGWINSZ, &ws) == -1) {
+	if (ioctl(fileno(tty->fout), TIOCGWINSZ, &ws) == -1
+	    || ws.ws_col == 0
+	    || ws.ws_row == 0) {
 		tty->maxwidth = 80;
 		tty->maxheight = 25;
 	} else {
