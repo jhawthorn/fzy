@@ -45,6 +45,10 @@ install: fzy
 	cp fzy.1 $(DESTDIR)$(MANDIR)/man1/
 	chmod 644 ${DESTDIR}${MANDIR}/man1/fzy.1
 
+uninstall:
+	rm $(DESTDIR)$(BINDIR)/fzy
+	rm $(DESTDIR)$(MANDIR)/man1/fzy.1
+
 fmt:
 	clang-format -i src/*.c src/*.h
 
