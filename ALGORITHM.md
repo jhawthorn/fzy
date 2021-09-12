@@ -88,7 +88,7 @@ web interface.
 
 ## command-t, ctrlp-cmatcher
 
-Command is a plugin first released in 2010 intending to bring TextMate's
+Command-t is a plugin first released in 2010 intending to bring TextMate's
 "Go to File" feature to vim.
 
 Anecdotally, this algorithm works very well. The recursive nature makes it a little hard to 
