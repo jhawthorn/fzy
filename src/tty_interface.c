@@ -134,22 +134,31 @@ static void update_state(tty_interface_t *state) {
 static void action_emit(tty_interface_t *state) {
 	update_state(state);
 
-	/* Reset the tty as close as possible to the previous state */
-	clear(state);
-
-	/* ttyout should be flushed before outputting on stdout */
-	tty_close(state->tty);
-
 	const char *selection = choices_get(state->choices, state->choices->selection);
-	if (selection) {
-		/* output the selected result */
-		printf("%s\n", selection);
-	} else {
-		/* No match, output the query instead */
-		printf("%s\n", state->search);
-	}
+	if ( state->options->exec == NULL ){
+		/* Reset the tty as close as possible to the previous state */
+		clear(state);
 
-	state->exit = EXIT_SUCCESS;
+		/* ttyout should be flushed before outputting on stdout */
+		tty_close(state->tty);
+
+		if (selection) {
+			/* output the selected result */
+			printf("%s\n", selection);
+		} else {
+			/* No match, output the query instead */
+			printf("%s\n", state->search);
+		}
+
+		state->exit = EXIT_SUCCESS;
+	} else {
+
+		if (selection) {
+			strcpy(state->options->p_exec,selection);
+			system(state->options->exec);
+		}
+
+	}
 }
 
 static void action_del_char(tty_interface_t *state) {
