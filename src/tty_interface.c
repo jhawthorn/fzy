@@ -107,7 +107,7 @@ print_selections(tty_interface_t *state)
 static void
 free_selections(tty_interface_t *state)
 {
-	if (state->options->multi == 0 || sel_n == 0) {
+	if (state->options->multi == 0 || seln == 0) {
 		return;
 	}
 
