@@ -7,9 +7,15 @@
 #include "tty_interface.h"
 #include "../config.h"
 
+/* Array to store selected/marked entries */
 static char **selections = (char **)NULL;
+
+/* SEL_N is the current size of the selections array, while SEL_COUNTER
+ * is the current amount of actually selected entries */
 static size_t seln = 0, sel_counter = 0;
 
+/* Search for the string P in the selections array. If found, return 1,
+ * otherwise zero */
 static int
 is_selected(const char *p)
 {
@@ -27,6 +33,8 @@ is_selected(const char *p)
 	return 0;
 }
 
+/* Remote the entry NAME from the selections array by setting the first
+ * byte of the corresponding array entry to NUL */
 static void
 deselect_entry(char *name)
 {
@@ -45,6 +53,7 @@ deselect_entry(char *name)
 	}
 }
 
+/* Save the string P into the selections array */
 static void
 save_selection(const char *p)
 {
@@ -56,6 +65,8 @@ save_selection(const char *p)
 	selections[seln] = (char *)NULL;
 }
 
+/* Select the currently highighted/hovered entry if not already selected.
+ * Otherwise, remove it from the selections list */
 static int
 action_select(tty_interface_t *state)
 {
@@ -74,6 +85,7 @@ action_select(tty_interface_t *state)
 	return EXIT_SUCCESS;
 }
 
+/* Print the list of selected/marked entries to STDOUT */
 static void
 print_selections(tty_interface_t *state)
 {
@@ -91,10 +103,11 @@ print_selections(tty_interface_t *state)
 
 }
 
+/* Free the selections array */
 static void
 free_selections(tty_interface_t *state)
 {
-	if (state->options->multi == 0) {
+	if (state->options->multi == 0 || sel_n == 0) {
 		return;
 	}
 
