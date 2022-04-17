@@ -217,11 +217,10 @@ static void draw(tty_interface_t *state) {
 		tty_clearline(tty);
 		const char *choice = choices_get(choices, i);
 		if (choice) {
-			if (options->multi == 1 && is_selected((char *)choice)) {
-				tty_printf(tty, "%*c %s", options->pad - 1, '*', "");
-			} else {
-				tty_printf(tty, "%*s", options->pad, "");
-			}
+			int multi_sel = options->multi == 1 && is_selected((char *)choice);
+			tty_printf(tty, "%*s%c%c", options->pad, "",
+				i == choices->selection ? options->pointer : ' ',
+				multi_sel == 1 ? options->marker : ' ');
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
@@ -314,6 +313,8 @@ static void action_del_all(tty_interface_t *state) {
 }
 
 static void action_prev(tty_interface_t *state) {
+	if (state->options->cycle == 0 && state->choices->selection == 0)
+		return;
 	update_state(state);
 	choices_prev(state->choices);
 }
@@ -323,6 +324,9 @@ static void action_ignore(tty_interface_t *state) {
 }
 
 static void action_next(tty_interface_t *state) {
+	if (state->options->cycle == 0
+	&& state->choices->selection + 1 >= state->choices->available)
+		return;
 	update_state(state);
 	choices_next(state->choices);
 }

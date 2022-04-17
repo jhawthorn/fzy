@@ -15,6 +15,9 @@ typedef struct {
 	int show_info;
 	int pad;
 	int multi;
+	char pointer;
+	char marker;
+	int cycle;
 } options_t;
 
 void options_init(options_t *options);

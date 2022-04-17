@@ -14,7 +14,7 @@ static const char *usage_str =
     " -l, --lines=LINES        Specify how many lines of results to show (default 10)\n"
     " -m, --multi              Enable multi-selection\n"
     " -p, --prompt=PROMPT      Input prompt (default '> ')\n"
-    " -P, --pad=NUM            Left pad list of matches NUM places (default 2)\n"
+    " -P, --pad=NUM            Left pad the list of matches NUM places (default 0)\n"
     " -q, --query=QUERY        Use QUERY as the initial search string\n"
     " -e, --show-matches=QUERY Output the sorted matches of QUERY\n"
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
@@ -23,7 +23,10 @@ static const char *usage_str =
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -i, --show-info          Show selection info line\n"
     " -h, --help               Display this help and exit\n"
-    " -v, --version            Output version information and exit\n";
+    " -v, --version            Output version information and exit\n"
+    "     --pointer            Pointer to highlighted match (default '>')\n"
+    "     --marker             Multi-select marker (default '*')\n"
+    "     --cycle              Enable cyclic scrolling\n";
 
 static void usage(const char *argv0) {
 	fprintf(stderr, usage_str, argv0);
@@ -44,24 +47,30 @@ static struct option longopts[] = {
 				   {"help", no_argument, NULL, 'h'},
 				   {"pad", required_argument, NULL, 'P'},
 				   {"multi", no_argument, NULL, 'm'},
+				   {"pointer", required_argument, NULL, 1},
+				   {"marker", required_argument, NULL, 2},
+				   {"cycle", no_argument, NULL, 3},
 				   {NULL, 0, NULL, 0}
 };
 
 void options_init(options_t *options) {
 	/* set defaults */
-	options->benchmark       = 0;
-	options->filter          = NULL;
-	options->init_search     = NULL;
-	options->show_scores     = 0;
-	options->scrolloff       = 1;
+	options->benchmark       = DEFAULT_BENCHMARK;
+	options->filter          = DEFAULT_FILTER;
+	options->init_search     = DEFAULT_INIT_SEARCH;
+	options->show_scores     = DEFAULT_SCORES;
+	options->scrolloff       = DEFAULT_SCROLLOFF;
 	options->tty_filename    = DEFAULT_TTY;
 	options->num_lines       = DEFAULT_NUM_LINES;
 	options->prompt          = DEFAULT_PROMPT;
 	options->workers         = DEFAULT_WORKERS;
-	options->input_delimiter = '\n';
+	options->input_delimiter = DEFAULT_DELIMITER;
 	options->show_info       = DEFAULT_SHOW_INFO;
-	options->pad             = 2;
-	options->multi           = 0;
+	options->pad             = DEFAULT_PAD;
+	options->multi           = DEFAULT_MULTI;
+	options->pointer         = DEFAULT_POINTER;
+	options->marker          = DEFAULT_MARKER;
+	options->cycle           = DEFAULT_CYCLE;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
@@ -71,7 +80,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 	while ((c = getopt_long(argc, argv, "mvhs0e:q:l:t:p:P:j:i", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
-//				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
+				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
 				exit(EXIT_SUCCESS);
 			case 's':
 				options->show_scores = 1;
@@ -105,7 +114,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				options->prompt = optarg;
 				break;
 			case 'P':
-				if (optarg)
+				if (optarg && *optarg && *optarg >= '0' && *optarg <= '9')
 					options->pad = atoi(optarg);
 				break;
 			case 'j':
@@ -130,6 +139,17 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 			} break;
 			case 'i':
 				options->show_info = 1;
+				break;
+			case 1:
+				if (optarg && *optarg)
+					options->pointer = *optarg;
+				break;
+			case 2:
+				if (optarg && *optarg)
+					options->marker = *optarg;
+				break;
+			case 3:
+				options->cycle = 1;
 				break;
 
 			case 'h': /* fallthrough */
