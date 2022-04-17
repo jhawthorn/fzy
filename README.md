@@ -2,7 +2,18 @@
 
 **fzy** is a fast, simple fuzzy text selector for the terminal with an advanced scoring algorithm.
 
-**NOTE**: Compared to `fzy` 1.0, this fork adds the following features: **1)** left pad for the list of matches (`-P,--pad`), **2)** multi-selection (`-m,--multi`), **3)** pointer and marker customization (`--pointer`, and `--marker` respectivelly), and **4)** cyclic scrolling (`--cycle`, default to disabled).
+---
+
+**NOTE**
+
+Compared to `fzy` 1.0, this fork adds the following features:
+
+**1)** Left pad for the list of matches (`-P,--pad`) \
+**2)** Multi-selection (`-m,--multi`) \
+**3)** Pointer and marker customization (`--pointer` and `--marker` respectivelly) \
+**4)** Cyclic scrolling (`--cycle`). Defaults to disabled
+
+---
 
 [Try it out online!](http://jhawthorn.github.io/fzy-demo)
 
