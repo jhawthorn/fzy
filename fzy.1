@@ -25,6 +25,14 @@ How many lines of items to display. If unspecified, defaults to 10 lines.
 Input prompt (default: '> ')
 .
 .TP
+.BR \-P ", " \-\-pad =\fINUM\fR
+Left pad the list of matches NUM places (default: 0)
+.
+.TP
+.BR \-m ", " \-\-multi
+Enable multi-selection
+.
+.TP
 .BR \-s ", " \-\-show-scores
 Show the scores for each item.
 .
@@ -56,28 +64,28 @@ Usage help.
 .
 .TP
 .BR "ENTER"
-Print the selected item to stdout and exit
+Print the selected items to stdout and exit.
 .TP
 .BR "Ctrl+c, Ctrl+g, Esc"
 Exit with status 1, without making a selection.
 .TP
 .BR "Up Arrow, Ctrl+p, Ctrl+k"
-Select the previous item
+Select the previous item.
 .TP
 .BR "Down Arrow, Ctrl+n, Ctrl+j"
-Select the next item
+Select the next item.
 .TP
-Tab
-Replace the current search string with the selected item
+.BR "TAB"
+Replace the current search string with the selected item. If the multi-selection mode (\fI-m, --multi\fR) is enabled, TAB is used to (un)mark the selected entry instead.
 .TP
 .BR "Backspace, Ctrl+h"
-Delete the character before the cursor
+Delete the character before the cursor.
 .TP
 .BR Ctrl+w
-Delete the word before the cursor
+Delete the word before the cursor.
 .TP
 .BR Ctrl+u
-Delete the entire line
+Delete the entire line.
 .
 .SH USAGE EXAMPLES
 .
