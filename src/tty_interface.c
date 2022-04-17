@@ -107,7 +107,7 @@ print_selections(tty_interface_t *state)
 static void
 free_selections(tty_interface_t *state)
 {
-	if (state->options->multi == 0 || seln == 0) {
+	if (state->options->multi == 0 || seln == 0 || !selections) {
 		return;
 	}
 
@@ -256,7 +256,6 @@ static void action_emit(tty_interface_t *state) {
 
 		print_selections(state);
 		free_selections(state);
-
 		state->exit = EXIT_SUCCESS;
 		return;
 	}
@@ -510,7 +509,6 @@ static void handle_input(tty_interface_t *state, const char *s, int handle_ambig
 }
 
 int tty_interface_run(tty_interface_t *state) {
-//	init_selection_marks(state);
 	draw(state);
 
 	for (;;) {
