@@ -18,6 +18,9 @@ typedef struct {
 	char pointer;
 	char marker;
 	int cycle;
+	int tab_accepts;
+	int right_accepts;
+	int left_aborts;
 } options_t;
 
 void options_init(options_t *options);

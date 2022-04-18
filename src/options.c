@@ -26,7 +26,10 @@ static const char *usage_str =
     " -v, --version            Output version information and exit\n"
     "     --pointer            Pointer to highlighted match (default '>')\n"
     "     --marker             Multi-select marker (default '*')\n"
-    "     --cycle              Enable cyclic scrolling\n";
+    "     --cycle              Enable cyclic scrolling\n"
+    "     --tab-accepts        TAB accepts\n"
+    "     --right-accepts      Right arrow key accepts\n"
+    "     --left-aborts        Left arrow key aborts\n";
 
 static void usage(const char *argv0) {
 	fprintf(stderr, usage_str, argv0);
@@ -50,6 +53,9 @@ static struct option longopts[] = {
 				   {"pointer", required_argument, NULL, 1},
 				   {"marker", required_argument, NULL, 2},
 				   {"cycle", no_argument, NULL, 3},
+				   {"tab-accepts", no_argument, NULL, 4},
+				   {"right-accepts", no_argument, NULL, 5},
+				   {"left-aborts", no_argument, NULL, 6},
 				   {NULL, 0, NULL, 0}
 };
 
@@ -71,6 +77,9 @@ void options_init(options_t *options) {
 	options->pointer         = DEFAULT_POINTER;
 	options->marker          = DEFAULT_MARKER;
 	options->cycle           = DEFAULT_CYCLE;
+	options->tab_accepts     = DEFAULT_TAB_ACCEPTS;
+	options->right_accepts   = DEFAULT_RIGHT_ACCEPTS;
+	options->left_aborts     = DEFAULT_LEFT_ABORTS;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
@@ -150,6 +159,15 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 				break;
 			case 3:
 				options->cycle = 1;
+				break;
+			case 4:
+				options->tab_accepts = 1;
+				break;
+			case 5:
+				options->right_accepts = 1;
+				break;
+			case 6:
+				options->left_aborts = 1;
 				break;
 
 			case 'h': /* fallthrough */

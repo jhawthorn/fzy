@@ -14,6 +14,55 @@ static char **selections = (char **)NULL;
  * is the current amount of actually selected entries */
 static size_t seln = 0, sel_counter = 0;
 
+static char colors[COLOR_ITEMS_NUM][MAX_COLOR_LEN];
+/* Parse colors taken from FZY_COLORS environment variable
+ * Colors are parsed in strict order (see config.h)
+ * Colors could be: 0-7 for normal colors, and b0-b7 for bold colors
+ * Specific colors could be skipped using a dash ('-').
+ * Colors are stored in the COLORS array using the same order defined in
+ * config.h
+ * These colors are applied in draw() and draw_match() functions in this file
+ *
+ * For example, "-b1b2-4" is read as follows:
+ * -: no PROMPT color
+ * b1: bold red POINTER color
+ * b2: bold green MARKER color
+ * -: no SELECTED ENTRY FOREGROUND color
+ * 4: blue SELECTED ENTRY BACKGROUND color
+ * */
+static void
+set_colors(void)
+{
+	char *p = getenv("NO_COLOR");
+	if (p)
+		return;
+
+	p = getenv("FZY_COLORS");
+	if (!p || !*p)
+		return;
+
+	size_t i, b = 0, c = 0;
+	for (i = 0; p[i] && c < COLOR_ITEMS_NUM; i++) {
+		if (p[i] == 'b') {
+			b = 1;
+			continue;
+		}
+		if ((p[i] < '0' || p[i] > '7') || p[i] == '-') {
+			*colors[c] = '\0';
+			b = 0;
+			c++;
+			continue;
+		}
+		/* 16 colors: 0-7 normal; b0-b7 bright */
+		snprintf(colors[c], MAX_COLOR_LEN, "\x1b[%s%c%cm",
+			b == 1 ? "1;" : "",
+			c == SEL_BG_COLOR ? '4' : '3',
+			p[i]);
+		b = 0;
+		c++;
+	}
+}
+
 /* Search for the string P in the selections array. If found, return 1,
  * otherwise zero */
 static int
@@ -162,12 +211,21 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		}
 	}
 
-	if (selected)
+	if (selected) {
 #ifdef TTY_SELECTION_UNDERLINE
 		tty_setunderline(tty);
 #else
-		tty_setinvert(tty);
+		/* Let's colorize the selected entry */
+		if (*colors[SEL_FG_COLOR] || *colors[SEL_BG_COLOR]) {
+			if (*colors[SEL_FG_COLOR])
+				tty_printf(tty, "%s", colors[SEL_FG_COLOR]);
+			if (*colors[SEL_BG_COLOR])
+				tty_printf(tty, "%s", colors[SEL_BG_COLOR]);
+		} else {
+			tty_setinvert(tty);
+		}
 #endif
+	}
 
 	tty_setnowrap(tty);
 	for (size_t i = 0, p = 0; choice[i] != '\0'; i++) {
@@ -218,9 +276,9 @@ static void draw(tty_interface_t *state) {
 		const char *choice = choices_get(choices, i);
 		if (choice) {
 			int multi_sel = options->multi == 1 && is_selected((char *)choice);
-			tty_printf(tty, "%*s%c%c", options->pad, "",
-				i == choices->selection ? options->pointer : ' ',
-				multi_sel == 1 ? options->marker : ' ');
+			tty_printf(tty, "%*s%s%c%s%c%s", options->pad, "",
+				colors[POINTER_COLOR], i == choices->selection ? options->pointer : ' ',
+				colors[MARKER_COLOR], multi_sel == 1 ? options->marker : ' ', NC);
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
@@ -229,7 +287,8 @@ static void draw(tty_interface_t *state) {
 		tty_moveup(tty, num_lines + options->show_info);
 
 	tty_setcol(tty, options->pad);
-	fputs(options->prompt, tty->fout);
+//	fputs(options->prompt, tty->fout);
+	fprintf(tty->fout, "%s%s%s", colors[PROMPT_COLOR], options->prompt, NC);
 	for (size_t i = 0; i < state->cursor; i++)
 		fputc(state->search[i], tty->fout);
 	tty_flush(tty);
@@ -330,7 +389,19 @@ static void action_next(tty_interface_t *state) {
 	choices_next(state->choices);
 }
 
+static void action_exit(tty_interface_t *state) {
+	clear(state);
+	tty_close(state->tty);
+
+	state->exit = EXIT_FAILURE;
+}
+
 static void action_left(tty_interface_t *state) {
+	if (state->options->left_aborts == 1) {
+		action_exit(state);
+		return;
+	}
+
 	if (state->cursor > 0) {
 		state->cursor--;
 		while (!is_boundary(state->search[state->cursor]) && state->cursor)
@@ -339,6 +410,11 @@ static void action_left(tty_interface_t *state) {
 }
 
 static void action_right(tty_interface_t *state) {
+	if (state->options->right_accepts == 1) {
+		action_emit(state);
+		return;
+	}
+
 	if (state->cursor < strlen(state->search)) {
 		state->cursor++;
 		while (!is_boundary(state->search[state->cursor]))
@@ -366,26 +442,25 @@ static void action_pagedown(tty_interface_t *state) {
 		choices_next(state->choices);
 }
 
-static void action_autocomplete(tty_interface_t *state) {
+static void action_tab(tty_interface_t *state) {
 	if (state->options->multi == 1) {
 		action_select(state);
 		action_next(state);
 		return;
 	}
 
+	if (state->options->tab_accepts == 1) {
+		action_emit(state);
+		return;
+	}
+
+	/* Autocomplete */
 	update_state(state);
 	const char *current_selection = choices_get(state->choices, state->choices->selection);
 	if (current_selection) {
 		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
 		state->cursor = strlen(state->search);
 	}
-}
-
-static void action_exit(tty_interface_t *state) {
-	clear(state);
-	tty_close(state->tty);
-
-	state->exit = EXIT_FAILURE;
 }
 
 static void append_search(tty_interface_t *state, char ch) {
@@ -432,7 +507,7 @@ static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC *
 					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */
 					   {KEY_CTRL('W'), action_del_word}, /* C-W */
 					   {KEY_CTRL('U'), action_del_all},  /* C-U */
-					   {KEY_CTRL('I'), action_autocomplete}, /* TAB (C-I ) */
+					   {KEY_CTRL('I'), action_tab},      /* TAB (C-I ) */
 					   {KEY_CTRL('C'), action_exit},	 /* C-C */
 					   {KEY_CTRL('D'), action_exit},	 /* C-D */
 					   {KEY_CTRL('G'), action_exit},	 /* C-G */
@@ -509,6 +584,7 @@ static void handle_input(tty_interface_t *state, const char *s, int handle_ambig
 }
 
 int tty_interface_run(tty_interface_t *state) {
+	set_colors();
 	draw(state);
 
 	for (;;) {
