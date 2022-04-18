@@ -72,6 +72,18 @@ Multi-select marker (default '*')
 .BR \-\-cyclic
 Enable cyclic scrolling
 .
+.TP
+.BR \-\-tab-accetps
+TAB accepts: print selection and exit
+.
+.TP
+.BR \-\-right-accepts
+Right arrow key accepts: print selection and exit
+.
+.TP
+.BR \-\-left-aborts
+Left arrow key aborts: cancel selection and exit
+.
 .SH KEYS
 .
 .TP
@@ -98,6 +110,36 @@ Delete the word before the cursor.
 .TP
 .BR Ctrl+u
 Delete the entire line.
+.
+.SH COLORS
+Interface colors are read from the environment variable \fBFZY_COLORS\fR using a simple pattern: the \fIorder\fR of the color code specifies which \fIinterface element\fR the color must be applied to, while the \fIcontent\fR of this code defines the \fIcolor\fR of this element.
+.sp
+\fBA\fR. The order is this:
+ 1) Prompt
+ 2) Pointer
+ 3) Marker
+ 4) Current entry foreground
+ 5) Current entry background
+.sp
+\fBB\fR. Possible content (available colors):
+ 0 = black
+ 1 = red
+ 2 = green
+ 3 = yellow
+ 4 = blue
+ 5 = magenta
+ 6 = cyan
+ 7 = white
+.sp
+Use a \fBb\fR before the color to make it bold/bright.
+.sp
+For example, \fBFZF_COLORS="-b1b2-4"\fR is to be read as follows:
+.sp
+ \fB-\fR: no prompt color
+ \fBb1\fR: bold red pointer color
+ \fBb2\fR: bold green marker color
+ \fB-\fR: no color for the current entry foreground
+ \fB4\fR: blue current entry background
 .
 .SH USAGE EXAMPLES
 .
