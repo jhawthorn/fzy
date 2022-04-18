@@ -39,7 +39,7 @@ set_colors(void)
 
 	p = getenv("FZY_COLORS");
 	if (!p || !*p)
-		return;
+		p = DEFAULT_COLORS;
 
 	size_t i, b = 0, c = 0;
 	for (i = 0; p[i] && c < COLOR_ITEMS_NUM; i++) {
@@ -584,7 +584,8 @@ static void handle_input(tty_interface_t *state, const char *s, int handle_ambig
 }
 
 int tty_interface_run(tty_interface_t *state) {
-	set_colors();
+	if (state->options->no_color == 0)
+		set_colors();
 	draw(state);
 
 	for (;;) {

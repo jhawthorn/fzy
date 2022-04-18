@@ -31,12 +31,9 @@
 #define DEFAULT_TAB_ACCEPTS 0
 #define DEFAULT_RIGHT_ACCEPTS 0
 #define DEFAULT_LEFT_ABORTS 0
+#define DEFAULT_NO_COLOR 0
 
-#define DEF_PROMPT_COLOR "\x1b[0;36m"
-#define DEF_POINTER_COLOR "\x1b[0;34m"
-#define DEF_MARKER_COLOR "\x1b[0;32m"
-#define DEF_SEL_FG_COLOR "\x1b[0m"
-#define DEF_SEL_BG_COLOR "\x1b[7m"
+#define DEFAULT_COLORS "b6b1b2b40"
 #define NC "\x1b[0m" /* Reset attributes */
 
 /* Color indices: colors (from FZY_COLORS env var) will be parsed
