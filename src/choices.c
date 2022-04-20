@@ -258,7 +258,7 @@ static void *choices_search_worker(void *data) {
 		w->result = merge2(w->result, job->workers[next_worker].result);
 	}
 
-	return NULL;
+	return (char *)NULL;
 }
 
 void choices_search(choices_t *c, const char *search) {
@@ -314,7 +314,7 @@ const char *choices_get(choices_t *c, size_t n) {
 	if (n < c->available) {
 		return c->results[n].str;
 	} else {
-		return NULL;
+		return (char *)NULL;
 	}
 }
 

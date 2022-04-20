@@ -7,8 +7,20 @@
 #include "tty_interface.h"
 #include "../config.h"
 
+#ifndef PATH_MAX
+# ifdef __linux__
+#  define PATH_MAX 4096
+# else
+#  define PATH_MAX 1024
+# endif /* __linux */
+#endif /* PATH_MAX */
+
+#define _ESC 27
+
 /* Array to store selected/marked entries */
 static char **selections = (char **)NULL;
+/* A buffer big enough to hold decolored entries */
+static char buf[PATH_MAX];
 
 /* SEL_N is the current size of the selections array, while SEL_COUNTER
  * is the current amount of actually selected entries */
@@ -68,15 +80,13 @@ set_colors(void)
 static int
 is_selected(const char *p)
 {
-	if (!p || !*p || sel_counter == 0) {
+	if (!p || !*p || sel_counter == 0)
 		return 0;
-	}
 
 	size_t i;
 	for (i = 0; selections[i]; i++) {
-		if (*selections[i] == *p && strcmp(selections[i], p) == 0) {
+		if (*selections[i] == *p && strcmp(selections[i], p) == 0)
 			return 1;
-		}
 	}
 
 	return 0;
@@ -87,19 +97,46 @@ is_selected(const char *p)
 static void
 deselect_entry(char *name)
 {
-	if (!name || !*name || sel_counter == 0) {
+	if (!name || !*name || sel_counter == 0)
 		return;
-	}
 
 	size_t i;
 	for (i = 0; selections[i]; i++) {
-		if (*selections[i] != *name || strcmp(selections[i], name) != 0) {
+		if (*selections[i] != *name || strcmp(selections[i], name) != 0)
 			continue;
-		}
 		*selections[i] = '\0';
 		sel_counter--;
 		break;
 	}
+}
+
+static char *
+decolor_name(const char *name)
+{
+	if (!name)
+		return (char *)NULL;
+
+	char *p = buf, *q = buf;
+
+	size_t i, j = 0;
+	for (i = 0; name[i]; i++) {
+		if (name[i] == _ESC && name[i + 1] == '[') {
+			for (j = i + 1; name[j]; j++) {
+				if (name[j] != 'm')
+					continue;
+				i = j + (name[j + 1] == _ESC ? 0 : 1);
+				break;
+			}
+		}
+
+		if (i == j) /* We have another escape code */
+			continue;
+		*p = name[i];
+		p++;
+	}
+
+	*p = '\0';
+	return *q ? q : (char *)NULL;
 }
 
 /* Save the string P into the selections array */
@@ -120,9 +157,8 @@ static int
 action_select(tty_interface_t *state)
 {
 	const char *p = choices_get(state->choices, state->choices->selection);
-	if (!p) {
+	if (!p)
 		return EXIT_FAILURE;
-	}
 
 	if (is_selected(p) == 1) {
 		deselect_entry((char *)p);
@@ -130,7 +166,6 @@ action_select(tty_interface_t *state)
 	}
 
 	save_selection(p);
-
 	return EXIT_SUCCESS;
 }
 
@@ -138,16 +173,17 @@ action_select(tty_interface_t *state)
 static void
 print_selections(tty_interface_t *state)
 {
-	if (sel_counter == 0 || state->options->multi == 0) {
+	if (sel_counter == 0 || state->options->multi == 0)
 		return;
-	}
 
 	size_t i;
 	for (i = 0; selections[i]; i++) {
-		if (!*selections[i]) {
+		if (!*selections[i])
 			continue;
-		}
-		printf("%s\n", selections[i]);
+		char *p = (char *)NULL;
+		if (strchr(selections[i], 27))
+			p = decolor_name(selections[i]);
+		printf("%s\n", p ? p : selections[i]);
 	}
 
 }
@@ -156,14 +192,12 @@ print_selections(tty_interface_t *state)
 static void
 free_selections(tty_interface_t *state)
 {
-	if (state->options->multi == 0 || seln == 0 || !selections) {
+	if (state->options->multi == 0 || seln == 0 || !selections)
 		return;
-	}
 
 	size_t i;
-	for (i = 0; selections[i]; i++) {
+	for (i = 0; selections[i]; i++)
 		free(selections[i]);
-	}
 	free(selections);
 	selections = (char **)NULL;
 }
@@ -261,6 +295,10 @@ static void draw(tty_interface_t *state) {
 		}
 	}
 
+	int invert = 0;
+	if (invert == 1)
+		fprintf(tty->fout, "\x1b[%dB", num_lines + 1);
+
 	tty_setcol(tty, options->pad);
 	tty_printf(tty, "%s%s", options->prompt, state->search);
 	tty_clearline(tty);
@@ -270,6 +308,9 @@ static void draw(tty_interface_t *state) {
 		tty_clearline(tty);
 	}
 
+	if (invert == 1)
+		fprintf(tty->fout, "\x1b[%dA", num_lines + 1);
+
 	for (size_t i = start; i < start + num_lines; i++) {
 		tty_printf(tty, "\n");
 		tty_clearline(tty);
@@ -277,17 +318,21 @@ static void draw(tty_interface_t *state) {
 		if (choice) {
 			int multi_sel = options->multi == 1 && is_selected((char *)choice);
 			tty_printf(tty, "%*s%s%c%s%c%s", options->pad, "",
-				colors[POINTER_COLOR], i == choices->selection ? options->pointer : ' ',
-				colors[MARKER_COLOR], multi_sel == 1 ? options->marker : ' ', NC);
+				colors[POINTER_COLOR], i == choices->selection
+				? options->pointer : ' ',
+				colors[MARKER_COLOR], multi_sel == 1 ?
+				options->marker : ' ', NC);
 			draw_match(state, choice, i == choices->selection);
 		}
 	}
 
-	if (num_lines + options->show_info)
+	if (invert == 0 && num_lines + options->show_info)
 		tty_moveup(tty, num_lines + options->show_info);
 
+	if (invert == 1)
+		fprintf(tty->fout, "%c", '\n');
+
 	tty_setcol(tty, options->pad);
-//	fputs(options->prompt, tty->fout);
 	fprintf(tty->fout, "%s%s%s", colors[PROMPT_COLOR], options->prompt, NC);
 	for (size_t i = 0; i < state->cursor; i++)
 		fputc(state->search[i], tty->fout);
@@ -309,7 +354,7 @@ static void update_state(tty_interface_t *state) {
 static void action_emit(tty_interface_t *state) {
 	update_state(state);
 
-	if (state->options->multi == 1) {
+	if (state->options->multi == 1 && seln > 0) {
 		clear(state);
 		tty_close(state->tty);
 
@@ -328,7 +373,10 @@ static void action_emit(tty_interface_t *state) {
 	const char *selection = choices_get(state->choices, state->choices->selection);
 	if (selection) {
 		/* output the selected result */
-		printf("%s\n", selection);
+		char *p = (char *)NULL;
+		if (strchr(selection, 27))
+			p = decolor_name(selection);
+		printf("%s\n", p ? p : selection);
 	} else {
 		/* No match, output the query instead */
 		printf("%s\n", state->search);
@@ -348,7 +396,8 @@ static void action_del_char(tty_interface_t *state) {
 		state->cursor--;
 	} while (!is_boundary(state->search[state->cursor]) && state->cursor);
 
-	memmove(&state->search[state->cursor], &state->search[original_cursor], length - original_cursor + 1);
+	memmove(&state->search[state->cursor], &state->search[original_cursor],
+		length - original_cursor + 1);
 }
 
 static void action_del_word(tty_interface_t *state) {
@@ -361,12 +410,14 @@ static void action_del_word(tty_interface_t *state) {
 	while (cursor && !isspace(state->search[cursor - 1]))
 		cursor--;
 
-	memmove(&state->search[cursor], &state->search[original_cursor], strlen(state->search) - original_cursor + 1);
+	memmove(&state->search[cursor], &state->search[original_cursor],
+		strlen(state->search) - original_cursor + 1);
 	state->cursor = cursor;
 }
 
 static void action_del_all(tty_interface_t *state) {
-	memmove(state->search, &state->search[state->cursor], strlen(state->search) - state->cursor + 1);
+	memmove(state->search, &state->search[state->cursor],
+		strlen(state->search) - state->cursor + 1);
 	state->cursor = 0;
 }
 
@@ -432,13 +483,15 @@ static void action_end(tty_interface_t *state) {
 
 static void action_pageup(tty_interface_t *state) {
 	update_state(state);
-	for (size_t i = 0; i < state->options->num_lines && state->choices->selection > 0; i++)
+	for (size_t i = 0; i < state->options->num_lines
+	&& state->choices->selection > 0; i++)
 		choices_prev(state->choices);
 }
 
 static void action_pagedown(tty_interface_t *state) {
 	update_state(state);
-	for (size_t i = 0; i < state->options->num_lines && state->choices->selection < state->choices->available - 1; i++)
+	for (size_t i = 0; i < state->options->num_lines
+	&& state->choices->selection < state->choices->available - 1; i++)
 		choices_next(state->choices);
 }
 
@@ -456,9 +509,11 @@ static void action_tab(tty_interface_t *state) {
 
 	/* Autocomplete */
 	update_state(state);
-	const char *current_selection = choices_get(state->choices, state->choices->selection);
+	const char *current_selection = choices_get(state->choices,
+		state->choices->selection);
 	if (current_selection) {
-		strncpy(state->search, choices_get(state->choices, state->choices->selection), SEARCH_SIZE_MAX);
+		strncpy(state->search, choices_get(state->choices,
+			state->choices->selection), SEARCH_SIZE_MAX);
 		state->cursor = strlen(state->search);
 	}
 }
@@ -467,14 +522,16 @@ static void append_search(tty_interface_t *state, char ch) {
 	char *search = state->search;
 	size_t search_size = strlen(search);
 	if (search_size < SEARCH_SIZE_MAX) {
-		memmove(&search[state->cursor+1], &search[state->cursor], search_size - state->cursor + 1);
+		memmove(&search[state->cursor+1], &search[state->cursor],
+			search_size - state->cursor + 1);
 		search[state->cursor] = ch;
 
 		state->cursor++;
 	}
 }
 
-void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
+void tty_interface_init(tty_interface_t *state, tty_t *tty,
+choices_t *choices, options_t *options) {
 	state->tty = tty;
 	state->choices = choices;
 	state->options = options;
@@ -501,9 +558,9 @@ typedef struct {
 
 #define KEY_CTRL(key) ((const char[]){((key) - ('@')), '\0'})
 
-static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC */
-					   {"\x7f", action_del_char},	/* DEL */
-
+static const keybinding_t keybindings[] = {
+					   {"\x1b", action_exit},             /* ESC */
+					   {"\x7f", action_del_char},	      /* DEL */
 					   {KEY_CTRL('H'), action_del_char}, /* Backspace (C-H) */
 					   {KEY_CTRL('W'), action_del_word}, /* C-W */
 					   {KEY_CTRL('U'), action_del_all},  /* C-U */
@@ -574,10 +631,15 @@ static void handle_input(tty_interface_t *state, const char *s, int handle_ambig
 	if (in_middle)
 		return;
 
-	/* No matching keybinding, add to search */
-	for (int i = 0; input[i]; i++)
-		if (isprint_unicode(input[i]))
-			append_search(state, input[i]);
+	/* No matching keybinding, decolorize and add to search */
+	char *p = input, *q = (char *)NULL;
+	if (strchr(input, _ESC) && (q = decolor_name(input)))
+		p = q;
+
+	for (int i = 0; p[i]; i++) {
+		if (isprint_unicode(p[i]))
+			append_search(state, p[i]);
+	}
 
 	/* We have processed the input, so clear it */
 	strcpy(input, "");
@@ -604,7 +666,8 @@ int tty_interface_run(tty_interface_t *state) {
 			}
 
 			draw(state);
-		} while (tty_input_ready(state->tty, state->ambiguous_key_pending ? KEYTIMEOUT : 0, 0));
+		} while (tty_input_ready(state->tty,
+			state->ambiguous_key_pending ? KEYTIMEOUT : 0, 0));
 
 		if (state->ambiguous_key_pending) {
 			char s[1] = "";
