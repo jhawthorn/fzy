@@ -22,6 +22,7 @@ typedef struct {
 	int right_accepts;
 	int left_aborts;
 	int no_color;
+	int reverse;
 } options_t;
 
 void options_init(options_t *options);

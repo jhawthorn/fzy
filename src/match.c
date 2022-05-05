@@ -11,12 +11,16 @@
 
 #include "../config.h"
 
-char *strcasechr(const char *s, char c) {
+char *
+strcasechr(const char *s, char c)
+{
 	const char accept[3] = {c, toupper(c), 0};
 	return strpbrk(s, accept);
 }
 
-int has_match(const char *needle, const char *haystack) {
+int
+has_match(const char *needle, const char *haystack)
+{
 	while (*needle) {
 		char nch = *needle++;
 
@@ -42,7 +46,9 @@ struct match_struct {
 	score_t match_bonus[MATCH_MAX_LEN];
 };
 
-static void precompute_bonus(const char *haystack, score_t *match_bonus) {
+static void
+precompute_bonus(const char *haystack, score_t *match_bonus)
+{
 	/* Which positions are beginning of words */
 	char last_ch = '/';
 	for (int i = 0; haystack[i]; i++) {
@@ -52,13 +58,14 @@ static void precompute_bonus(const char *haystack, score_t *match_bonus) {
 	}
 }
 
-static void setup_match_struct(struct match_struct *match, const char *needle, const char *haystack) {
+static void
+setup_match_struct(struct match_struct *match, const char *needle, const char *haystack)
+{
 	match->needle_len = strlen(needle);
 	match->haystack_len = strlen(haystack);
 
-	if (match->haystack_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len) {
+	if (match->haystack_len > MATCH_MAX_LEN || match->needle_len > match->haystack_len)
 		return;
-	}
 
 	for (int i = 0; i < match->needle_len; i++)
 		match->lower_needle[i] = tolower(needle[i]);
@@ -69,7 +76,10 @@ static void setup_match_struct(struct match_struct *match, const char *needle, c
 	precompute_bonus(haystack, match->match_bonus);
 }
 
-static inline void match_row(const struct match_struct *match, int row, score_t *curr_D, score_t *curr_M, const score_t *last_D, const score_t *last_M) {
+static inline void
+match_row(const struct match_struct *match, int row, score_t *curr_D, score_t *curr_M,
+const score_t *last_D, const score_t *last_M)
+{
 	int n = match->needle_len;
 	int m = match->haystack_len;
 	int i = row;
@@ -102,7 +112,9 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 	}
 }
 
-score_t match(const char *needle, const char *haystack) {
+score_t
+match(const char *needle, const char *haystack)
+{
 	if (!*needle)
 		return SCORE_MIN;
 
@@ -151,7 +163,9 @@ score_t match(const char *needle, const char *haystack) {
 	return last_M[m - 1];
 }
 
-score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
+score_t
+match_positions(const char *needle, const char *haystack, size_t *positions)
+{
 	if (!*needle)
 		return SCORE_MIN;
 

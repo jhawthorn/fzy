@@ -15,7 +15,9 @@
 /* Initial size of choices array */
 #define INITIAL_CHOICE_CAPACITY 128
 
-static int cmpchoice(const void *_idx1, const void *_idx2) {
+static int
+cmpchoice(const void *_idx1, const void *_idx2)
+{
 	const struct scored_result *a = _idx1;
 	const struct scored_result *b = _idx2;
 
@@ -36,7 +38,9 @@ static int cmpchoice(const void *_idx1, const void *_idx2) {
 	}
 }
 
-static void *safe_realloc(void *buffer, size_t size) {
+static void *
+safe_realloc(void *buffer, size_t size)
+{
 	buffer = realloc(buffer, size);
 	if (!buffer) {
 		fprintf(stderr, "Error: Can't allocate memory (%zu bytes)\n", size);
@@ -46,7 +50,9 @@ static void *safe_realloc(void *buffer, size_t size) {
 	return buffer;
 }
 
-void choices_fread(choices_t *c, FILE *file, char input_delimiter) {
+void
+choices_fread(choices_t *c, FILE *file, char input_delimiter)
+{
 	/* Save current position for parsing later */
 	size_t buffer_start = c->buffer_size;
 
@@ -87,18 +93,24 @@ void choices_fread(choices_t *c, FILE *file, char input_delimiter) {
 	} while (line && line < line_end);
 }
 
-static void choices_resize(choices_t *c, size_t new_capacity) {
+static void
+choices_resize(choices_t *c, size_t new_capacity)
+{
 	c->strings = safe_realloc(c->strings, new_capacity * sizeof(const char *));
 	c->capacity = new_capacity;
 }
 
-static void choices_reset_search(choices_t *c) {
+static void
+choices_reset_search(choices_t *c)
+{
 	free(c->results);
 	c->selection = c->available = 0;
 	c->results = NULL;
 }
 
-void choices_init(choices_t *c, options_t *options) {
+void
+choices_init(choices_t *c, options_t *options)
+{
 	c->strings = NULL;
 	c->results = NULL;
 
@@ -108,16 +120,17 @@ void choices_init(choices_t *c, options_t *options) {
 	c->capacity = c->size = 0;
 	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
-	if (options->workers) {
+	if (options->workers)
 		c->worker_count = options->workers;
-	} else {
+	else
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
-	}
 
 	choices_reset_search(c);
 }
 
-void choices_destroy(choices_t *c) {
+void
+choices_destroy(choices_t *c)
+{
 	free(c->buffer);
 	c->buffer = NULL;
 	c->buffer_size = 0;
@@ -131,17 +144,21 @@ void choices_destroy(choices_t *c) {
 	c->available = c->selection = 0;
 }
 
-void choices_add(choices_t *c, const char *choice) {
+void
+choices_add(choices_t *c, const char *choice)
+{
 	/* Previous search is now invalid */
 	choices_reset_search(c);
 
-	if (c->size == c->capacity) {
+	if (c->size == c->capacity)
 		choices_resize(c, c->capacity * 2);
-	}
+
 	c->strings[c->size++] = choice;
 }
 
-size_t choices_available(choices_t *c) {
+size_t
+choices_available(choices_t *c)
+{
 	return c->available;
 }
 
@@ -167,22 +184,24 @@ struct worker {
 	struct result_list result;
 };
 
-static void worker_get_next_batch(struct search_job *job, size_t *start, size_t *end) {
+static void
+worker_get_next_batch(struct search_job *job, size_t *start, size_t *end)
+{
 	pthread_mutex_lock(&job->lock);
 
 	*start = job->processed;
 
 	job->processed += BATCH_SIZE;
-	if (job->processed > job->choices->size) {
+	if (job->processed > job->choices->size)
 		job->processed = job->choices->size;
-	}
 
 	*end = job->processed;
 
 	pthread_mutex_unlock(&job->lock);
 }
 
-static struct result_list merge2(struct result_list list1, struct result_list list2) {
+static struct result_list merge2(struct result_list list1, struct result_list list2)
+{
 	size_t result_index = 0, index1 = 0, index2 = 0;
 
 	struct result_list result;
@@ -194,19 +213,17 @@ static struct result_list merge2(struct result_list list1, struct result_list li
 	}
 
 	while(index1 < list1.size && index2 < list2.size) {
-		if (cmpchoice(&list1.list[index1], &list2.list[index2]) < 0) {
+		if (cmpchoice(&list1.list[index1], &list2.list[index2]) < 0)
 			result.list[result_index++] = list1.list[index1++];
-		} else {
+		else
 			result.list[result_index++] = list2.list[index2++];
-		}
 	}
 
-	while(index1 < list1.size) {
+	while(index1 < list1.size)
 		result.list[result_index++] = list1.list[index1++];
-	}
-	while(index2 < list2.size) {
+
+	while(index2 < list2.size)
 		result.list[result_index++] = list2.list[index2++];
-	}
 
 	free(list1.list);
 	free(list2.list);
@@ -214,7 +231,9 @@ static struct result_list merge2(struct result_list list1, struct result_list li
 	return result;
 }
 
-static void *choices_search_worker(void *data) {
+static void *
+choices_search_worker(void *data)
+{
 	struct worker *w = (struct worker *)data;
 	struct search_job *job = w->job;
 	const choices_t *c = job->choices;
@@ -225,9 +244,8 @@ static void *choices_search_worker(void *data) {
 	for(;;) {
 		worker_get_next_batch(job, &start, &end);
 
-		if(start == end) {
+		if(start == end)
 			break;
-		}
 
 		for(size_t i = start; i < end; i++) {
 			if (has_match(job->search, c->strings[i])) {
@@ -261,7 +279,9 @@ static void *choices_search_worker(void *data) {
 	return (char *)NULL;
 }
 
-void choices_search(choices_t *c, const char *search) {
+void
+choices_search(choices_t *c, const char *search)
+{
 	choices_reset_search(c);
 
 	struct search_job *job = calloc(1, sizeof(struct search_job));
@@ -310,24 +330,31 @@ void choices_search(choices_t *c, const char *search) {
 	free(job);
 }
 
-const char *choices_get(choices_t *c, size_t n) {
-	if (n < c->available) {
+const char *
+choices_get(choices_t *c, size_t n)
+{
+	if (n < c->available)
 		return c->results[n].str;
-	} else {
+	else
 		return (char *)NULL;
-	}
 }
 
-score_t choices_getscore(choices_t *c, size_t n) {
+score_t
+choices_getscore(choices_t *c, size_t n)
+{
 	return c->results[n].score;
 }
 
-void choices_prev(choices_t *c) {
+void
+choices_prev(choices_t *c)
+{
 	if (c->available)
 		c->selection = (c->selection + c->available - 1) % c->available;
 }
 
-void choices_next(choices_t *c) {
+void
+choices_next(choices_t *c)
+{
 	if (c->available)
 		c->selection = (c->selection + 1) % c->available;
 }

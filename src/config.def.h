@@ -32,6 +32,7 @@
 #define DEFAULT_RIGHT_ACCEPTS 0
 #define DEFAULT_LEFT_ABORTS 0
 #define DEFAULT_NO_COLOR 0
+#define DEFAULT_REVERSE 0
 
 #define DEFAULT_COLORS "b6b1b2b40"
 #define NC "\x1b[0m" /* Reset attributes */
@@ -45,3 +46,5 @@
 #define SEL_BG_COLOR 4
 #define COLOR_ITEMS_NUM 5
 #define MAX_COLOR_LEN 48
+
+#define VERSION 1.0

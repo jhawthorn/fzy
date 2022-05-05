@@ -13,21 +13,29 @@
 
 #include "../config.h"
 
-void tty_reset(tty_t *tty) {
+void
+tty_reset(tty_t *tty)
+{
 	tcsetattr(tty->fdin, TCSANOW, &tty->original_termios);
 }
 
-void tty_close(tty_t *tty) {
+void
+tty_close(tty_t *tty)
+{
 	tty_reset(tty);
 	fclose(tty->fout);
 	close(tty->fdin);
 }
 
-static void handle_sigwinch(int sig){
+static void
+handle_sigwinch(int sig)
+{
 	(void)sig;
 }
 
-void tty_init(tty_t *tty, const char *tty_filename) {
+void
+tty_init(tty_t *tty, const char *tty_filename)
+{
 	tty->fdin = open(tty_filename, O_RDONLY);
 	if (tty->fdin < 0) {
 		perror("Failed to open tty");
@@ -66,13 +74,13 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 		perror("tcsetattr");
 
 	tty_getwinsz(tty);
-
 	tty_setnormal(tty);
-
 	signal(SIGWINCH, handle_sigwinch);
 }
 
-void tty_getwinsz(tty_t *tty) {
+void
+tty_getwinsz(tty_t *tty)
+{
 	struct winsize ws;
 	if (ioctl(fileno(tty->fout), TIOCGWINSZ, &ws) == -1) {
 		tty->maxwidth = 80;
@@ -83,7 +91,9 @@ void tty_getwinsz(tty_t *tty) {
 	}
 }
 
-char tty_getchar(tty_t *tty) {
+char
+tty_getchar(tty_t *tty)
+{
 	char ch;
 	int size = read(tty->fdin, &ch, 1);
 	if (size < 0) {
@@ -97,7 +107,9 @@ char tty_getchar(tty_t *tty) {
 	}
 }
 
-int tty_input_ready(tty_t *tty, long int timeout, int return_on_signal) {
+int
+tty_input_ready(tty_t *tty, long int timeout, int return_on_signal)
+{
 	fd_set readfs;
 	FD_ZERO(&readfs);
 	FD_SET(tty->fdin, &readfs);
@@ -129,73 +141,105 @@ int tty_input_ready(tty_t *tty, long int timeout, int return_on_signal) {
 	}
 }
 
-static void tty_sgr(tty_t *tty, int code) {
+static void
+tty_sgr(tty_t *tty, int code)
+{
 	tty_printf(tty, "%c%c%im", 0x1b, '[', code);
 }
 
-void tty_setfg(tty_t *tty, int fg) {
+void
+tty_setfg(tty_t *tty, int fg)
+{
 	if (tty->fgcolor != fg) {
 		tty_sgr(tty, 30 + fg);
 		tty->fgcolor = fg;
 	}
 }
 
-void tty_setinvert(tty_t *tty) {
+void
+tty_setinvert(tty_t *tty)
+{
 	tty_sgr(tty, 7);
 }
 
-void tty_setunderline(tty_t *tty) {
+void
+tty_setunderline(tty_t *tty)
+{
 	tty_sgr(tty, 4);
 }
 
-void tty_setnormal(tty_t *tty) {
+void
+tty_setnormal(tty_t *tty)
+{
 	tty_sgr(tty, 0);
 	tty->fgcolor = 9;
 }
 
-void tty_setnowrap(tty_t *tty) {
+void
+tty_setnowrap(tty_t *tty)
+{
 	tty_printf(tty, "%c%c?7l", 0x1b, '[');
 }
 
-void tty_setwrap(tty_t *tty) {
+void
+tty_setwrap(tty_t *tty)
+{
 	tty_printf(tty, "%c%c?7h", 0x1b, '[');
 }
 
-void tty_newline(tty_t *tty) {
+void
+tty_newline(tty_t *tty)
+{
 	tty_printf(tty, "%c%cK\n", 0x1b, '[');
 }
 
-void tty_clearline(tty_t *tty) {
+void
+tty_clearline(tty_t *tty)
+{
 	tty_printf(tty, "%c%cK", 0x1b, '[');
 }
 
-void tty_setcol(tty_t *tty, int col) {
+void
+tty_setcol(tty_t *tty, int col)
+{
 	tty_printf(tty, "%c%c%iG", 0x1b, '[', col + 1);
 }
 
-void tty_moveup(tty_t *tty, int i) {
+void
+tty_moveup(tty_t *tty, int i)
+{
 	tty_printf(tty, "%c%c%iA", 0x1b, '[', i);
 }
 
-void tty_printf(tty_t *tty, const char *fmt, ...) {
+void
+tty_printf(tty_t *tty, const char *fmt, ...)
+{
 	va_list args;
 	va_start(args, fmt);
 	vfprintf(tty->fout, fmt, args);
 	va_end(args);
 }
 
-void tty_putc(tty_t *tty, char c) {
+void
+tty_putc(tty_t *tty, char c)
+{
 	fputc(c, tty->fout);
 }
 
-void tty_flush(tty_t *tty) {
+void
+tty_flush(tty_t *tty)
+{
 	fflush(tty->fout);
 }
 
-size_t tty_getwidth(tty_t *tty) {
+size_t
+tty_getwidth(tty_t *tty)
+{
 	return tty->maxwidth;
 }
 
-size_t tty_getheight(tty_t *tty) {
+size_t
+tty_getheight(tty_t *tty)
+{
 	return tty->maxheight;
 }
