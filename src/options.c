@@ -20,8 +20,9 @@ static const char *usage_str =
     " -0, --read-null          Read input delimited by ASCII NUL characters\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
     " -i, --show-info          Show selection info line\n"
-    " -h, --help     Display this help and exit\n"
-    " -v, --version  Output version information and exit\n";
+    " -n, --do-not-clear-tty   Don't clear TTY device after exiting\n"
+    " -h, --help               Display this help and exit\n"
+    " -v, --version            Output version information and exit\n";
 
 static void usage(const char *argv0) {
 	fprintf(stderr, usage_str, argv0);
@@ -38,6 +39,7 @@ static struct option longopts[] = {{"show-matches", required_argument, NULL, 'e'
 				   {"benchmark", optional_argument, NULL, 'b'},
 				   {"workers", required_argument, NULL, 'j'},
 				   {"show-info", no_argument, NULL, 'i'},
+				   {"do-not-clear-tty", no_argument, NULL, 'n'},
 				   {"help", no_argument, NULL, 'h'},
 				   {NULL, 0, NULL, 0}};
 
@@ -54,13 +56,14 @@ void options_init(options_t *options) {
 	options->workers         = DEFAULT_WORKERS;
 	options->input_delimiter = '\n';
 	options->show_info       = DEFAULT_SHOW_INFO;
+	options->clear_after_exiting = 1;
 }
 
 void options_parse(options_t *options, int argc, char *argv[]) {
 	options_init(options);
 
 	int c;
-	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i", longopts, NULL)) != -1) {
+	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i:n", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
 				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
@@ -113,6 +116,9 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 			} break;
 			case 'i':
 				options->show_info = 1;
+				break;
+			case 'n':
+				options->clear_after_exiting = 0;
 				break;
 			case 'h':
 			default:

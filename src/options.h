@@ -13,6 +13,7 @@ typedef struct {
 	unsigned int workers;
 	char input_delimiter;
 	int show_info;
+	unsigned int clear_after_exiting;
 } options_t;
 
 void options_init(options_t *options);
