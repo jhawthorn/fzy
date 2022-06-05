@@ -119,7 +119,8 @@ decolor_name(const char *name)
 	char *p = buf, *q = buf;
 
 	size_t i, j = 0;
-	for (i = 0; name[i]; i++) {
+	size_t name_len = strlen(name);
+	for (i = 0; name[i] && i < name_len; i++) {
 		if (name[i] == _ESC && name[i + 1] == '[') {
 			for (j = i + 1; name[j]; j++) {
 				if (name[j] != 'm')
