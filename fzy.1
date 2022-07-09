@@ -1,4 +1,4 @@
-.TH FZY 1 "2018-09-23" "fzy 1.0"
+.TH FZY 1 "Jul 9, 2022" "fzy 1.0"
 .SH NAME
 fzy \- A fuzzy text selector menu for the terminal.
 .SH SYNOPSIS
@@ -96,7 +96,10 @@ Run colorless
 .
 .TP
 .BR "ENTER"
-Print the selected items to stdout and exit.
+Print the selected items to stdout and exit. If \fI\-\-right\-accepts\fR is set, the Right arrow key performs the same function. Equally, if \fI\-\-tab\-accepts\fR is set, the TAB key performs the same function.
+.TP
+.BR "ESC"
+Exit without printing any result. If \fI\-\-left\-aborts\fR is set, the Left arrow key performs the same function.
 .TP
 .BR "Ctrl+c, Ctrl+g, Esc"
 Exit with status 1, without making a selection.
@@ -139,14 +142,14 @@ Interface colors are read from the environment variable \fBFZY_COLORS\fR using a
  6 = cyan
  7 = white
 .sp
-Use a \fBb\fR before the color to make it bold/bright. A dash (-) means that the color for the interface element in that position must be skipped.
+Use a \fBb\fR before the color to make it bold/bright. A dash (\-) means that the color for the interface element in that position must be skipped.
 .sp
-For example, \fBFZF_COLORS="-b1b2-4"\fR is to be read as follows:
+For example, \fBFZF_COLORS="\-b1b2\-4"\fR is to be read as follows:
 .sp
- \fB-\fR: no prompt color
+ \fB\-\fR: no prompt color
  \fBb1\fR: bold red pointer color
  \fBb2\fR: bold green marker color
- \fB-\fR: no color for the current entry foreground
+ \fB\-\fR: no color for the current entry foreground
  \fB4\fR: blue current entry background
 .sp
 Default colors are: \fBb6b1b2b40\fR
@@ -157,19 +160,21 @@ Default colors are: \fBb6b1b2b40\fR
 .BR "ls | fzy"
 Present a menu of items in the current directory
 .TP
-.BR "ls | fzy -l 25"
+.BR "ls | fzy \-l 25"
 Same as above, but show 25 lines of items
 .TP
-.BR "vi $(find -type f | fzy)"
+.BR "vi $(find \-type f | fzy)"
 List files under the current directory and open the one selected in vi.
 .TP
-.BR "cd $(find -type d | fzy)"
+.BR "cd $(find \-type d | fzy)"
 Present all directories under current path, and change to the one selected.
 .TP
 .BR "ps aux | fzy | awk '{ print $2 }' | xargs kill"
 List running processes, kill the selected process
 .TP
-.BR "git checkout $(git branch | cut -c 3- | fzy)"
+.BR "git checkout $(git branch | cut \-c 3\- | fzy)"
 Same as above, but switching git branches.
-.SH AUTHOR
+.SH AUTHORS
 John Hawthorn <john.hawthorn@gmail.com>
+
+L. Abramovich <johndoe.arch@outlook.com>
