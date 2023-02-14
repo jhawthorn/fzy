@@ -136,10 +136,12 @@ options_parse(options_t *options, int argc, char *argv[])
 			int l;
 			if (!strcmp(optarg, "max")) {
 				l = INT_MAX;
-			} else if (sscanf(optarg, "%d", &l) != 1 || l < 3) {
+//			} else if (sscanf(optarg, "%d", &l) != 1 || l < 3) {
+			} else if (sscanf(optarg, "%d", &l) != 1 || l < 2) {
 				fprintf(stderr, "Invalid format for --lines: %s\n", optarg);
-				fprintf(stderr, "Must be integer in range 3..\n");
-				usage(argv[0]);
+				fprintf(stderr, "Must be integer in range 2..\n");
+//				fprintf(stderr, "Must be integer in range 3..\n");
+//				usage(argv[0]);
 				exit(EXIT_FAILURE);
 			}
 			options->num_lines = l;
