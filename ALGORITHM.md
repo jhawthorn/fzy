@@ -59,7 +59,7 @@ both computation of the penalty for starting a gap and the score for a
 consecutive match.
 
 Using [this 
-algorithm](https://github.com/jhawthorn/fzy/blob/master/src/match.c#L58) fzy 
+algorithm](https://github.com/jhawthorn/fzy/blob/master/src/match.c#L105) fzy 
 is able to score based on the optimal match.
 
 * Gaps (negative score)
@@ -88,7 +88,7 @@ web interface.
 
 ## command-t, ctrlp-cmatcher
 
-Command is a plugin first released in 2010 intending to bring TextMate's
+Command-t is a plugin first released in 2010 intending to bring TextMate's
 "Go to File" feature to vim.
 
 Anecdotally, this algorithm works very well. The recursive nature makes it a little hard to 
