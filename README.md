@@ -2,21 +2,9 @@
 
 **fzy** is a fast, simple fuzzy text selector for the terminal with an advanced scoring algorithm.
 
-[Try it out online!](http://jhawthorn.github.io/fzy-demo)
+**Disclaimer**: This fork (originaly intended to make fzy work with [the clifm file manager](https://github.com/leo-arch/clifm)) adds a few new features to the origianl fzy, including basic color support and multi-selection. Consult the manpage for more information.
 
 ![](http://i.hawth.ca/u/fzy_animated_demo.svg)
-
-<blockquote>
-It's been kind of life-changing.
--<a href="https://github.com/graygilmore/">@graygilmore</a>
-</blockquote>
-
-<blockquote>
-fzy works great btw
--<a href="https://twitter.com/alexblackie/status/719297828892188672">@alexblackie</a>
-</blockquote>
-
- [![Build Status](https://github.com/jhawthorn/fzy/workflows/CI/badge.svg)](https://github.com/jhawthorn/fzy/actions)
 
 ## Why use this over fzf, pick, selecta, ctrlp, ...?
 
@@ -34,32 +22,13 @@ Rather than clearing the screen, fzy displays its interface directly below the c
 
 ## Installation
 
-**macOS**
-
-Using Homebrew
-
-    brew install fzy
-
-Using MacPorts
-
-    sudo port install fzy
-
-**[Arch Linux](https://www.archlinux.org/packages/?sort=&q=fzy&maintainer=&flagged=)/MSYS2**: `pacman -S fzy`
-
-**[FreeBSD](https://www.freebsd.org/cgi/ports.cgi?query=fzy&stype=all)**: `pkg install fzy`
-
-**[Gentoo Linux](https://packages.gentoo.org/packages/app-shells/fzy)**: `emerge -av app-shells/fzy`
-
-**[Ubuntu](https://packages.ubuntu.com/search?keywords=fzy&searchon=names&suite=bionic&section=all)/[Debian](https://packages.debian.org/search?keywords=fzy&searchon=names&suite=all&section=all)**: `apt-get install fzy`
-
-**[pkgsrc](http://pkgsrc.se/misc/fzy) (NetBSD and others)**: `pkgin install fzy`
-
-**[openSUSE](https://software.opensuse.org/package/fzy)**: `zypper in fzy`
-
-### From source
-
-    make
-    sudo make install
+```sh
+mkdir build && cd build
+git clone https://github.com/leo-arch/fzy
+cd fzy
+make
+sudo make install
+```
 
 The `PREFIX` environment variable can be used to specify the install location,
 the default is `/usr/local`.
@@ -98,6 +67,14 @@ nnoremap <leader>v :call FzyCommand("ag . --silent -l -g ''", ":vs")<cr>
 nnoremap <leader>s :call FzyCommand("ag . --silent -l -g ''", ":sp")<cr>
 ```
 
+### Use with [clifm](https://github.com/leo-arch/clifm)
+
+Just run clifm as follows:
+
+```sh
+clifm --fzytab
+```
+
 ## Sorting
 
 fzy attempts to present the best matches first. The following considerations are weighted when sorting:
@@ -109,9 +86,3 @@ It prefers matching the beginning of words: `amp` is likely to match <tt><b>a</b
 It prefers shorter matches: `abce` matches <tt><b>abc</b>d<b>e</b>f</tt> over <tt><b>abc</b> d<b>e</b></tt>.
 
 It prefers shorter candidates: `test` matches <tt><b>test</b>s</tt> over <tt><b>test</b>ing</b></tt>.
-
-## See Also
-
-* [fzy.js](https://github.com/jhawthorn/fzy.js) Javascript port
-
-

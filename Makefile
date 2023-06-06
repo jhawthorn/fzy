@@ -1,4 +1,4 @@
-VERSION=1.0
+VERSION=1.1
 
 CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
 CFLAGS+=-MD -Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla
@@ -31,11 +31,11 @@ check: test/fzytest
 fzy: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-%.o: %.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+#%.o: %.c config.h
+#	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-config.h: src/config.def.h
-	cp src/config.def.h config.h
+#config.h: src/config.def.h
+#	cp src/config.def.h config.h
 
 install: fzy
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -45,15 +45,20 @@ install: fzy
 	cp fzy.1 $(DESTDIR)$(MANDIR)/man1/
 	chmod 644 ${DESTDIR}${MANDIR}/man1/fzy.1
 
+uninstall:
+	rm -- $(DESTDIR)$(BINDIR)/fzy
+	rm -- $(DESTDIR)$(MANDIR)/fzy.1
+
 fmt:
 	clang-format -i src/*.c src/*.h
 
 clean:
 	rm -f fzy test/fzytest src/*.o src/*.d deps/*/*.o
 
-veryclean: clean
-	rm -f config.h
+#veryclean: clean
+#	rm -f config.h
 
-.PHONY: test check all clean veryclean install fmt acceptance
+#.PHONY: test check all clean veryclean install fmt acceptance
+.PHONY: test check all clean install fmt acceptance
 
 -include $(OBJECTS:.o=.d)

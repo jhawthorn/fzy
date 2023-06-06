@@ -11,9 +11,11 @@
 #include "options.h"
 #include "tty_interface.h"
 
-#include "../config.h"
+#include "config.h"
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
 	int ret = 0;
 
 	options_t options;
