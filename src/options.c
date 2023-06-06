@@ -6,7 +6,7 @@
 
 #include "options.h"
 
-#include "../config.h"
+#include "config.h"
 
 static const char *usage_str =
     ""
@@ -101,7 +101,7 @@ options_parse(options_t *options, int argc, char *argv[])
 	while ((c = getopt_long(argc, argv, "mvhs0e:q:l:t:p:P:j:i", longopts, NULL)) != -1) {
 		switch (c) {
 		case 'v':
-			printf("%s %s © 2014-2018 John Hawthorn\n", argv[0], VERSION);
+			printf("%s\n", VERSION);
 			exit(EXIT_SUCCESS);
 		case 's': options->show_scores = 1;	break;
 		case '0': options->input_delimiter = '\0'; break;

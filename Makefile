@@ -1,4 +1,4 @@
-VERSION=1.0
+VERSION=1.1
 
 CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
 CFLAGS+=-MD -Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla
@@ -31,11 +31,11 @@ check: test/fzytest
 fzy: $(OBJECTS)
 	$(CC) $(CFLAGS) $(CCFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
-%.o: %.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+#%.o: %.c config.h
+#	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
 
-config.h: src/config.def.h
-	cp src/config.def.h config.h
+#config.h: src/config.def.h
+#	cp src/config.def.h config.h
 
 install: fzy
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -55,9 +55,10 @@ fmt:
 clean:
 	rm -f fzy test/fzytest src/*.o src/*.d deps/*/*.o
 
-veryclean: clean
-	rm -f config.h
+#veryclean: clean
+#	rm -f config.h
 
-.PHONY: test check all clean veryclean install fmt acceptance
+#.PHONY: test check all clean veryclean install fmt acceptance
+.PHONY: test check all clean install fmt acceptance
 
 -include $(OBJECTS:.o=.d)

@@ -11,7 +11,7 @@
 
 #include "tty.h"
 
-#include "../config.h"
+#include "config.h"
 
 void
 tty_reset(tty_t *tty)

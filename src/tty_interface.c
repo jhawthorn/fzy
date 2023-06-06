@@ -5,7 +5,7 @@
 
 #include "match.h"
 #include "tty_interface.h"
-#include "../config.h"
+#include "config.h"
 
 #ifndef PATH_MAX
 # ifdef __linux__

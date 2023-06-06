@@ -1,7 +1,7 @@
 #ifndef BONUS_H
 #define BONUS_H BONUS_H
 
-#include "../config.h"
+#include "config.h"
 
 #define ASSIGN_LOWER(v) \
 	['a'] = (v), \

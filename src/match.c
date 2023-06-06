@@ -9,7 +9,7 @@
 #include "match.h"
 #include "bonus.h"
 
-#include "../config.h"
+#include "config.h"
 
 char *
 strcasechr(const char *s, char c)
