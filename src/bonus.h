@@ -3,6 +3,10 @@
 
 #include "../config.h"
 
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #define ASSIGN_LOWER(v) \
 	['a'] = (v), \
 	['b'] = (v), \
@@ -104,5 +108,9 @@ const size_t bonus_index[256] = {
 };
 
 #define COMPUTE_BONUS(last_ch, ch) (bonus_states[bonus_index[(unsigned char)(ch)]][(unsigned char)(last_ch)])
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

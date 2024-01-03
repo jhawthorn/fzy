@@ -1,7 +1,13 @@
 #ifndef TTY_H
 #define TTY_H TTY_H
 
+#include <stddef.h>
+#include <stdio.h>
 #include <termios.h>
+
+#ifdef __cplusplus 
+extern "C" {
+#endif
 
 typedef struct {
 	int fdin;
@@ -56,5 +62,9 @@ void tty_flush(tty_t *tty);
 
 size_t tty_getwidth(tty_t *tty);
 size_t tty_getheight(tty_t *tty);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
