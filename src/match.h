@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -17,7 +17,7 @@ int has_match(const char *needle, const char *haystack);
 score_t match_positions(const char *needle, const char *haystack, size_t *positions);
 score_t match(const char *needle, const char *haystack);
 
-#ifdef __cplusplus 
+#ifdef __cplusplus
 }
 #endif
 
