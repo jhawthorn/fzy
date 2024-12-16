@@ -245,7 +245,9 @@ static void action_autocomplete(tty_interface_t *state) {
 }
 
 static void action_exit(tty_interface_t *state) {
-	clear(state);
+	if (state->options->clear_after_exiting) {
+		clear(state);
+	}
 	tty_close(state->tty);
 
 	state->exit = EXIT_FAILURE;
