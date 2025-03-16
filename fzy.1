@@ -45,6 +45,18 @@ Non-interactive mode. Print the matches in sorted order for QUERY to stdout.
 Read input delimited by ASCII NUL characters.
 .
 .TP
+.BR \-d ", " \-\-delimiter =\fIDELIM\fR
+Use DELIM to split the line to fields (default ':')
+.
+.TP
+.BR \-f ", " \-\-field =\fINUM\fR
+Use field NUM for search (default is the whole line)
+.
+.TP
+.BR \-F ", " \-\-output\-field =\fINUM\fR
+Use field NUM for output (default is the whole line)
+.
+.TP
 .BR \-h ", " \-\-help
 Usage help.
 .
@@ -99,5 +111,9 @@ List running processes, kill the selected process
 .TP
 .BR "git checkout $(git branch | cut -c 3- | fzy)"
 Same as above, but switching git branches.
+.TP
+.BR "cat /etc/passwd | fzy -d: -f1 -F6"
+Fuzzy-search the first field delimited by ':' and then print the sixth field.
+In this case, searching by username, and then outputting their home directory
 .SH AUTHOR
 John Hawthorn <john.hawthorn@gmail.com>
