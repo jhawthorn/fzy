@@ -1,3 +1,7 @@
+#ifdef __cplusplus 
+extern "C" {
+#endif
+
 #define TTY_COLOR_HIGHLIGHT TTY_COLOR_YELLOW
 
 #define SCORE_GAP_LEADING -0.005
@@ -18,3 +22,7 @@
 #define DEFAULT_WORKERS 0
 #define DEFAULT_SHOW_INFO 0
 #define DEFAULT_DELIMITER ':'
+
+#ifdef __cplusplus 
+}
+#endif

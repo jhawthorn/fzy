@@ -1,6 +1,10 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H OPTIONS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	int benchmark;
 	const char *filter;
@@ -20,5 +24,9 @@ typedef struct {
 
 void options_init(options_t *options);
 void options_parse(options_t *options, int argc, char *argv[]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

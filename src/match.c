@@ -187,7 +187,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 	D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 
-	score_t *last_D, *last_M;
+	score_t *last_D = NULL, *last_M = NULL;
 	score_t *curr_D, *curr_M;
 
 	for (int i = 0; i < n; i++) {
