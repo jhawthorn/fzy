@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 		for (size_t i = 0; i < choices_available(&choices); i++) {
 			if (options.show_scores)
 				printf("%f\t", choices_getscore(&choices, i));
-			printf("%s\n", choices_get(&choices, i));
+			printf("%s\n", choices_get_result(&choices, i));
 		}
 	} else {
 		/* interactive */
