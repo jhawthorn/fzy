@@ -21,6 +21,7 @@ extern "C" {
 #define DEFAULT_NUM_LINES 10
 #define DEFAULT_WORKERS 0
 #define DEFAULT_SHOW_INFO 0
+#define DEFAULT_DELIMITER ':'
 
 #ifdef __cplusplus 
 }
