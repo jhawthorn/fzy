@@ -1,8 +1,12 @@
+> [!IMPORTANT]
+> This project is not maintained anymore. If interested, refer to [fnf](https://github.com/leo-arch/fnf).
+
 ![fzy](http://i.hawth.ca/u/fzy-github.svg)
 
 **fzy** is a fast, simple fuzzy text selector for the terminal with an advanced scoring algorithm.
 
-**Disclaimer**: This fork (originaly intended to make fzy work with [the clifm file manager](https://github.com/leo-arch/clifm)) adds a few new features to the origianl fzy, including basic color support and multi-selection. Consult the manpage for more information.
+> [!NOTE]
+> This fork (originaly intended to make fzy work with [the clifm file manager](https://github.com/leo-arch/clifm)) adds a few new features to the origianl fzy, including basic color support and multi-selection. Consult the manpage for more information.
 
 ![](http://i.hawth.ca/u/fzy_animated_demo.svg)
 
