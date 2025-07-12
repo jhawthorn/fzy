@@ -28,8 +28,6 @@ int has_match(const char *needle, const char *haystack) {
 	return 1;
 }
 
-#define SWAP(x, y, T) do { T SWAP = x; x = y; y = SWAP; } while (0)
-
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
 struct match_struct {
@@ -81,6 +79,8 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 	score_t prev_score = SCORE_MIN;
 	score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
+	score_t prev_M, prev_D;
+
 	for (int j = 0; j < m; j++) {
 		if (lower_needle[i] == lower_haystack[j]) {
 			score_t score = SCORE_MIN;
@@ -88,14 +88,18 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 				score = (j * SCORE_GAP_LEADING) + match_bonus[j];
 			} else if (j) { /* i > 0 && j > 0*/
 				score = max(
-						last_M[j - 1] + match_bonus[j],
+						prev_M + match_bonus[j],
 
 						/* consecutive match, doesn't stack with match_bonus */
-						last_D[j - 1] + SCORE_MATCH_CONSECUTIVE);
+						prev_D + SCORE_MATCH_CONSECUTIVE);
 			}
+			prev_D = last_D[j];
+			prev_M = last_M[j];
 			curr_D[j] = score;
 			curr_M[j] = prev_score = max(score, prev_score + gap_score);
 		} else {
+			prev_D = last_D[j];
+			prev_M = last_M[j];
 			curr_D[j] = SCORE_MIN;
 			curr_M[j] = prev_score = prev_score + gap_score;
 		}
@@ -131,24 +135,13 @@ score_t match(const char *needle, const char *haystack) {
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
 	 */
-	score_t D[2][MATCH_MAX_LEN], M[2][MATCH_MAX_LEN];
-
-	score_t *last_D, *last_M;
-	score_t *curr_D, *curr_M;
-
-	last_D = D[0];
-	last_M = M[0];
-	curr_D = D[1];
-	curr_M = M[1];
+	score_t D[MATCH_MAX_LEN], M[MATCH_MAX_LEN];
 
 	for (int i = 0; i < n; i++) {
-		match_row(&match, i, curr_D, curr_M, last_D, last_M);
-
-		SWAP(curr_D, last_D, score_t *);
-		SWAP(curr_M, last_M, score_t *);
+		match_row(&match, i, D, M, D, M);
 	}
 
-	return last_M[m - 1];
+	return M[m - 1];
 }
 
 score_t match_positions(const char *needle, const char *haystack, size_t *positions) {
@@ -187,17 +180,9 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 	M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 	D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
 
-	score_t *last_D = NULL, *last_M = NULL;
-	score_t *curr_D, *curr_M;
-
-	for (int i = 0; i < n; i++) {
-		curr_D = &D[i][0];
-		curr_M = &M[i][0];
-
-		match_row(&match, i, curr_D, curr_M, last_D, last_M);
-
-		last_D = curr_D;
-		last_M = curr_M;
+	match_row(&match, 0, D[0], M[0], D[0], M[0]);
+	for (int i = 1; i < n; i++) {
+		match_row(&match, i, D[i], M[i], D[i - 1], M[i - 1]);
 	}
 
 	/* backtrace to find the positions of optimal matching */
