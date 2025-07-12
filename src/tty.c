@@ -39,7 +39,7 @@ void tty_init(tty_t *tty, const char *tty_filename) {
 		exit(EXIT_FAILURE);
 	}
 
-	if (setvbuf(tty->fout, NULL, _IOFBF, 4096)) {
+	if (setvbuf(tty->fout, NULL, _IOFBF, 16384)) {
 		perror("setvbuf");
 		exit(EXIT_FAILURE);
 	}
