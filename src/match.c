@@ -79,7 +79,8 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 	score_t prev_score = SCORE_MIN;
 	score_t gap_score = i == n - 1 ? SCORE_GAP_TRAILING : SCORE_GAP_INNER;
 
-	score_t prev_M, prev_D;
+	/* These will not be used with this value, but not all compilers see it */
+	score_t prev_M = SCORE_MIN, prev_D = SCORE_MIN;
 
 	for (int j = 0; j < m; j++) {
 		if (lower_needle[i] == lower_haystack[j]) {
