@@ -9,26 +9,28 @@
 #include "greatest/greatest.h"
 
 #define ASSERT_SIZE_T_EQ(a,b) ASSERT_EQ_FMT((size_t)(a), (b), "%zu")
+#define ASSERT_TRUE(cond) ASSERT_FALSE(!cond)
 
 static options_t default_options;
 static choices_t choices;
 
 static void setup(void *udata) {
-    (void)udata;
+	(void)udata;
 
-    options_init(&default_options);
-    choices_init(&choices, &default_options);
+	options_init(&default_options);
+	choices_init(&choices, &default_options);
 }
 
 static void teardown(void *udata) {
-    (void)udata;
-    choices_destroy(&choices);
+	(void)udata;
+	choices_destroy(&choices);
 }
 
 TEST test_choices_empty() {
 	ASSERT_SIZE_T_EQ(0, choices.size);
 	ASSERT_SIZE_T_EQ(0, choices.available);
 	ASSERT_SIZE_T_EQ(0, choices.selection);
+	ASSERT_SIZE_T_EQ(0, choices.selections.size);
 
 	choices_prev(&choices);
 	ASSERT_SIZE_T_EQ(0, choices.selection);
@@ -157,6 +159,30 @@ TEST test_choices_large_input() {
 	PASS();
 }
 
+TEST test_choices_multi_select() {
+	choices_add(&choices, "tags");
+	choices_add(&choices, "test");
+	choices_search(&choices, "");
+
+	const char *first_choice = choices_get(&choices, 0);
+	ASSERT_FALSE(choices_selected(&choices, first_choice));
+	choices_select(&choices, first_choice);
+	ASSERT_TRUE(choices_selected(&choices, first_choice));
+	ASSERT_SIZE_T_EQ(1, choices.selections.size);
+
+	const char *second_choice = choices_get(&choices, 1);
+	ASSERT_FALSE(choices_selected(&choices, second_choice));
+	choices_select(&choices, second_choice);
+	ASSERT_TRUE(choices_selected(&choices, second_choice));
+	ASSERT_SIZE_T_EQ(2, choices.selections.size);
+
+	choices_deselect(&choices, second_choice);
+	ASSERT_FALSE(choices_selected(&choices, second_choice));
+	ASSERT_SIZE_T_EQ(1, choices.selections.size);
+
+	PASS();
+}
+
 SUITE(choices_suite) {
 	SET_SETUP(setup, NULL);
 	SET_TEARDOWN(teardown, NULL);
@@ -167,4 +193,5 @@ SUITE(choices_suite) {
 	RUN_TEST(test_choices_without_search);
 	RUN_TEST(test_choices_unicode);
 	RUN_TEST(test_choices_large_input);
+	RUN_TEST(test_choices_multi_select);
 }
