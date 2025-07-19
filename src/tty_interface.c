@@ -91,6 +91,7 @@ static void draw(tty_interface_t *state) {
 		}
 	}
 
+	tty_hide_cursor(tty);
 	tty_setcol(tty, 0);
 	tty_printf(tty, "%s%s", options->prompt, state->search);
 	tty_clearline(tty);
@@ -116,6 +117,8 @@ static void draw(tty_interface_t *state) {
 	fputs(options->prompt, tty->fout);
 	for (size_t i = 0; i < state->cursor; i++)
 		fputc(state->search[i], tty->fout);
+
+	tty_unhide_cursor(tty);
 	tty_flush(tty);
 }
 
@@ -353,14 +356,16 @@ static void handle_input(tty_interface_t *state, const char *s, int handle_ambig
 
 	/* We could have a complete keybinding, or could be in the middle of one.
 	 * We'll need to wait a few milliseconds to find out. */
-	if (found_keybinding != -1 && in_middle) {
+/*	if (found_keybinding != -1 && in_middle) {
+		state->ambiguous_key_pending = 1;
+		return;
+	} */
+
+	/* Wait for more if we are in the middle of a keybinding */
+	if (in_middle) {
 		state->ambiguous_key_pending = 1;
 		return;
 	}
-
-	/* Wait for more if we are in the middle of a keybinding */
-	if (in_middle)
-		return;
 
 	/* No matching keybinding, add to search */
 	for (int i = 0; input[i]; i++)
@@ -383,6 +388,9 @@ int tty_interface_run(tty_interface_t *state) {
 
 			char s[2] = {tty_getchar(state->tty), '\0'};
 			handle_input(state, s, 0);
+
+			if (state->ambiguous_key_pending == 1)
+				continue;
 
 			if (state->exit >= 0)
 				return state->exit;

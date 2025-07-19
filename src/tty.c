@@ -198,3 +198,11 @@ size_t tty_getwidth(tty_t *tty) {
 size_t tty_getheight(tty_t *tty) {
 	return tty->maxheight;
 }
+
+void tty_hide_cursor(tty_t *tty) {
+	fputs("\x1b[?25l", tty->fout);
+}
+
+void tty_unhide_cursor(tty_t *tty) {
+	fputs("\x1b[?25h", tty->fout);
+}
