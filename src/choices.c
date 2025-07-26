@@ -265,11 +265,14 @@ void choices_search(choices_t *c, const char *search) {
 	choices_reset_search(c);
 
 	struct search_job *job = calloc(1, sizeof(struct search_job));
+	if (job == NULL) {
+		errx(EXIT_FAILURE, "Failed to allocate memory for search_job");
+	}
 	job->search = search;
 	job->choices = c;
 	if (pthread_mutex_init(&job->lock, NULL) != 0) {
-		fprintf(stderr, "Error: pthread_mutex_init failed\n");
-		abort();
+		free(job);
+		errx(EXIT_FAILURE, "pthread_mutex_init failed");
 	}
 	job->workers = calloc(c->worker_count, sizeof(struct worker));
 
