@@ -63,6 +63,9 @@ void tty_flush(tty_t *tty);
 size_t tty_getwidth(tty_t *tty);
 size_t tty_getheight(tty_t *tty);
 
+void tty_hide_cursor(tty_t *tty);
+void tty_unhide_cursor(tty_t *tty);
+
 #ifdef __cplusplus
 }
 #endif
