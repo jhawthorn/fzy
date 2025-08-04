@@ -50,6 +50,10 @@ static void draw_match(tty_interface_t *state, const char *choice, int selected)
 		}
 	}
 
+	if (choices_selected(state->choices, choice)) {
+		tty_setbold(tty);
+	}
+
 	if (selected)
 #ifdef TTY_SELECTION_UNDERLINE
 		tty_setunderline(tty);
@@ -131,6 +135,20 @@ static void update_state(tty_interface_t *state) {
 	}
 }
 
+static void action_select(tty_interface_t *state) {
+	update_state(state);
+
+	const char *selection = choices_get(state->choices, state->choices->selection);
+	if (selection) {
+		if (choices_selected(state->choices, selection)) {
+			choices_deselect(state->choices, selection);
+		} else {
+			choices_select(state->choices, selection);
+		}
+		choices_next(state->choices);
+	}
+}
+
 static void action_emit(tty_interface_t *state) {
 	update_state(state);
 
@@ -140,13 +158,21 @@ static void action_emit(tty_interface_t *state) {
 	/* ttyout should be flushed before outputting on stdout */
 	tty_close(state->tty);
 
-	const char *selection = choices_get(state->choices, state->choices->selection);
-	if (selection) {
-		/* output the selected result */
-		printf("%s\n", selection);
+	/* If no choices were selected with multi-select, use the choice under
+	 * the cursor */
+	if (!state->choices->selections.size) {
+		const char *selection = choices_get(state->choices, state->choices->selection);
+		if (selection) {
+			/* output the result */
+			printf("%s\n", selection);
+		} else {
+			/* No match, output the query instead */
+			printf("%s\n", state->search);
+		}
 	} else {
-		/* No match, output the query instead */
-		printf("%s\n", state->search);
+		for (size_t i = 0; i < state->choices->selections.size; i++) {
+			printf("%s\n", state->choices->selections.strings[i]);
+		}
 	}
 
 	state->exit = EXIT_SUCCESS;
@@ -265,6 +291,7 @@ static void append_search(tty_interface_t *state, char ch) {
 void tty_interface_init(tty_interface_t *state, tty_t *tty, choices_t *choices, options_t *options) {
 	state->tty = tty;
 	state->choices = choices;
+
 	state->options = options;
 	state->ambiguous_key_pending = 0;
 
@@ -300,6 +327,7 @@ static const keybinding_t keybindings[] = {{"\x1b", action_exit},       /* ESC *
 					   {KEY_CTRL('D'), action_exit},	 /* C-D */
 					   {KEY_CTRL('G'), action_exit},	 /* C-G */
 					   {KEY_CTRL('M'), action_emit},	 /* CR */
+					   {KEY_CTRL('T'), action_select},	 /* C-T */
 					   {KEY_CTRL('P'), action_prev},	 /* C-P */
 					   {KEY_CTRL('N'), action_next},	 /* C-N */
 					   {KEY_CTRL('K'), action_prev},	 /* C-K */
