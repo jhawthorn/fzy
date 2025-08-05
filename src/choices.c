@@ -89,6 +89,8 @@ void choices_fread(choices_t *c, FILE *file, char input_delimiter) {
 
 static void choices_resize(choices_t *c, size_t new_capacity) {
 	c->strings = safe_realloc(c->strings, new_capacity * sizeof(const char *));
+	if (c->field)
+		c->nfields = safe_realloc(c->nfields, new_capacity * sizeof(unsigned int));
 	c->capacity = new_capacity;
 }
 
@@ -100,13 +102,13 @@ static void choices_reset_search(choices_t *c) {
 
 void choices_init(choices_t *c, options_t *options) {
 	c->strings = NULL;
+	c->nfields = NULL;
 	c->results = NULL;
 
 	c->buffer_size = 0;
 	c->buffer = NULL;
 
 	c->capacity = c->size = 0;
-	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
 	if (options->workers) {
 		c->worker_count = options->workers;
@@ -114,6 +116,11 @@ void choices_init(choices_t *c, options_t *options) {
 		c->worker_count = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	}
 
+	c->delimiter = options->delimiter;
+	c->field = options->field;
+	c->output_field = options->output_field;
+
+	choices_resize(c, INITIAL_CHOICE_CAPACITY);
 	choices_reset_search(c);
 }
 
@@ -126,19 +133,42 @@ void choices_destroy(choices_t *c) {
 	c->strings = NULL;
 	c->capacity = c->size = 0;
 
+	if (c->field) {
+		free(c->nfields);
+		c->nfields = NULL;
+	}
+
 	free(c->results);
 	c->results = NULL;
 	c->available = c->selection = 0;
 }
 
-void choices_add(choices_t *c, const char *choice) {
+void choices_add(choices_t *c, char *line) {
+	char *choice = line;
+	unsigned int fields = 1;
+
+	if (c->field) {
+		char *field = line;
+
+		while ((field = strchr(field, c->delimiter)) != NULL) {
+			*field++ = '\0';
+			if (++fields == c->field)
+				choice = field;
+		}
+
+		if (fields < c->field || fields < c->output_field)
+			return;
+	}
+
 	/* Previous search is now invalid */
 	choices_reset_search(c);
 
-	if (c->size == c->capacity) {
+	if (c->size == c->capacity)
 		choices_resize(c, c->capacity * 2);
-	}
-	c->strings[c->size++] = choice;
+	c->strings[c->size] = choice;
+	if (c->field)
+		c->nfields[c->size] = fields;
+	++c->size;
 }
 
 size_t choices_available(choices_t *c) {
@@ -231,7 +261,7 @@ static void *choices_search_worker(void *data) {
 
 		for(size_t i = start; i < end; i++) {
 			if (has_match(job->search, c->strings[i])) {
-				result->list[result->size].str = c->strings[i];
+				result->list[result->size].str = i;
 				result->list[result->size].score = match(job->search, c->strings[i]);
 				result->size++;
 			}
@@ -313,10 +343,41 @@ void choices_search(choices_t *c, const char *search) {
 }
 
 const char *choices_get(choices_t *c, size_t n) {
-	if (n < c->available) {
-		return c->results[n].str;
-	} else {
+	if (n >= c->available)
 		return NULL;
+
+	return c->strings[c->results[n].str];
+}
+
+const char *choices_get_result(choices_t *c, size_t n) {
+	char *ptr = (char *)choices_get(c, n);
+	if (!ptr || !c->field)
+		return ptr;
+
+	/* Find the first field */
+	for (unsigned int i = c->field; i; --i) {
+		do {
+			--ptr;
+		} while (*ptr && ptr != c->buffer);
+	}
+
+	char *line = (!*ptr ? ptr + 1 : ptr);
+	ptr = line;
+
+	if (c->output_field) {
+		/* Find the output field */
+		for (unsigned int i = 1; i != c->output_field; ++i) {
+			while (*ptr++);
+		}
+		return ptr;
+	} else {
+		/* Put back all delimiters */
+		unsigned int nfields = c->nfields[c->results[n].str];
+		for (unsigned int i = 1; i != nfields; ++i) {
+			for (;*ptr; ++ptr);
+			*ptr = c->delimiter;
+		}
+		return line;
 	}
 }
 

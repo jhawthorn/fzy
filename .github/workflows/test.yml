@@ -50,15 +50,15 @@ jobs:
     name: Acceptance Tests
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.4'
-        bundler-cache: true
-        working-directory: test/acceptance
-    - name: Compile fzy
-      run: |
-        make
-    - name: Run acceptance tests
-      run: make acceptance
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+          working-directory: test/acceptance
+      - name: Compile fzy
+        run: |
+          make
+      - name: Run acceptance tests
+        run: make acceptance
