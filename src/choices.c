@@ -295,6 +295,10 @@ void choices_search(choices_t *c, const char *search) {
 	choices_reset_search(c);
 
 	struct search_job *job = calloc(1, sizeof(struct search_job));
+	if (!job) {
+		fprintf(stderr, "Error: Can't allocate memory\n");
+		abort();
+	}
 	job->search = search;
 	job->choices = c;
 	if (pthread_mutex_init(&job->lock, NULL) != 0) {
@@ -302,6 +306,10 @@ void choices_search(choices_t *c, const char *search) {
 		abort();
 	}
 	job->workers = calloc(c->worker_count, sizeof(struct worker));
+	if (!job->workers) {
+		fprintf(stderr, "Error: Can't allocate memory\n");
+		abort();
+	}
 
 	struct worker *workers = job->workers;
 	for (int i = c->worker_count - 1; i >= 0; i--) {
@@ -309,6 +317,10 @@ void choices_search(choices_t *c, const char *search) {
 		workers[i].worker_num = i;
 		workers[i].result.size = 0;
 		workers[i].result.list = malloc(c->size * sizeof(struct scored_result)); /* FIXME: This is overkill */
+		if (!workers[i].result.list) {
+			fprintf(stderr, "Error: Can't allocate memory\n");
+			abort();
+		}
 
 		/* These must be created last-to-first to avoid a race condition when fanning in */
 		if ((errno = pthread_create(&workers[i].thread_id, NULL, &choices_search_worker, &workers[i]))) {

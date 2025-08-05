@@ -72,7 +72,7 @@ void options_parse(options_t *options, int argc, char *argv[]) {
 	while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:id:f:F:", longopts, NULL)) != -1) {
 		switch (c) {
 			case 'v':
-				printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
+				printf("%s " VERSION " © 2014-2025 John Hawthorn\n", argv[0]);
 				exit(EXIT_SUCCESS);
 			case 's':
 				options->show_scores = 1;

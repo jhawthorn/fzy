@@ -48,7 +48,7 @@ Using MacPorts
 
 **[FreeBSD](https://www.freebsd.org/cgi/ports.cgi?query=fzy&stype=all)**: `pkg install fzy`
 
-**[Gentoo Linux](https://packages.gentoo.org/packages/app-shells/fzy)**: `emerge -av app-shells/fzy`
+**[Gentoo Linux](https://packages.gentoo.org/packages/app-text/fzy)**: `emerge -av app-text/fzy`
 
 **[Ubuntu](https://packages.ubuntu.com/search?keywords=fzy&searchon=names&suite=bionic&section=all)/[Debian](https://packages.debian.org/search?keywords=fzy&searchon=names&suite=all&section=all)**: `apt-get install fzy`
 

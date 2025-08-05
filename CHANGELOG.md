@@ -1,3 +1,15 @@
+## 1.1 (2025-07-12)
+
+Features:
+
+  - Add `-i`/`--show-info` to display selection information
+  - Add `-0` to use null as input delimiter
+  - Support Ctrl-G to cancel/exit
+
+Bugfixes:
+
+  - Avoid terminal flicker with large outputs
+
 ## 1.0 (2018-09-23)
 
 Features:

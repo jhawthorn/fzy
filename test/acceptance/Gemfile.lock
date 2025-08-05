@@ -1,0 +1,15 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    minitest (5.25.5)
+    ttytest (0.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  minitest
+  ttytest
+
+BUNDLED WITH
+   2.6.9
