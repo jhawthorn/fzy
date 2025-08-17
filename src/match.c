@@ -17,6 +17,10 @@ char *strcasechr(const char *s, char c) {
 }
 
 int has_match(const char *needle, const char *haystack) {
+    if (!needle || !haystack || !*needle) {
+        return 0;
+    }
+
 	while (*needle) {
 		char nch = *needle++;
 
@@ -108,7 +112,7 @@ static inline void match_row(const struct match_struct *match, int row, score_t 
 }
 
 score_t match(const char *needle, const char *haystack) {
-	if (!*needle)
+	if (!needle || !haystack || !*needle)
 		return SCORE_MIN;
 
 	struct match_struct match;
@@ -173,13 +177,18 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 		return SCORE_MAX;
 	}
 
+    // Allocate for both D and M matrices in one contiguous block
+    score_t *block = (score_t*)malloc(sizeof(score_t) * MATCH_MAX_LEN * n * 2);
+    if (!block) {
+        return SCORE_MIN;
+    }
 	/*
 	 * D[][] Stores the best score for this position ending with a match.
 	 * M[][] Stores the best possible score at this position.
 	 */
-	score_t (*D)[MATCH_MAX_LEN], (*M)[MATCH_MAX_LEN];
-	M = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
-	D = malloc(sizeof(score_t) * MATCH_MAX_LEN * n);
+	score_t (*D)[MATCH_MAX_LEN] = (score_t(*)[MATCH_MAX_LEN])block;
+	score_t (*M)[MATCH_MAX_LEN] = (score_t(*)[MATCH_MAX_LEN])(block
+														+ MATCH_MAX_LEN * n);
 
 	match_row(&match, 0, D[0], M[0], D[0], M[0]);
 	for (int i = 1; i < n; i++) {
@@ -217,8 +226,7 @@ score_t match_positions(const char *needle, const char *haystack, size_t *positi
 
 	score_t result = M[n - 1][m - 1];
 
-	free(M);
-	free(D);
+	free(block);
 
 	return result;
 }
